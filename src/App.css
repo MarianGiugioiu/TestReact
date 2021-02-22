@@ -1,0 +1,79 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+canvas {
+  background: black;
+  width: 50%;
+  height: 50%;
+}
+.generate-tree-button {
+  cursor: pointer;
+  outline: none;
+  border: none;
+  position: absolute;
+  left: 0;
+  bottom: 5%;
+  z-index: 10;
+  left: 50%;
+  transform: translate(-50%, 0);
+  padding: 20px 30px;
+  border-radius: 50px;
+  background: brown;
+  color: black;
+  font-size: 20px;
+  overflow: hidden;
+  width: 300px;
+}
+
+.slidecontainer {
+  padding: 10px 10px 0px 10px;
+}
+.slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 15px;
+  border-radius: 5px;  
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+#myRange4.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%; 
+  background:blue;
+  cursor: pointer;
+}
+#myRange3.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%; 
+  background:red;
+  cursor: pointer;
+}
+
+#myRange2.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%; 
+  background:green;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #4CAF50;
+  cursor: pointer;
+}
