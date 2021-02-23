@@ -7,6 +7,7 @@ export default function Canvas(props){
     const [spreadState, setSpreadState] = useState(1);
     const [nrState, setNrState] = useState(0.01);
     const [maxLevelState, setMaxLevelState] = useState(3);
+    const [shadowBlurState, setShadowBlurState] = useState(0);
     
     
     const drawTree = useCallback((context, startX, startY, len, angle, curve1, branchWidth, color1, color2)  => {
@@ -69,13 +70,13 @@ export default function Canvas(props){
         //drawTree(context2, canvas.width / 2, canvas.height -300 , len, 0, curve1, branchWidth, color1, color2);
     }, [])
 
-    const drawLine = useCallback((context, maxLevel, branches, angle, level, lineWidth)  => {
+    const drawLine = useCallback((context, maxLevel, branches, angle, level, lineWidth, shadowBlur)  => {
         if(level > maxLevel) return;
         //let color1 = 'rgb(' + Math.random() * 255 + ',' + Math.random() * 255 + ',' + Math.random() * 255 + ')';
         let color1 = 'white';
         context.strokeStyle = color1;
         context.lineWidth = lineWidth;
-        context.shadowBlur = 5;
+        context.shadowBlur = shadowBlur;
         context.shadowColor = "blue";
         const len = 200;
         context.beginPath();
@@ -98,7 +99,7 @@ export default function Canvas(props){
         }
     }, [])
 
-    const draw3 = useCallback((nr, spread, maxLevel)  => {
+    const draw3 = useCallback((nr, spread, maxLevel, shadowBlur)  => {
         const canvas = canvasRef1.current;
         const context = canvas.getContext('2d');
         var scale = 1;
@@ -113,7 +114,7 @@ export default function Canvas(props){
         const bigAngle = Math.PI * 2 / nr;
         context.translate(canvas.width/2, canvas.height/2);
         for (let i = 1; i <= nr; i++){
-            drawLine(context,maxLevel,branches,angle,0,lineWidth);
+            drawLine(context,maxLevel,branches,angle,0,lineWidth,shadowBlur);
             context.rotate(bigAngle);
         }
 
@@ -121,24 +122,32 @@ export default function Canvas(props){
 
     const changeNr = useCallback((event) => {
         let val = event.target.value;
-        setNrState(val)
+        setNrState(val);
 
-        draw3(val,spreadState,maxLevelState);
-    }, [draw3,nrState,spreadState,maxLevelState])
+        draw3(val,spreadState,maxLevelState,shadowBlurState);
+    }, [draw3,nrState,spreadState,maxLevelState,shadowBlurState])
 
     const changeSpread = useCallback((event) => {
         let val = event.target.value;
         setSpreadState(val);
 
-        draw3(nrState,val,maxLevelState);
-    }, [draw3,nrState,spreadState,maxLevelState])
+        draw3(nrState,val,maxLevelState,shadowBlurState);
+    }, [draw3,nrState,spreadState,maxLevelState,shadowBlurState])
 
     const changeMaxLevel = useCallback((event) => {
         let val = event.target.value;
-        setMaxLevelState(val)
+        setMaxLevelState(val);
 
-        draw3(nrState,spreadState,val);
-    }, [draw3,nrState,spreadState,maxLevelState])
+        draw3(nrState,spreadState,val,shadowBlurState);
+    }, [draw3,nrState,spreadState,maxLevelState,shadowBlurState])
+
+    const changeShadowBlur = useCallback((event) => {
+        let val = event.target.value;
+        setShadowBlurState(val);
+        console.log(shadowBlurState);
+
+        draw3(nrState,spreadState,maxLevelState,val);
+    }, [draw3,nrState,spreadState,maxLevelState,shadowBlurState])
 
     useEffect(() => {
         //setNrState(1);
@@ -153,24 +162,29 @@ export default function Canvas(props){
     }, [])
     
     return(
-        <div>
+        <>
             <div>
                 <canvas ref={canvasRef1} {...props}/>
             </div>
             <div>
                 {/*<canvas ref={canvasRef2} {...props}/>*/}
             </div>
-            <div className="slidecontainer">
-                    <input onInput={changeNr} defaultValue="1" type="range" step="1" min="1" max="20" className="slider" id="myRange4" />  
-            </div>
-            <div className="slidecontainer">
-                    <input onInput={changeSpread} defaultValue="0.01" type="range" step="0.01" min="0.51" max="0.99" className="slider" id="myRange3" />  
-            </div>
-            <div className="slidecontainer">
-                    <input onInput={changeMaxLevel} defaultValue="3" type="range" step="1" min="3" max="7" className="slider" id="myRange2" />  
-            </div>
+            <>
+                <div className="slidecontainer">
+                        <input onInput={changeNr} defaultValue="1" type="range" step="1" min="1" max="20" className="slider" id="myRange4" />  
+                </div>
+                <div className="slidecontainer">
+                        <input onInput={changeSpread} defaultValue="0.01" type="range" step="0.01" min="0.51" max="0.99" className="slider" id="myRange3" />  
+                </div>
+                <div className="slidecontainer">
+                        <input onInput={changeMaxLevel} defaultValue="1" type="range" step="1" min="3" max="7" className="slider" id="myRange2" />  
+                </div>
+                <div className="slidecontainer">
+                        <input onInput={changeShadowBlur} defaultValue="0" type="range" step="1" min="1" max="10" className="slider" id="myRange2" />  
+                </div>
+            </>
             
             {/*<button onClick={randomTree} className="generate-tree-button">Generate Random Tree</button>*/}
-        </div>
+        </>
     ) 
 }
