@@ -3,6 +3,11 @@
   padding: 0;
   box-sizing: border-box;
 }
+
+.column-div {
+  display: flex;
+  flex-direction: row;
+}
 canvas {
   background: black;
   width: 50%;

@@ -1,11 +1,12 @@
 import logo from './logo.svg';
 import './App.css';
-import Canvas from './Canvas';
+import SnowFlake from './SnowFlake';
+import Tree from './Tree';
 
 function App() {
   return (
     <main>
-      <Canvas />
+      <Tree />
     </main>
   );
 }
