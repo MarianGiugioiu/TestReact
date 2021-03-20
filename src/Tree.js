@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react'
 import Slider from 'react';
 import { ChromePicker } from 'react-color'
+import httpService from 'services/httpService';
 import img from './myImage.png';
 
 function useForceUpdate(){
@@ -137,78 +138,14 @@ export default function Canvas(props){
         setAngleListState(angleList.reverse());
         setCurveListState(curveList.reverse());
 
-        console.log(angleListState);
+        //console.log(angleListState);
 
         //console.log(angleList)
-        console.log("####")
+        //console.log("####")
         var sourceImageData = canvas.toDataURL("image/png");
         setImgUrl(sourceImageData);
 
     }, [bodyColorState,leafColorState, shadowColorState, angleListState, curveListState, lengthState, startXState, startYState, branchWidthState])
-
-    /*const existingTree = useCallback(()  => {
-        const canvas = canvasRef1.current;
-        const context = canvas.getContext('2d');
-
-        var scale = 2;
-        canvas.width = 800 * scale;
-        canvas.height = 600 * scale;
-        context.clearRect(0, 0, context.canvas.width, context.canvas.height)
-
-        let startX = startXState;
-
-        let startY = startYState;
-
-        let length = lengthState;
-
-        let branchWidth = branchWidthState;
-
-        //console.log(startX, startY, length, branchWidth)
-
-        //let color1 = 'rgb(' + Math.random() * 255 + ',' + Math.random() * 255 + ',' + Math.random() * 255 + ')';
-        //let color2 = 'rgb(' + Math.random() * 255 + ',' + Math.random() * 255 + ',' + Math.random() * 255 + ')';
-        var bodyColor = bodyColorState;
-        var leafColor = leafColorState;
-        var shadowColor = shadowColorState;
-
-        let curveList = [...curveListState];
-        let angleList = [...angleListState];
-
-        drawTree(false, context, startX, startY , length, branchWidth, 3, 0, angleList, curveList, bodyColor, leafColor, shadowColor);
-
-        console.log(angleList);
-
-        //console.log(angleList)
-        console.log("####")
-        var sourceImageData = canvas.toDataURL("image/png");
-        setImgUrl(sourceImageData);
-
-    }, [bodyColorState,leafColorState, shadowColorState, angleListState, curveListState, lengthState, startXState, startYState, branchWidthState])
-    
-
-    const changeBodyColorState = useCallback((event) => {
-        let val = event.rgb;
-        setbodyColorState(val);
-        //console.log(bodyColorState);
-        
-        existingTree();
-    }, [bodyColorState,existingTree])
-
-    const changeLeafColorState = useCallback((event) => {
-        let val = event.rgb;
-        setleafColorState(val);
-        //console.log(val);
-        
-        existingTree();
-    }, [leafColorState,existingTree])
-
-    const changeShadowColorState = useCallback((event) => {
-        let val = event.rgb;
-        setShadowColorState(val);
-        console.log(shadowColorState);
-        
-        existingTree();
-    }, [shadowColorState,existingTree])*/
 
     function existingTree ()  {
         const canvas = canvasRef1.current;
@@ -240,11 +177,12 @@ export default function Canvas(props){
 
         drawTree(false, context, startX, startY , length, branchWidth, 3, 0, angleList, curveList, bodyColor, leafColor, shadowColor);
 
-        console.log(angleList);
+        //console.log(angleList);
 
         //console.log(angleList)
-        console.log("####")
+        //console.log("####")
         var sourceImageData = canvas.toDataURL("image/png");
+        //console.log(sourceImageData);
         setImgUrl(sourceImageData);
 
     }
@@ -271,6 +209,43 @@ export default function Canvas(props){
         console.log(shadowColorState);
         
         //existingTree();
+    }
+
+    function saveTree() {
+        var options = {
+            "startX": startXState,
+            "startY": startYState,
+            "length": lengthState,
+            "branchWidth": branchWidthState,
+            "nrBranchesList": nrBranchesListState,
+            "angleList": angleListState,
+            "curveList": curveListState,
+            "bodyColor": bodyColorState,
+            "leafColor": leafColorState,
+            "shadowColor": shadowColorState
+        }
+        //console.log(JSON.stringify(options));
+        var fractal = {
+            "id": 0,
+            "name": "name2",
+            "description": "description",
+            "options": JSON.stringify(options),
+            "lastModified": null,
+            "account": {
+                "id": 1
+            }
+        }
+
+        //console.log(fractal);
+        httpService
+            .post('/fractal', fractal)
+            .then((response) => {
+                console.log('createStudent Response :');
+                console.log(response.data);
+            })
+            .catch((e) => {
+                console.log(e);
+            });
     }
 
     useEffect(() => {
@@ -316,6 +291,7 @@ export default function Canvas(props){
                 </div>
             </div>
             {<button onClick={existingTree}>Generate Previous Tree</button>}
+            {<button onClick={saveTree}>Save Tree</button>}
             {<button onClick={randomTree} className="generate-tree-button">Generate Random Tree</button>}
         </>
     ) 
