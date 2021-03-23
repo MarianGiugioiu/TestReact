@@ -1,15 +1,11 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react'
 import Slider from 'react';
 import { ChromePicker } from 'react-color'
-import httpService from 'services/httpService';
+import httpService from '../src/services/httpService';
 import img from './myImage.png';
 
-function useForceUpdate(){
-    const [value, setValue] = useState(0); // integer state
-    return () => setValue(value => value + 1); // update the state to force render
-}
 
-export default function Canvas(props){
+export default function Tree(props){
     const canvasRef1 = useRef(null);
     const canvasRef2 = useRef(null);
     const [imgUrl, setImgUrl] = useState(null);
@@ -106,8 +102,8 @@ export default function Canvas(props){
         const context = canvas.getContext('2d');
 
         var scale = 2;
-        canvas.width = 800 * scale;
-        canvas.height = 600 * scale;
+        canvas.width = 700 * scale;
+        canvas.height = 700 * scale;
         context.clearRect(0, 0, context.canvas.width, context.canvas.height)
 
         let startX = canvas.width / 2;
@@ -116,7 +112,7 @@ export default function Canvas(props){
         let startY = canvas.height -100;
         setStartYState(startY);
 
-        let length = Math.floor(Math.random() * 100 + 200);
+        let length = Math.floor(Math.random() * 50 + 250);
         setLengthState(length);
 
         let branchWidth = Math.floor(Math.random() * 20 + 20);
@@ -142,6 +138,14 @@ export default function Canvas(props){
 
         //console.log(angleList)
         //console.log("####")
+        /*context.beginPath();
+        context.save();
+        context.strokeStyle = 'blue';
+        context.fillStyle = 'red';
+        context.rect(100, 100, 100, 100);
+        context.stroke();
+        context.fill();*/
+
         var sourceImageData = canvas.toDataURL("image/png");
         setImgUrl(sourceImageData);
 
@@ -152,8 +156,8 @@ export default function Canvas(props){
         const context = canvas.getContext('2d');
 
         var scale = 2;
-        canvas.width = 800 * scale;
-        canvas.height = 600 * scale;
+        canvas.width = 700 * scale;
+        canvas.height = 700 * scale;
         context.clearRect(0, 0, context.canvas.width, context.canvas.height)
 
         let startX = startXState;
@@ -213,6 +217,7 @@ export default function Canvas(props){
 
     function saveTree() {
         var options = {
+            "type": "tree",
             "startX": startXState,
             "startY": startYState,
             "length": lengthState,
@@ -225,19 +230,34 @@ export default function Canvas(props){
             "shadowColor": shadowColorState
         }
         //console.log(JSON.stringify(options));
+
+        var currentdate = new Date(); 
+        var datetime = currentdate.getFullYear() + "-"
+                + (currentdate.getMonth() < 9 ? "0"+ (currentdate.getMonth() + 1) : (currentdate.getMonth() + 1))  + "-" 
+                + (currentdate.getDate() < 10 ? "0"+ currentdate.getDate() : currentdate.getDate()) + " "  
+                + currentdate.getHours() + ":"  
+                + currentdate.getMinutes() + ":" 
+                + currentdate.getSeconds();
+        console.log(datetime);
+
+        const canvas = canvasRef1.current;
+        var sourceImageData = canvas.toDataURL("image/png");
+
         var fractal = {
             "id": 0,
-            "name": "name2",
+            "type": "tree",
+            "name": "name5",
             "description": "description",
             "options": JSON.stringify(options),
-            "lastModified": null,
+            "dataURL": sourceImageData,
+            "lastModified": datetime,
             "account": {
                 "id": 1
             }
         }
 
         //console.log(fractal);
-        httpService
+        /*httpService
             .post('/fractal', fractal)
             .then((response) => {
                 console.log('createStudent Response :');
@@ -245,8 +265,46 @@ export default function Canvas(props){
             })
             .catch((e) => {
                 console.log(e);
-            });
+            });*/
+        var URL = "/fractal"
+        const requestOptions = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(fractal),
+            };
+    
+        fetch(URL, requestOptions)
+            .then(response => response.json())
+            .then(data => console.log(data));
+        
     }
+
+    const loadTree = useCallback(() => {
+        var URL = "/fractal/1";
+        
+        var fractal = {}
+        fetch(URL)
+        .then(response => response.json())
+        .then(data => {
+            var options = JSON.parse(data.options);
+            console.log(options);
+            setStartXState(options.startX);
+            setStartYState(options.startY);
+            setLengthState(options.length);
+            setBranchWidthState(options.branchWidth);
+            setNrBranchesListState(options.nrBranchesList);
+            setAngleListState(options.angleList);
+            setCurveListState(options.curveList);
+            setbodyColorState(options.bodyColor);
+            setleafColorState(options.leafColor);
+            setShadowColorState(options.shadowColor);
+        })
+
+    }, [])
+
+    useEffect(() => {
+        existingTree();
+    }, [loadTree])
 
     useEffect(() => {
         //drawTree(context, canvas.width / 2, canvas.height -30 , 30, 0, 8, 'brown', 'blue')
@@ -292,6 +350,7 @@ export default function Canvas(props){
             </div>
             {<button onClick={existingTree}>Generate Previous Tree</button>}
             {<button onClick={saveTree}>Save Tree</button>}
+            {<button onClick={loadTree}>Load Tree</button>}
             {<button onClick={randomTree} className="generate-tree-button">Generate Random Tree</button>}
         </>
     ) 

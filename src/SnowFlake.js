@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useCallback, useState } from 'react'
 import Slider from 'react';
 import { ChromePicker } from 'react-color'
 
-export default function Canvas(props){
+export default function SnowFlake(props){
     const canvasRef1 = useRef(null);
     const canvasRef2 = useRef(null);
     const [spreadState, setSpreadState] = useState(1);
