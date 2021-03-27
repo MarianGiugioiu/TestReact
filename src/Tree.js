@@ -217,7 +217,6 @@ export default function Tree(props){
 
     function saveTree() {
         var options = {
-            "type": "tree",
             "startX": startXState,
             "startY": startYState,
             "length": lengthState,
@@ -256,16 +255,6 @@ export default function Tree(props){
             }
         }
 
-        //console.log(fractal);
-        /*httpService
-            .post('/fractal', fractal)
-            .then((response) => {
-                console.log('createStudent Response :');
-                console.log(response.data);
-            })
-            .catch((e) => {
-                console.log(e);
-            });*/
         var URL = "/fractal"
         const requestOptions = {
             method: "POST",

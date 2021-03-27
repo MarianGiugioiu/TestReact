@@ -21,7 +21,50 @@ export default function TreeList(props){
     const [imagePropertiesListState, setImagePropertiesListState] = useState([]);
 
 
-    const loaadTrees = useCallback(() => {
+    function saveImage() {
+        var options = {
+            "imagePropertiesList": imagePropertiesListState
+        }
+        //console.log(JSON.stringify(options));
+
+        var currentdate = new Date(); 
+        var datetime = currentdate.getFullYear() + "-"
+                + (currentdate.getMonth() < 9 ? "0"+ (currentdate.getMonth() + 1) : (currentdate.getMonth() + 1))  + "-" 
+                + (currentdate.getDate() < 10 ? "0"+ currentdate.getDate() : currentdate.getDate()) + " "  
+                + currentdate.getHours() + ":"  
+                + currentdate.getMinutes() + ":" 
+                + currentdate.getSeconds();
+        console.log(datetime);
+
+        const canvas = canvasRef.current;
+        var sourceImageData = canvas.toDataURL("image/png");
+
+        var image = {
+            "id": 0,
+            "type": "image",
+            "name": "first",
+            "description": "description",
+            "options": JSON.stringify(options),
+            "dataURL": sourceImageData,
+            "lastModified": datetime,
+            "account": {
+                "id": 1
+            }
+        }
+
+        var URL = "/fractal"
+        const requestOptions = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(image),
+            };
+    
+        fetch(URL, requestOptions)
+            .then(response => response.json())
+            .then(data => console.log(data));
+        
+    }
+    const loadTrees = useCallback(() => {
         var URL = "/account/1/fractals";
         
         var fractal = {}
@@ -29,29 +72,28 @@ export default function TreeList(props){
         .then(response => response.json())
         .then(data => {
             setMyData(data);
-            
+            const imagePropertiesList = [
+                {
+                    "posX": imageDimX / 2,
+                    "posY": imageDimY / 2,
+                    "rotation": 0,
+                    "scale": 1
+                },
+                {
+                    "posX": imageDimX * 3 /2,
+                    "posY": imageDimY * 3 / 2,
+                    "rotation": 0,
+                    "scale": 1
+                },
+                {
+                    "posX": imageDimX * 5 / 2,
+                    "posY": imageDimY * 5 / 2,
+                    "rotation": 0,
+                    "scale": 1
+                }
+            ];
+            setImagePropertiesListState(imagePropertiesList);
         })
-        const imagePropertiesList = [
-            {
-                "posX": imageDimX / 2,
-                "posY": imageDimY / 2,
-                "rotation": 0,
-                "scale": 1
-            },
-            {
-                "posX": imageDimX * 3 /2,
-                "posY": imageDimY * 3 / 2,
-                "rotation": 0,
-                "scale": 1
-            },
-            {
-                "posX": imageDimX * 5 / 2,
-                "posY": imageDimY * 5 / 2,
-                "rotation": 0,
-                "scale": 1
-            }
-        ];
-        setImagePropertiesListState(imagePropertiesList);
 
     }, [myData, imagePropertiesListState])
 
@@ -173,7 +215,7 @@ export default function TreeList(props){
     
 
     /*useEffect(() => {
-        loaadTrees();
+        loadTrees();
         //createImages();
         //existingTree();
     }, [])*/
@@ -182,12 +224,12 @@ export default function TreeList(props){
         //console.log(myData);
         //console.log(imagePropertiesListState);
         drawImages();
-    }, [loaadTrees])
+    }, [loadTrees])
 
     return (
         <div>
             <canvas ref={canvasRef} onClick={handleClick} {...props}/>
-            {<button onClick={loaadTrees}>Load Tree</button>}
+            {<button onClick={loadTrees}>Load Tree</button>}
             {<button onClick={changeTree}>Change Tree</button>}
             <div className="slidecontainer">
                 <input onInput={changeRotation} defaultValue="0" type="range" step="1" min="-180" max="180" className="slider" id="myRange4" />  
