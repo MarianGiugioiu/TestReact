@@ -56,9 +56,9 @@ export default function Tree(props){
         }
         context.stroke();
 
-        if(length < 30){
+        if(length < 20){
             context.beginPath();
-            context.arc(0, -length, 30, 0, Math.PI/2);
+            context.arc(0, -length, 20, 0, Math.PI/2);
             context.fill();
             context.restore();
             return;
@@ -102,20 +102,20 @@ export default function Tree(props){
         const context = canvas.getContext('2d');
 
         var scale = 2;
-        canvas.width = 700 * scale;
-        canvas.height = 700 * scale;
+        canvas.width = 300 * scale;
+        canvas.height = 300 * scale;
         context.clearRect(0, 0, context.canvas.width, context.canvas.height)
 
         let startX = canvas.width / 2;
         setStartXState(startX);
 
-        let startY = canvas.height -100;
+        let startY = canvas.height -50;
         setStartYState(startY);
 
-        let length = Math.floor(Math.random() * 50 + 250);
+        let length = Math.floor(Math.random() * 20 + 120);
         setLengthState(length);
 
-        let branchWidth = Math.floor(Math.random() * 20 + 20);
+        let branchWidth = Math.floor(Math.random() * 7 + 10);
         setBranchWidthState(branchWidth);
 
         //console.log(startX, startY, length, branchWidth)
@@ -156,8 +156,8 @@ export default function Tree(props){
         const context = canvas.getContext('2d');
 
         var scale = 2;
-        canvas.width = 700 * scale;
-        canvas.height = 700 * scale;
+        canvas.width = 300 * scale;
+        canvas.height = 300 * scale;
         context.clearRect(0, 0, context.canvas.width, context.canvas.height)
 
         let startX = startXState;
@@ -185,7 +185,7 @@ export default function Tree(props){
 
         //console.log(angleList)
         //console.log("####")
-        var sourceImageData = canvas.toDataURL("image/png");
+        var sourceImageData = canvas.toDataURL("image/jpeg",0.7);
         //console.log(sourceImageData);
         setImgUrl(sourceImageData);
 
@@ -234,13 +234,15 @@ export default function Tree(props){
         var datetime = currentdate.getFullYear() + "-"
                 + (currentdate.getMonth() < 9 ? "0"+ (currentdate.getMonth() + 1) : (currentdate.getMonth() + 1))  + "-" 
                 + (currentdate.getDate() < 10 ? "0"+ currentdate.getDate() : currentdate.getDate()) + " "  
-                + currentdate.getHours() + ":"  
-                + currentdate.getMinutes() + ":" 
-                + currentdate.getSeconds();
-        console.log(datetime);
+                + (currentdate.getHours() < 10 ? "0"+ currentdate.getHours() : currentdate.getHours()) + ":"  
+                + (currentdate.getMinutes() < 10 ? "0"+ currentdate.getMinutes() : currentdate.getMinutes()) + ":" 
+                + (currentdate.getSeconds() < 10 ? "0"+ currentdate.getSeconds() : currentdate.getSeconds());
+        //console.log(datetime);
 
         const canvas = canvasRef1.current;
-        var sourceImageData = canvas.toDataURL("image/png");
+        var sourceImageData = canvas.toDataURL("image/png",0.5);
+        console.log(sourceImageData);
+
 
         var fractal = {
             "id": 0,
@@ -269,7 +271,7 @@ export default function Tree(props){
     }
 
     const loadTree = useCallback(() => {
-        var URL = "/fractal/1";
+        var URL = "/fractal/8";
         
         var fractal = {}
         fetch(URL)

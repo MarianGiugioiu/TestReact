@@ -4,6 +4,68 @@
   box-sizing: border-box;
 }
 
+.mainDiv1 {
+  position: absolute;
+  display: flex;
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+  flex-direction: column;
+}
+
+.myRow1 {
+  display: flex;
+  overflow: hidden;
+  height: 100%;
+  flex-direction: row;
+}
+
+.myRow2 {
+  display: flex;
+  overflow: hidden;
+  height: 0%;
+  flex-direction: row;
+}
+
+.myColumn1 {
+  display: flex;
+  flex-direction: column;
+  float: left;
+  height: 100%;
+  width: 20%;
+  overflow: auto;
+}
+.myColumn2 {
+  display: flex;
+  flex-direction: column;
+  float: center;
+  height: 100%;
+  width: 50%;
+}
+
+.myColumn21 {
+  display: flex;
+  flex-direction: column;
+  float: center;
+  height: 80%;
+  width: 70%;
+}
+
+.myColumn22 {
+  display: flex;
+  flex-direction: column;
+  float: center;
+  height: 30%;
+  width: 50%;
+}
+
+canvas {
+  background: black;
+  height: 100%;
+  width: 100%;
+}
+
+
 .hidden {
   visibility: hidden;
 }
@@ -12,14 +74,10 @@
   background-color:black;
 }
 
+
 .column-div {
   display: flex;
   flex-direction: row;
-}
-canvas {
-  background: black;
-  width: 50%;
-  height: 50%;
 }
 .generate-tree-button {
   cursor: pointer;
