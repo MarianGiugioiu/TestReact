@@ -22,7 +22,6 @@ export default function TreeList(props){
     const [imagePropertiesListState, setImagePropertiesListState] = useState([]);
     const [imgCanvasState,setImgCanvasState] = useState(null);
 
-    const [imagePart, setImagePart] = useState({});
     const [readyState, setReadyState] = useState(0);
 
     function prepareImage(){
@@ -97,13 +96,14 @@ export default function TreeList(props){
         //}
     }
 
-    const loadImage = useCallback(() => {
+    function loadImage() {
         //console.log("asd");
-        var URL = "/fractal/71";
+        var URL = "/fractal/80";
         fetch(URL)
         .then(response => response.json())
         .then(data => {
             const imagePropertiesList = JSON.parse(data.options).imagePropertiesList;
+            //console.log(imagePropertiesList)
             //console.log(imagePropertiesList)
             /*const canvas = canvasRef.current;
             const context = canvas.getContext('2d');
@@ -115,11 +115,18 @@ export default function TreeList(props){
             context.drawImage(image1,0,0,300,300)*/
             setImgCanvasState(data.dataURL);
             setImagePropertiesListState(imagePropertiesList)
-            imagePropertiesList.forEach((elem) => {
+            var imageParts = []
+            var ids = []
+            imagePropertiesList.forEach(async (elem) => {
                 var URLPart = "/fractal/" + elem.id;
+                ids.push(elem.id);
+                const response = await fetch(URLPart);
+                const imagePart = await response.json();
+                //console.log(imagePart);
+                imageParts.push(imagePart);
                 //console.log(URLPart);
                 //var images = [];
-                fetch(URLPart)
+                /*fetch(URLPart)
                 .then(response => response.json())
                 .then(dataPart => {
                     //console.log(dataPart);
@@ -128,14 +135,24 @@ export default function TreeList(props){
                     /*var images = [...myData];
                     images.push(dataPart);
                     setMyData(images);
-                    console.log(myData)*/
-                });
+                    console.log(myData)
+                });*/
                 //console.log(images);
-            })
+            });
+            console.log(ids);
+            var order = {};
+            ids.forEach(function (a, i) { order[a] = i; });
+            console.log(order);
+            console.log(imageParts);
+            imageParts.sort(function (a, b) {
+                return order[a.id] - order[b.id];
+            });
+            console.log(imageParts);
+            setMyData(imageParts);
         });
-    },[myData,imagePart, imagePropertiesListState])
+    }
 
-    useEffect(() => {
+    /*useEffect(() => {
         //console.log(myData);
         //console.log(imagePart);
         var images = [...myData]
@@ -144,7 +161,11 @@ export default function TreeList(props){
         setMyData(images);
         //console.log(myData);
         //drawImages();
-    }, [imagePart])
+    }, [imagePart])*/
+
+    useEffect(() => {
+        console.log(myData)
+    }, [myData])
 
     const loadTrees = useCallback(() => {
         var URL = "/account/1/fractals";
@@ -310,9 +331,9 @@ export default function TreeList(props){
                 <div className="myColumn1">
                     <p>Image's Components:</p>
                     {
-                        myData.reverse().map(function(object, i){
+                        //console.log(myData)
+                        myData.map(function(object, i){
                             //const canvasRef = useRef(null);
-
                             return (    
                                 <img
                                     id={i}
