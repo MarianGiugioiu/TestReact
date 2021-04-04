@@ -16,14 +16,14 @@
 .myRow1 {
   display: flex;
   overflow: hidden;
-  height: 100%;
+  height: 80%;
   flex-direction: row;
 }
 
 .myRow2 {
   display: flex;
-  overflow: hidden;
-  height: 0%;
+  overflow: auto;
+  height: 20%;
   flex-direction: row;
 }
 
@@ -37,18 +37,23 @@
 }
 .myColumn2 {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   float: center;
   height: 100%;
   width: 50%;
+}
+
+.image-part {
+  display: flex;
+  flex-direction: column;
 }
 
 .myColumn21 {
   display: flex;
   flex-direction: column;
   float: center;
-  height: 80%;
-  width: 70%;
+  height: 30vw;
+  width: 30vw;
 }
 
 .myColumn22 {
@@ -68,6 +73,10 @@ canvas {
 
 .hidden {
   visibility: hidden;
+}
+
+.visible {
+  visibility: visible;
 }
 
 .black-img{

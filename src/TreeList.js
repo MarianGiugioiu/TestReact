@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react'
+import httpService from '../src/services/httpService';
 import './App.css';
 
 export default function TreeList(props){
@@ -7,11 +8,13 @@ export default function TreeList(props){
     const imageDimX = 300;
     const imageDimY = 300;
 
-    const [myData,setMyData] = useState([]);
+    const [imagePartsState,setImagePartsState] = useState([]);
+    const [allImagesState,setAllImagesState] = useState([]);
 
     const canvasRef = useRef(null);
     const imgCanvas = useRef(null);
-    const imageRefs = {};
+    const imagePartsRefs = {};
+    const allImagesRefs = {};
 
     const [idState, setIdState] = useState(-1);
     const [scaleState, setScaleState] = useState(1);
@@ -23,6 +26,13 @@ export default function TreeList(props){
     const [imgCanvasState,setImgCanvasState] = useState(null);
 
     const [readyState, setReadyState] = useState(0);
+    const [imagePartsHiddenState, setImagePartsHiddenState] = useState("hidden");
+    const [allImagesHiddenState, setAllImagesHiddenState] = useState("hidden");
+    const [btnAfterPartsHiddenState, setBtnAfterPartsHiddenState] = useState("hidden");
+    const [btnAfterAllHiddenState, setBtnAfterAllHiddenState] = useState("hidden");
+    const [loadingImagePartsState, setLoadingImagePartsState] = useState(0);
+    const [loadingAllImagesState, setLoadingAllImagesState] = useState(0);
+    const [partIdListState, setPartIdListState] = useState([]);
 
     function prepareImage(){
         if (idState != -1){
@@ -82,15 +92,11 @@ export default function TreeList(props){
             }
     
             var URL = "/fractal"
-            const requestOptions = {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(image),
-                };
-        
-            fetch(URL, requestOptions)
-                .then(response => response.json())
-                .then(data => console.log(data));
+            httpService
+                .post(URL, image)
+                .then((response) => {
+                  console.log(response.data);
+                });
 
             setReadyState(0);
         //}
@@ -98,100 +104,107 @@ export default function TreeList(props){
 
     function loadImage() {
         //console.log("asd");
-        var URL = "/fractal/80";
-        fetch(URL)
-        .then(response => response.json())
-        .then(data => {
-            const imagePropertiesList = JSON.parse(data.options).imagePropertiesList;
-            //console.log(imagePropertiesList)
-            //console.log(imagePropertiesList)
-            /*const canvas = canvasRef.current;
-            const context = canvas.getContext('2d');
-            canvas.width = canvasDimX;
-            canvas.height = canvasDimY;
-            var image1 = imgCanvas.current;
-            image1.src = data.dataURL;
-            console.log(image1)
-            context.drawImage(image1,0,0,300,300)*/
-            setImgCanvasState(data.dataURL);
-            setImagePropertiesListState(imagePropertiesList)
-            var imageParts = []
-            var ids = []
-            imagePropertiesList.forEach(async (elem) => {
-                var URLPart = "/fractal/" + elem.id;
-                ids.push(elem.id);
-                const response = await fetch(URLPart);
-                const imagePart = await response.json();
-                //console.log(imagePart);
-                imageParts.push(imagePart);
-                //console.log(URLPart);
-                //var images = [];
-                /*fetch(URLPart)
-                .then(response => response.json())
-                .then(dataPart => {
-                    //console.log(dataPart);
-                    setImagePart(dataPart);
-                    //images.push(dataPart);
-                    /*var images = [...myData];
-                    images.push(dataPart);
-                    setMyData(images);
-                    console.log(myData)
-                });*/
-                //console.log(images);
-            });
-            console.log(ids);
-            var order = {};
-            ids.forEach(function (a, i) { order[a] = i; });
-            console.log(order);
-            console.log(imageParts);
-            imageParts.sort(function (a, b) {
-                return order[a.id] - order[b.id];
-            });
-            console.log(imageParts);
-            setMyData(imageParts);
-        });
+        let myId = 82
+        let URL = "/fractal/" + myId;
+        httpService
+            .get(URL)
+            .then(async (response) => {
+                var data = response.data;
+                const imagePropertiesList = JSON.parse(data.options).imagePropertiesList;
+                setImgCanvasState(data.dataURL);
+                setImagePropertiesListState(imagePropertiesList)
+                let ids = []
+                imagePropertiesList.forEach(elem => {
+                    ids.push(elem.id);
+                });
+                let imageParts = new Array(ids.length)
+                for(let i = 0; i < ids.length; i++){
+                //imagePropertiesList.forEach(async (elem) => {
+                    var URLPart = "/fractal/" + ids[i];
+                    const response = await httpService.get(URLPart).then(response => {
+                        const imagePart = response.data;
+                        console.log(imagePart);
+                        imageParts[i] = imagePart;
+                    });
+                    
+                }
+                ids.push(myId);
+                setPartIdListState(ids);
+                setImagePartsState(imageParts);
+                setLoadingImagePartsState(1);
+            })
+            
     }
 
-    /*useEffect(() => {
-        //console.log(myData);
-        //console.log(imagePart);
-        var images = [...myData]
-        if(Object.keys(imagePart).length !== 0)
-            images.push(imagePart);
-        setMyData(images);
-        //console.log(myData);
-        //drawImages();
-    }, [imagePart])*/
-
     useEffect(() => {
-        console.log(myData)
-    }, [myData])
+        if(loadingImagePartsState == 1){
+            setBtnAfterPartsHiddenState("visible");
+        }
+    }, [loadingImagePartsState])
 
-    const loadTrees = useCallback(() => {
+    function addImage() {
+        setAllImagesHiddenState("visible");
+    }
+
+    function chooseImage(object) {
+        setAllImagesHiddenState("hidden");
+        let id = object.id;
+        let property = {
+            id:id,
+            posX:canvasDimX/2,
+            posY:canvasDimY/2,
+            rotation:0,
+            scale:1
+        }
+
+        let parts = [...imagePartsState];
+        let properties = [...imagePropertiesListState];
+        let ids = [...partIdListState];
+
+        parts.push(object);
+        properties.push(property);
+        ids.push(id);
+
+        setImagePartsState(parts);
+        setImagePropertiesListState(properties);
+        setPartIdListState(ids);
+    }
+
+    function deletePart(i){
+        let parts = [...imagePartsState];
+        let properties = [...imagePropertiesListState];
+        let ids = [...partIdListState];
+
+        parts.splice(i,1);
+        properties.splice(i,1);
+        ids.splice(i,1);
+        if(i == idState){
+            setIdState(-1);
+        }
+
+        setImagePartsState(parts);
+        setImagePropertiesListState(properties);
+        setPartIdListState(ids);
+    }
+
+    function loadAllImages () {
         var URL = "/account/1/fractals";
         
-        var fractal = {}
-        fetch(URL)
-        .then(response => response.json())
-        .then(data => {
-            setMyData(data);
-            var imagePropertiesList = []
-            data.forEach((image) => {
-                imagePropertiesList.push({
-                    "posX": imageDimX / 2,
-                    "posY": imageDimY / 2,
-                    "rotation": 0,
-                    "scale": 1,
-                    "id": image.id
-                })
-            });
-            //console.log("###")
-            //console.log(imagePropertiesList);
-            //console.log("###")
-            setImagePropertiesListState(imagePropertiesList);
+        httpService
+            .get(URL)
+            .then((response) => {
+                var data = response.data;
+                console.log(data);
+                setAllImagesState(data);
         })
 
-    }, [myData, imagePropertiesListState])
+    }
+
+    useEffect(() => {
+        if (allImagesState.length > 0) {
+            setBtnAfterAllHiddenState("visible");
+        }
+    },[allImagesState])
 
     function onLoad() {
         //console.log(event.target)
@@ -207,7 +220,7 @@ export default function TreeList(props){
 
     function drawImages(){
         const id = idState;
-        const nrImages = Object.keys(imageRefs).length;
+        const nrImages = Object.keys(imagePartsRefs).length;
         //console.log(nrImages)
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
@@ -215,7 +228,7 @@ export default function TreeList(props){
         canvas.height = canvasDimY;
         for (let i = 0; i < nrImages; i++){
             if(i != id){
-                const imageCurrent = imageRefs[`img${i}`];
+                const imageCurrent = imagePartsRefs[`img${i}`];
                 context.save();
                 context.translate(imagePropertiesListState[i].posX, imagePropertiesListState[i].posY);
                 context.rotate(imagePropertiesListState[i].rotation*Math.PI/180);
@@ -230,7 +243,7 @@ export default function TreeList(props){
         }
 
         if(id != -1){
-            const image = imageRefs[`img${id}`];
+            const image = imagePartsRefs[`img${id}`];
         
         //context.moveTo(0,0);
         context.translate(posXState, posYState);
@@ -312,15 +325,12 @@ export default function TreeList(props){
     }, [idState,rotationState,scaleState,posXState,posYState])
     
 
-    /*useEffect(() => {
-        loadTrees();
-        //createImages();
-        //existingTree();
-    }, [])*/
+    useEffect(() => {
+        
+        console.log(partIdListState)
+    }, [partIdListState])
 
     useEffect(() => {
-        //console.log(myData);
-        //console.log(imagePropertiesListState);
         
         drawImages();
     }, [imagePropertiesListState])
@@ -328,24 +338,30 @@ export default function TreeList(props){
     return (
         <div className="mainDiv1">
             <div className="myRow1">
-                <div className="myColumn1">
+                <div className="myColumn1" style = {{visibility:imagePartsHiddenState}}>
                     <p>Image's Components:</p>
                     {
-                        //console.log(myData)
-                        myData.map(function(object, i){
+                        //console.log(imagePartsState)
+                        imagePartsState.map(function(object, i){
                             //const canvasRef = useRef(null);
-                            return (    
-                                <img
-                                    id={i}
-                                    ref = {(ref) => imageRefs[`img${i}`] = ref}
-                                    src = {object.dataURL}
-                                    width = "50%" height = "50%"
-                                    onClick={changeImage}
-                                    >
-                                </img>
+                            
+                            return (   
+                                <div className="image-part"> 
+                                    <img
+                                        id={i}
+                                        ref = {(ref) => imagePartsRefs[`img${i}`] = ref}
+                                        src = {object.dataURL}
+                                        width = "50%" height = "50%"
+                                        onClick={changeImage}
+                                        className={imagePartsHiddenState}
+                                        >
+                                    </img>
+                                    {<button onClick={() => deletePart(i)}>Delete</button>}
+                                </div>
                             );
                         })
                     }
+                    {<button style = {{visibility:btnAfterAllHiddenState}} onClick={addImage}>Add Image</button>}
                 </div>
                 <div className="myColumn2">
                     <div className="myColumn21">
@@ -358,15 +374,35 @@ export default function TreeList(props){
                         <div className="slidecontainer">
                             <input onInput={changeScale} defaultValue="1" type="range" step="0.1" min="0.1" max="3" className="slider" id="myRange4" />  
                         </div>
-                        {<button onClick={loadTrees}>Load Trees</button>}
+                        {<button onClick={loadAllImages}>Create Image</button>}
                         {<button onClick={loadImage}>Load Image</button>}
-                        {<button onClick={prepareImage}>Save Image</button>}
+                        {<button style = {{visibility:btnAfterPartsHiddenState}} onClick={prepareImage} >Save Image</button>}
+                        {<button style = {{visibility:btnAfterPartsHiddenState}} onClick={()=> imagePartsHiddenState == "hidden" ? setImagePartsHiddenState("visible") : setImagePartsHiddenState("hidden")}>Show Components</button>}
                     </div>
                 </div>
             </div>
             {<img ref={imgCanvas} src={imgCanvasState} width="100" height="100" onLoad={onLoad} className="hidden"/>}
-            <div className="myRow2">
-                <p>asd</p>
+            <div className="myRow2" style = {{visibility:allImagesHiddenState}}>
+            {
+                    
+                    allImagesState.map(function(object, i){
+                        if(!partIdListState.includes(object.id)) {
+                            return (   
+                                <> 
+                                    <img
+                                        id={i}
+                                        ref = {(ref) => allImagesRefs[`img${i}`] = ref}
+                                        src = {object.dataURL}
+                                        width = "100vw" height = "100vw"
+                                        onClick={() => chooseImage(object)}
+                                        >
+                                    </img>
+                                    
+                                </>
+                            );
+                        }
+                    })
+                }
             </div>
         </div>
     )
