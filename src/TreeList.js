@@ -8,6 +8,7 @@ export default function TreeList(props){
     const imageDimX = 300;
     const imageDimY = 300;
 
+    const [started, setStarted] =useState(0);
     const [imagePartsState,setImagePartsState] = useState([]);
     const [allImagesState,setAllImagesState] = useState([]);
 
@@ -21,6 +22,7 @@ export default function TreeList(props){
     const [rotationState, setRotationState] = useState(0);
     const [posXState, setPosXState] = useState(canvasDimX / 2);
     const [posYState, setPosYState] = useState(canvasDimY / 2);
+    const [canvasDataUrl, setCanvasDataUrl] = useState(null)
 
     const [imagePropertiesListState, setImagePropertiesListState] = useState([]);
     const [imgCanvasState,setImgCanvasState] = useState(null);
@@ -33,6 +35,8 @@ export default function TreeList(props){
     const [loadingImagePartsState, setLoadingImagePartsState] = useState(0);
     const [loadingAllImagesState, setLoadingAllImagesState] = useState(0);
     const [partIdListState, setPartIdListState] = useState([]);
+
+    const [uploadedImage, setUploadedImage] = useState();
 
     function prepareImage(){
         if (idState != -1){
@@ -102,9 +106,29 @@ export default function TreeList(props){
         //}
     }
 
+    function reloadImage(){
+        setIdState(-1);
+        setLoadingImagePartsState(0);
+        setBtnAfterPartsHiddenState("hidden");
+        setImagePartsHiddenState("hidden");
+        setAllImagesHiddenState("hidden");
+        loadImage();
+    }
+
+    useEffect(()=>{
+        if(started == 0){
+            if(props.action === "old"){
+                loadImage();
+            } else if(props.action === "new"){
+                newImage();
+            }
+        }
+        setStarted(1)
+    },[started])
+
     function loadImage() {
         //console.log("asd");
-        let myId = 82
+        let myId = props.id;
         let URL = "/fractal/" + myId;
         httpService
             .get(URL)
@@ -123,7 +147,7 @@ export default function TreeList(props){
                     var URLPart = "/fractal/" + ids[i];
                     const response = await httpService.get(URLPart).then(response => {
                         const imagePart = response.data;
-                        console.log(imagePart);
+                        //console.log(imagePart);
                         imageParts[i] = imagePart;
                     });
                     
@@ -139,6 +163,7 @@ export default function TreeList(props){
     useEffect(() => {
         if(loadingImagePartsState == 1){
             setBtnAfterPartsHiddenState("visible");
+            onLoad();
         }
     }, [loadingImagePartsState])
 
@@ -147,6 +172,7 @@ export default function TreeList(props){
     }
 
     function chooseImage(object) {
+        console.log("asd");
         setAllImagesHiddenState("hidden");
         let id = object.id;
         let property = {
@@ -170,17 +196,41 @@ export default function TreeList(props){
         setPartIdListState(ids);
     }
 
+    function newImage() {
+        //console.log()
+        if(imagePartsState.length != 0) {
+            setImagePartsState([]);
+            setPartIdListState([]);
+            setIdState(-1);
+        }
+        setBtnAfterPartsHiddenState("visible");
+        setImagePartsHiddenState("visible");
+        if(allImagesState.length == 0){
+            loadAllImages();
+        }
+    }
+
+
     function deletePart(i){
+        //console.log("asd");
+        let myId = imagePartsState[i].id;
         let parts = [...imagePartsState];
         let properties = [...imagePropertiesListState];
         let ids = [...partIdListState];
+        let currentId = ids[idState];
 
         parts.splice(i,1);
         properties.splice(i,1);
-        ids.splice(i,1);
+        ids.splice(ids.indexOf(myId),1);
+        /*parts[i] = null;
+        properties[i] = null;
+        ids[i] = null;*/
         if(i == idState){
             setIdState(-1);
+        } else {
+            setIdState(ids.indexOf(currentId))
         }
+        
 
         setImagePartsState(parts);
         setImagePropertiesListState(properties);
@@ -207,19 +257,20 @@ export default function TreeList(props){
     },[allImagesState])
 
     function onLoad() {
-        //console.log(event.target)
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
         const image = imgCanvas.current;
 
-
+        console.log(image)
         context.drawImage(image,0,0);
+        setCanvasDataUrl(canvas.toDataURL());
     }
 
 
 
     function drawImages(){
         const id = idState;
+        //console.log(imagePartsRefs);
         const nrImages = Object.keys(imagePartsRefs).length;
         //console.log(nrImages)
         const canvas = canvasRef.current;
@@ -227,8 +278,12 @@ export default function TreeList(props){
         canvas.width = canvasDimX;
         canvas.height = canvasDimY;
         for (let i = 0; i < nrImages; i++){
-            if(i != id){
-                const imageCurrent = imagePartsRefs[`img${i}`];
+            //console.log(imagePropertiesListState[i])
+            //console.log(imagePartsRefs[`img${i}`]);
+            const imageCurrent = imagePartsRefs[`img${i}`];
+            //console.log(id);
+            if(imagePropertiesListState[i] != null && imageCurrent != null && i != id){
+                //console.log(imageCurrent)
                 context.save();
                 context.translate(imagePropertiesListState[i].posX, imagePropertiesListState[i].posY);
                 context.rotate(imagePropertiesListState[i].rotation*Math.PI/180);
@@ -249,7 +304,8 @@ export default function TreeList(props){
         context.translate(posXState, posYState);
         context.rotate(rotationState*Math.PI/180);
         context.drawImage(image, -imageDimX * scaleState / 2, -imageDimY * scaleState / 2, imageDimX * scaleState, imageDimY * scaleState);
-        
+        setCanvasDataUrl(canvas.toDataURL());
+
         if(readyState == 0){
             context.beginPath();
             context.save();
@@ -327,11 +383,17 @@ export default function TreeList(props){
 
     useEffect(() => {
         
-        console.log(partIdListState)
+        //console.log(partIdListState)
     }, [partIdListState])
 
+    function uploadImage(event){
+        let file = event.target.files[0];
+        console.log(file);
+        setUploadedImage(URL.createObjectURL(file));
+    }
+
     useEffect(() => {
-        
+        //console.log(imagePropertiesListState.length)
         drawImages();
     }, [imagePropertiesListState])
 
@@ -343,25 +405,34 @@ export default function TreeList(props){
                     {
                         //console.log(imagePartsState)
                         imagePartsState.map(function(object, i){
+                            //console.log(i);
+                            //console.log(object);
+
                             //const canvasRef = useRef(null);
+                            if(object != null){
+                                return (   
+                                    <div className="image-part"> 
+                                        <img
+                                            id={i}
+                                            ref = {(ref) => imagePartsRefs[`img${i}`] = ref}
+                                            src = {object.dataURL}
+                                            width = "50%" height = "50%"
+                                            onClick={changeImage}
+                                            className={imagePartsHiddenState}
+                                            >
+                                        </img>
+                                        {<button style = {{visibility:((btnAfterAllHiddenState ==="visible" && imagePartsHiddenState === "visible") ? "visible" : "hidden")}} onClick={() => deletePart(i)}>Delete</button>}
+                                    </div>
+                                );
+                            }
                             
-                            return (   
-                                <div className="image-part"> 
-                                    <img
-                                        id={i}
-                                        ref = {(ref) => imagePartsRefs[`img${i}`] = ref}
-                                        src = {object.dataURL}
-                                        width = "50%" height = "50%"
-                                        onClick={changeImage}
-                                        className={imagePartsHiddenState}
-                                        >
-                                    </img>
-                                    {<button onClick={() => deletePart(i)}>Delete</button>}
-                                </div>
-                            );
                         })
                     }
-                    {<button style = {{visibility:btnAfterAllHiddenState}} onClick={addImage}>Add Image</button>}
+                    {<button style = {{visibility:((btnAfterAllHiddenState ==="visible" && imagePartsHiddenState === "visible") ? "visible" : "hidden")}}  onClick={addImage}>Add Image</button>}
+                    <div style={{visibility:"hidden"}}>
+                        <input type="file" name="file" onChange={uploadImage} />
+                        <img src = {uploadedImage} width="100" height="100"></img>
+		            </div>
                 </div>
                 <div className="myColumn2">
                     <div className="myColumn21">
@@ -372,21 +443,23 @@ export default function TreeList(props){
                             <input onInput={changeRotation} defaultValue="0" type="range" step="1" min="-180" max="180" className="slider" id="myRange4" />  
                         </div>
                         <div className="slidecontainer">
-                            <input onInput={changeScale} defaultValue="1" type="range" step="0.1" min="0.1" max="3" className="slider" id="myRange4" />  
+                            <input onInput={changeScale} defaultValue="1" type="range" step="0.1" min="0.1" max="5" className="slider" id="myRange4" />  
                         </div>
-                        {<button onClick={loadAllImages}>Create Image</button>}
-                        {<button onClick={loadImage}>Load Image</button>}
+                        {<button style = {{visibility:(props.action === "new" ? "visible" : "hidden")}} onClick={newImage}>New Image</button>}
+                        {<button style = {{visibility:(props.action === "old" ? "visible" : "hidden")}} onClick={reloadImage}>Reload Image</button>}
                         {<button style = {{visibility:btnAfterPartsHiddenState}} onClick={prepareImage} >Save Image</button>}
                         {<button style = {{visibility:btnAfterPartsHiddenState}} onClick={()=> imagePartsHiddenState == "hidden" ? setImagePartsHiddenState("visible") : setImagePartsHiddenState("hidden")}>Show Components</button>}
+                        {<button style = {{visibility:((btnAfterPartsHiddenState === "visible" && props.action === "old") ? "visible" : "hidden")}}  onClick={loadAllImages} >Edit Image</button>}
+                        {<a href = {canvasDataUrl} download = 'image.png'>Download Image </a>}
                     </div>
                 </div>
             </div>
-            {<img ref={imgCanvas} src={imgCanvasState} width="100" height="100" onLoad={onLoad} className="hidden"/>}
+            {<img ref={imgCanvas} src={imgCanvasState} width="100" height="100"  className="hidden"/>}
             <div className="myRow2" style = {{visibility:allImagesHiddenState}}>
             {
                     
                     allImagesState.map(function(object, i){
-                        if(!partIdListState.includes(object.id)) {
+                        if(object!= null && !partIdListState.includes(object.id)) {
                             return (   
                                 <> 
                                     <img

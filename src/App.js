@@ -9,7 +9,7 @@ import TestDrive from './TestDrive'
 function App() {
   return (
     <main>
-      <TreeList/>
+      <TreeList action="old" id="82"/>
     </main>
   );
 }
