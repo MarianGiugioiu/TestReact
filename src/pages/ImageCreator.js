@@ -1,8 +1,13 @@
-import React, { useRef, useEffect, useCallback, useState } from 'react'
-import httpService from '../src/services/httpService';
-import './App.css';
+import React, { useRef, useEffect, useCallback, useState, useContext } from 'react'
+import httpService from '../services/httpService';
+import '../App.css';
+import { useParams } from 'react-router';
+import AuthenticationContext from "../AuthenticationContext";
 
-export default function TreeList(props){
+export default function ImageCreator(props){
+    const authentication = useContext(AuthenticationContext);
+    let profileId = authentication.id;
+    const params = useParams();
     const canvasDimX = 1500;
     const canvasDimY = 1500;
     const imageDimX = 300;
@@ -14,6 +19,7 @@ export default function TreeList(props){
 
     const canvasRef = useRef(null);
     const imgCanvas = useRef(null);
+    const downloadRef = useRef(null);
     const imagePartsRefs = {};
     const allImagesRefs = {};
 
@@ -35,8 +41,12 @@ export default function TreeList(props){
     const [loadingImagePartsState, setLoadingImagePartsState] = useState(0);
     const [loadingAllImagesState, setLoadingAllImagesState] = useState(0);
     const [partIdListState, setPartIdListState] = useState([]);
+    const [btnMakePostingHiddenState, setBtnMakePostingHiddenState] = useState("hidden");
+    const [newOrOldImageState, setNewOrOldImageState] = useState(0);
 
     const [uploadedImage, setUploadedImage] = useState();
+
+    const [savedIdState, setSavedIdState] = useState(0);
 
     function prepareImage(){
         if (idState != -1){
@@ -62,6 +72,38 @@ export default function TreeList(props){
             saveImage();
     },[readyState])
 
+    function createPosting(){
+        console.log(savedIdState);
+        var currentdate = new Date(); 
+        var datetime = currentdate.getFullYear() + "-"
+            + (currentdate.getMonth() < 9 ? "0"+ (currentdate.getMonth() + 1) : (currentdate.getMonth() + 1))  + "-" 
+            + (currentdate.getDate() < 10 ? "0"+ currentdate.getDate() : currentdate.getDate()) + " "  
+            + (currentdate.getHours() < 10 ? "0"+ currentdate.getHours() : currentdate.getHours()) + ":"  
+            + (currentdate.getMinutes() < 10 ? "0"+ currentdate.getMinutes() : currentdate.getMinutes()) + ":" 
+            + (currentdate.getSeconds() < 10 ? "0"+ currentdate.getSeconds() : currentdate.getSeconds())
+        var posting = {
+            "id": 0,
+            "posterDate": datetime,
+            "profile": {
+                "id": profileId
+            },
+            "fractal": {
+                "id": savedIdState
+            },
+            "likedBy": [],
+            "dislikedBy": [],
+            "seenBy":[]
+        }
+        console.log(posting);
+
+        var URL = "/posting"
+            httpService
+                .post(URL, posting)
+                .then((response) => {
+                    console.log(response.data);
+                });
+    }
+
     function saveImage() {
         //if(readyState != 0){
             var options = {
@@ -73,9 +115,9 @@ export default function TreeList(props){
             var datetime = currentdate.getFullYear() + "-"
                     + (currentdate.getMonth() < 9 ? "0"+ (currentdate.getMonth() + 1) : (currentdate.getMonth() + 1))  + "-" 
                     + (currentdate.getDate() < 10 ? "0"+ currentdate.getDate() : currentdate.getDate()) + " "  
-                    + currentdate.getHours() + ":"  
-                    + currentdate.getMinutes() + ":" 
-                    + currentdate.getSeconds();
+                    + (currentdate.getHours() < 10 ? "0"+ currentdate.getHours() : currentdate.getHours()) + ":"  
+                    + (currentdate.getMinutes() < 10 ? "0"+ currentdate.getMinutes() : currentdate.getMinutes()) + ":" 
+                    + (currentdate.getSeconds() < 10 ? "0"+ currentdate.getSeconds() : currentdate.getSeconds())
             //console.log(datetime);
     
             const canvas = canvasRef.current;
@@ -83,24 +125,43 @@ export default function TreeList(props){
             //console.log(sourceImageData)
     
             var image = {
-                "id": 0,
+                "id": newOrOldImageState,
                 "type": "image",
                 "name": "first",
                 "description": "description",
                 "options": JSON.stringify(options),
                 "dataURL": sourceImageData,
                 "lastModified": datetime,
-                "account": {
-                    "id": 1
+                "profile": {
+                    "id": profileId
                 }
             }
-    
+
+            allImagesState.push(image);
             var URL = "/fractal"
-            httpService
-                .post(URL, image)
-                .then((response) => {
-                  console.log(response.data);
-                });
+                httpService
+                    .post(URL, image)
+                    .then((response) => {
+                        console.log(response.data);
+                        setSavedIdState(response.data.id);
+                    });
+            /*console.log(newOrOldImageState)
+            if(newOrOldImageState == 0){
+                var URL = "/fractal"
+                httpService
+                    .post(URL, image)
+                    .then((response) => {
+                    console.log(response.data);
+                    });
+            } else {
+                var URL = "/fractal/" + newOrOldImageState;
+                httpService
+                    .put(URL, image)
+                    .then((response) => {
+                    console.log(response.data);
+                    });
+            }*/
+            
 
             setReadyState(0);
         //}
@@ -117,9 +178,14 @@ export default function TreeList(props){
 
     useEffect(()=>{
         if(started == 0){
-            if(props.action === "old"){
+            /*if(props.location.state.action === "old"){
                 loadImage();
-            } else if(props.action === "new"){
+            } else if(props.location.state.action === "new"){
+                newImage();
+            }*/
+            if(params.action === "old"){
+                loadImage();
+            } else if(params.action === "new"){
                 newImage();
             }
         }
@@ -128,7 +194,8 @@ export default function TreeList(props){
 
     function loadImage() {
         //console.log("asd");
-        let myId = props.id;
+        //let myId = props.location.state.id;
+        let myId = params.id;
         let URL = "/fractal/" + myId;
         httpService
             .get(URL)
@@ -157,7 +224,7 @@ export default function TreeList(props){
                 setImagePartsState(imageParts);
                 setLoadingImagePartsState(1);
             })
-            
+        setNewOrOldImageState(myId); 
     }
 
     useEffect(() => {
@@ -208,6 +275,7 @@ export default function TreeList(props){
         if(allImagesState.length == 0){
             loadAllImages();
         }
+        setNewOrOldImageState(0);
     }
 
 
@@ -238,7 +306,7 @@ export default function TreeList(props){
     }
 
     function loadAllImages () {
-        var URL = "/account/1/fractals";
+        var URL = "/profile/1/fractals";
         
         httpService
             .get(URL)
@@ -263,7 +331,7 @@ export default function TreeList(props){
 
         console.log(image)
         context.drawImage(image,0,0);
-        setCanvasDataUrl(canvas.toDataURL());
+        setCanvasDataUrl(canvas.toDataURL("image/png"));
     }
 
 
@@ -304,7 +372,7 @@ export default function TreeList(props){
         context.translate(posXState, posYState);
         context.rotate(rotationState*Math.PI/180);
         context.drawImage(image, -imageDimX * scaleState / 2, -imageDimY * scaleState / 2, imageDimX * scaleState, imageDimY * scaleState);
-        setCanvasDataUrl(canvas.toDataURL());
+        setCanvasDataUrl(canvas.toDataURL("image/png"));
 
         if(readyState == 0){
             context.beginPath();
@@ -397,6 +465,11 @@ export default function TreeList(props){
         drawImages();
     }, [imagePropertiesListState])
 
+    function downloadClick(){
+        const link = downloadRef.current;
+        link.click();
+    }
+
     return (
         <div className="mainDiv1">
             <div className="myRow1">
@@ -445,12 +518,15 @@ export default function TreeList(props){
                         <div className="slidecontainer">
                             <input onInput={changeScale} defaultValue="1" type="range" step="0.1" min="0.1" max="5" className="slider" id="myRange4" />  
                         </div>
-                        {<button style = {{visibility:(props.action === "new" ? "visible" : "hidden")}} onClick={newImage}>New Image</button>}
-                        {<button style = {{visibility:(props.action === "old" ? "visible" : "hidden")}} onClick={reloadImage}>Reload Image</button>}
+                        {<button style = {{visibility:(params.action === "new" ? "visible" : "hidden")}} onClick={newImage}>New Image</button>}
+                        {<button style = {{visibility:(params.action === "old" ? "visible" : "hidden")}} onClick={reloadImage}>Reload Image</button>}
                         {<button style = {{visibility:btnAfterPartsHiddenState}} onClick={prepareImage} >Save Image</button>}
                         {<button style = {{visibility:btnAfterPartsHiddenState}} onClick={()=> imagePartsHiddenState == "hidden" ? setImagePartsHiddenState("visible") : setImagePartsHiddenState("hidden")}>Show Components</button>}
-                        {<button style = {{visibility:((btnAfterPartsHiddenState === "visible" && props.action === "old") ? "visible" : "hidden")}}  onClick={loadAllImages} >Edit Image</button>}
-                        {<a href = {canvasDataUrl} download = 'image.png'>Download Image </a>}
+                        {<button style = {{visibility:((btnAfterPartsHiddenState === "visible" && params.action === "old") ? "visible" : "hidden")}}  onClick={loadAllImages} >Edit Image</button>}
+                        {<button onClick={createPosting}>Create Posting</button>}
+                        <button onClick={downloadClick}>Download</button>
+                        {<a ref={downloadRef} href = {canvasDataUrl} download = 'image.png'>Download Image </a>}
+                        
                     </div>
                 </div>
             </div>

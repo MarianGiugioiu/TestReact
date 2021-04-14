@@ -1,13 +1,12 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react'
 import Slider from 'react';
 import { ChromePicker } from 'react-color'
-import httpService from '../src/services/httpService';
-import img from './myImage.png';
+import httpService from '../services/httpService';
 
 
 export default function Tree(props){
     const canvasRef1 = useRef(null);
-    const canvasRef2 = useRef(null);
+    const downloadRef = useRef(null);
     const [imgUrl, setImgUrl] = useState(null);
     const [bodyColorState, setbodyColorState] = useState({r: 255, g: 255, b: 255, a: 1});
     const [leafColorState, setleafColorState] = useState({r: 255, g: 255, b: 255, a: 1});
@@ -19,6 +18,8 @@ export default function Tree(props){
     const [angleListState, setAngleListState] = useState([]);
     const [nrBranchesListState, setNrBranchesListState] = useState([]);
     const [curveListState, setCurveListState] = useState([]);
+
+    const [started, setStarted] =useState(0);
     
     
     const drawTree = useCallback((rand, context, startX, startY, length, branchWidth, nrBranchesList, angle, angleList, curveList, bodyColor, leafColor, shadowColor)  => {
@@ -185,11 +186,15 @@ export default function Tree(props){
 
         //console.log(angleList)
         //console.log("####")
-        var sourceImageData = canvas.toDataURL("image/jpeg",0.7);
+        var sourceImageData = canvas.toDataURL("image/png");
         //console.log(sourceImageData);
         setImgUrl(sourceImageData);
 
     }
+
+    useEffect(()=>{
+        //console.log(imgUrl)
+    },[imgUrl])
 
     function changeBodyColorState (event) {
         let val = event.rgb;
@@ -252,44 +257,42 @@ export default function Tree(props){
             "options": JSON.stringify(options),
             "dataURL": sourceImageData,
             "lastModified": datetime,
-            "account": {
+            "profile": {
                 "id": 1
             }
         }
 
         var URL = "/fractal"
-        const requestOptions = {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(fractal),
-            };
-    
-        fetch(URL, requestOptions)
-            .then(response => response.json())
-            .then(data => console.log(data));
+        httpService
+            .post(URL, fractal)
+            .then((response) => {
+              console.log(response.data);
+            });
         
     }
 
     const loadTree = useCallback(() => {
-        var URL = "/fractal/8";
+        let myId = props.location.state.id;
+        let URL = "/fractal/" + myId;
         
-        var fractal = {}
-        fetch(URL)
-        .then(response => response.json())
-        .then(data => {
-            var options = JSON.parse(data.options);
-            console.log(options);
-            setStartXState(options.startX);
-            setStartYState(options.startY);
-            setLengthState(options.length);
-            setBranchWidthState(options.branchWidth);
-            setNrBranchesListState(options.nrBranchesList);
-            setAngleListState(options.angleList);
-            setCurveListState(options.curveList);
-            setbodyColorState(options.bodyColor);
-            setleafColorState(options.leafColor);
-            setShadowColorState(options.shadowColor);
-        })
+        httpService
+            .get(URL)
+            .then((response) => {
+                var data = response.data;
+                var options = JSON.parse(data.options);
+                console.log(options);
+                setStartXState(options.startX);
+                setStartYState(options.startY);
+                setLengthState(options.length);
+                setBranchWidthState(options.branchWidth);
+                setNrBranchesListState(options.nrBranchesList);
+                setAngleListState(options.angleList);
+                setCurveListState(options.curveList);
+                setbodyColorState(options.bodyColor);
+                setleafColorState(options.leafColor);
+                setShadowColorState(options.shadowColor);
+            })
+        
 
     }, [])
 
@@ -298,17 +301,25 @@ export default function Tree(props){
     }, [loadTree])
 
     useEffect(() => {
-        //drawTree(context, canvas.width / 2, canvas.height -30 , 30, 0, 8, 'brown', 'blue')
-        //randomTree();
-
-        //context.fillRect(0, 0, context.canvas.width, context.canvas.height)
         existingTree();
 
     }, [bodyColorState,leafColorState,shadowColorState])
 
-    useEffect(() => {
-        randomTree();
-    }, [])
+    function downloadClick(){
+        const link = downloadRef.current;
+        link.click();
+    }
+
+    useEffect(()=>{
+        if(started == 0){
+            if(props.location.state.action === "old"){
+                loadTree();
+            } else if(props.location.state.action === "new"){
+                randomTree()
+            }
+        }
+        setStarted(1)
+    },[started])
     
     return(
         <>
@@ -318,7 +329,8 @@ export default function Tree(props){
             <div>
                 {/*<canvas ref={canvasRef2} {...props}/>*/}
             </div>
-            <a id="download" download="myImage.png" href={"imgUrl"}>img</a>
+            <a ref={downloadRef} id="download" download="myImage.png" href={"imgUrl"}>img</a>
+            <button onClick={downloadClick}>Download</button>
             <div className="column-div">
                 <div>
                     <ChromePicker 
@@ -339,9 +351,9 @@ export default function Tree(props){
                     />
                 </div>
             </div>
-            {<button onClick={existingTree}>Generate Previous Tree</button>}
+            {/*<button onClick={existingTree}>Generate Previous Tree</button>*/}
             {<button onClick={saveTree}>Save Tree</button>}
-            {<button onClick={loadTree}>Load Tree</button>}
+            {<button style={{visibility:((props.location.state.action === "old") ? "visible" : "hidden")}} onClick={loadTree}>Load Tree</button>}
             {<button onClick={randomTree} className="generate-tree-button">Generate Random Tree</button>}
         </>
     ) 
