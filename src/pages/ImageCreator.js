@@ -1,10 +1,11 @@
-import React, { useRef, useEffect, useCallback, useState, useContext } from 'react'
+import React, { useRef, useEffect, useCallback, useState, useContext, useHistory } from 'react'
 import httpService from '../services/httpService';
 import '../App.css';
 import { useParams } from 'react-router';
 import AuthenticationContext from "../AuthenticationContext";
 
 export default function ImageCreator(props){
+    const history = useHistory();
     const authentication = useContext(AuthenticationContext);
     let profileId = authentication.id;
     const params = useParams();
@@ -101,6 +102,7 @@ export default function ImageCreator(props){
                 .post(URL, posting)
                 .then((response) => {
                     console.log(response.data);
+                    
                 });
     }
 

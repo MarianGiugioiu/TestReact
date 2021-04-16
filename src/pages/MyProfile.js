@@ -26,8 +26,8 @@ export default function MyProfile(props) {
             .get(URL)
             .then((response) => {
                 var data = response.data;
-                data.following = data.following.map((elem) => {return {id: elem}});
-                data.followed = data.followed.map((elem) => {return {id: elem}});
+                //data.following = data.following.map((elem) => {return {id: elem}});
+                //data.followed = data.followed.map((elem) => {return {id: elem}});
                 console.log(data);
                 setMyProfile(data);
             })
@@ -55,7 +55,8 @@ export default function MyProfile(props) {
     }
 
     function loadAllPostings () {
-        if(allImagesState.length == 0){
+        console.log(allPostingsState.length)
+        if(allPostingsState.length == 0){
             var URL = "/profile/" + myId + "/postings";
             httpService
                 .get(URL)
@@ -74,6 +75,12 @@ export default function MyProfile(props) {
         
         
     }
+    useEffect(() => {
+        if (allPostingsState.length > 0) {
+
+            setAllPostingsHiddenState("visible");
+        }
+    },[allPostingsState])
 
     useEffect(() => {
         if (allImagesState.length > 0) {
@@ -83,7 +90,9 @@ export default function MyProfile(props) {
     },[allImagesState])
 
     function choosePosting(object){
-
+        let idPosting= object.id;
+        let path = "/posting/" + idPosting;
+        history.push(path);
     }
 
     function chooseImage(object){
@@ -107,7 +116,7 @@ export default function MyProfile(props) {
 
     useEffect(()=>{
         if(myProfile!=null){
-            console.log(myProfile)
+            //console.log(myProfile)
             setIsLoading(1);
         }
     },[myProfile])
@@ -128,7 +137,7 @@ export default function MyProfile(props) {
                                     <img
                                         id={i}
                                         ref = {(ref) => allPostingsRefs[`img${i}`] = ref}
-                                        src = {object.dataURL}
+                                        src = {object.fractal.dataURL}
                                         width = "100vw" height = "100vw"
                                         onClick={() => choosePosting(object)}
                                         >

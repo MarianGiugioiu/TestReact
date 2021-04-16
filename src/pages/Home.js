@@ -1,12 +1,15 @@
 import '../App.css';
-import { Input, FormGroup, Label, Button } from "reactstrap";
-import { useEffect, useState } from 'react';
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
+import React, { useRef, useEffect, useCallback, useState, useContext } from 'react'
 import httpService from '../services/httpService';
+import AuthenticationContext from "../AuthenticationContext";
 
 export default function Home() {
   const [nameSearchState, setNameSearchState] = useState("");
+  const [userIdState, setUserIdState] = useState("");
   const history = useHistory();
+  const authentication = useContext(AuthenticationContext);
+  let myId = authentication.id;
 
   function handleChange(event){
     const { name, value } = event.target;
@@ -24,23 +27,64 @@ export default function Home() {
         console.log(path);
         history.push(path);
       });
-    
   }
+
+  function handleChangeId(event){
+    const { name, value } = event.target;
+    setUserIdState(value);
+  }
+  function handleClickLogIn(){
+    authentication.logIn(userIdState);
+  }
+  function handleClickLogOut(){
+    authentication.logOut();
+  }
+
+  function HomePage(){
+    if(myId==-1){
+      return (
+        <div>
+          <input
+            type="text"
+            placeholder="Enter Id"
+            name="Id"
+            value={userIdState}
+            onChange={handleChangeId}
+          />
+          <button
+            onClick={handleClickLogIn}
+          >
+            LogIn
+          </button>
+        </div>
+      )
+    } else {
+      return (
+        <div>
+          <button
+            onClick={handleClickLogOut}
+          >
+            LogOut
+          </button>
+          <label>Enter Name:</label>
+          <input
+            type="text"
+            placeholder="Enter Name"
+            name="Name"
+            value={nameSearchState}
+            onChange={handleChange}
+          />
+          <button
+            onClick={handleClick}
+          >
+            Search
+          </button>
+        </div>
+      );
+    }
+  }
+
   return (
-    <div>
-      <label>Enter Name:</label>
-      <input
-        type="text"
-        placeholder="Enter Name"
-        name="Name"
-        value={nameSearchState}
-        onChange={handleChange}
-      />
-      <button
-        onClick={handleClick}
-      >
-        Search
-      </button>
-    </div>
+    HomePage()
   );
 }

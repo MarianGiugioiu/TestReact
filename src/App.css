@@ -70,6 +70,11 @@ canvas {
   width: 100%;
 }
 
+.myRowSimple{
+  display: flex;
+  flex-direction: row;
+}
+
 
 .hidden {
   visibility: hidden;
