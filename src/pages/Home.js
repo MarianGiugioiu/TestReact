@@ -9,7 +9,7 @@ export default function Home() {
   const [userIdState, setUserIdState] = useState("");
   const history = useHistory();
   const authentication = useContext(AuthenticationContext);
-  let myId = authentication.id;
+  let myId = authentication.getUser();
 
   function handleChange(event){
     const { name, value } = event.target;
@@ -61,11 +61,7 @@ export default function Home() {
     } else {
       return (
         <div>
-          <button
-            onClick={handleClickLogOut}
-          >
-            LogOut
-          </button>
+          
           <label>Enter Name:</label>
           <input
             type="text"

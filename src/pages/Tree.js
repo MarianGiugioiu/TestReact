@@ -1,10 +1,12 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react'
 import Slider from 'react';
-import { ChromePicker } from 'react-color'
+import { ChromePicker } from 'react-color';
+import { useParams } from 'react-router';
 import httpService from '../services/httpService';
 
 
 export default function Tree(props){
+    const params = useParams();
     const canvasRef1 = useRef(null);
     const downloadRef = useRef(null);
     const [imgUrl, setImgUrl] = useState(null);
@@ -272,7 +274,7 @@ export default function Tree(props){
     }
 
     const loadTree = useCallback(() => {
-        let myId = props.location.state.id;
+        let myId = params.id;
         let URL = "/fractal/" + myId;
         
         httpService
@@ -312,9 +314,9 @@ export default function Tree(props){
 
     useEffect(()=>{
         if(started == 0){
-            if(props.location.state.action === "old"){
+            if(params.action === "old"){
                 loadTree();
-            } else if(props.location.state.action === "new"){
+            } else if(params.action === "new"){
                 randomTree()
             }
         }
@@ -353,7 +355,7 @@ export default function Tree(props){
             </div>
             {/*<button onClick={existingTree}>Generate Previous Tree</button>*/}
             {<button onClick={saveTree}>Save Tree</button>}
-            {<button style={{visibility:((props.location.state.action === "old") ? "visible" : "hidden")}} onClick={loadTree}>Load Tree</button>}
+            {<button style={{visibility:((params.action === "old") ? "visible" : "hidden")}} onClick={loadTree}>Load Tree</button>}
             {<button onClick={randomTree} className="generate-tree-button">Generate Random Tree</button>}
         </>
     ) 

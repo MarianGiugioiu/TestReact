@@ -6,6 +6,7 @@ import Profile from './pages/Profile';
 import OtherProfile from './pages/OtherProfile';
 import MyProfile from './pages/MyProfile';
 import Generator from './pages/Generator';
+import Settings from './pages/Settings'
 import Layout from './components/Layout';
 import Tree from './pages/Tree';
 import SnowFlake from './pages/SnowFlake';
@@ -36,11 +37,12 @@ export default function App(props){
 
   function getUser(){
     const user = localStorage.getItem("user");
+    let id = -1;
     if(user != null){
-      setUserId(JSON.parse(user).id);
-    } else {
-      setUserId(-1);
+      id = JSON.parse(user).id;
     }
+    setUserId(id);
+    return id;
   }
 
   useEffect(()=>{
@@ -51,12 +53,13 @@ export default function App(props){
   return (
     <Router>
       <Switch>
-        <AuthenticationContext.Provider value={{id:userId, logIn:logIn, logOut:logOut}}>
+        <AuthenticationContext.Provider value={{id:userId, logIn:logIn, logOut:logOut, getUser:getUser}}>
           <Layout>
             <Route exact path="/" component={Home} />
             <Route path="/myprofile" component={MyProfile} />
             <Route path="/profile/:id" component={OtherProfile} />
             <Route path="/generator" component={Generator} />
+            <Route path="/settings" component={Settings} />
             <Route path="/posting/:id" component={Posting} />
             <Route path="/Tree" component={Tree} />
             <Route path="/ImageCreator/:action/:id?" component={ImageCreator} />

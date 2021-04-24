@@ -3,11 +3,12 @@ import { useHistory, useParams } from "react-router-dom";
 import React, { useRef, useEffect, useCallback, useState, useContext } from 'react'
 import httpService from '../services/httpService';
 import AuthenticationContext from "../AuthenticationContext";
+import Profile from "./Profile"
 
-export default function MyProfile(props) {
+export default function OtherProfile(props) {
     const { id } = useParams();
     const authentication = useContext(AuthenticationContext);
-    let myId = authentication.id;
+    let profileId = authentication.getUser();
     const history = useHistory();
 
     const [myProfile, setMyProfile] = useState(null);
@@ -17,6 +18,17 @@ export default function MyProfile(props) {
     const [allPostingsHiddenState, setAllPostingsHiddenState] = useState("hidden");
 
     const allPostingsRefs = {};
+
+    function checkIfObjectFromList(list){
+        let k = 0
+        while(k < list.length){
+            if(list[k].id == profileId){
+                return true;
+            }
+            k++;
+        }
+        return false;
+    }
 
     function loadProfile(){
         let URL = "/profile/" + id;
@@ -33,7 +45,7 @@ export default function MyProfile(props) {
     }
 
     function loadMyProfile(){
-        let URL = "/profile/" + myId;
+        let URL = "/profile/" + profileId;
         console.log(URL);
         httpService
             .get(URL)
@@ -46,23 +58,39 @@ export default function MyProfile(props) {
             })
     }
 
+    function removeObjectFromList(list, objectId){
+        let k = 0
+        while(k < list.length){
+            if(list[k].id == objectId){
+                break;
+            }
+            k++;
+        }
+        list.splice(k,1);
+    }
+
     function handleFollow(){
         let myProfileCopy = JSON.parse(JSON.stringify(myProfile));
         let profileCopy = JSON.parse(JSON.stringify(profile));
-        myProfileCopy.following.push({
-            id: profile.id
-        });
-        profileCopy.followed.push({
-            id: myProfile.id
-        });
+        if(!checkIfObjectFromList(profile.followed)){
+            myProfileCopy.following.push({
+                id: profile.id
+            });
+            profileCopy.followed.push({
+                id: myProfile.id
+            });
+        } else {
+            removeObjectFromList(profileCopy.followed,profileId);
+            removeObjectFromList(myProfileCopy.following,id);
+        }
         setProfile(profileCopy);
         setMyProfile(myProfileCopy);
         const URL = "/profile/" + myProfile.id;
         httpService
-        .put(URL, myProfileCopy)
-        .then((response) => {
-          console.log(response.data);
-        });
+            .put(URL, myProfileCopy)
+            .then((response) => {
+            console.log(response.data);
+            });
     }
 
     useEffect(()=>{
@@ -72,7 +100,7 @@ export default function MyProfile(props) {
 
     useEffect(()=>{
         if(profile!=null){
-            console.log(profile);
+            //console.log(profile);
             setIsLoading(1);
         }
     },[profile])
@@ -115,30 +143,9 @@ export default function MyProfile(props) {
         <div>
             <p>{isLoading === 1 ? profile.name : ""}</p>
             <p>{isLoading === 1 ? profile.description : ""}</p>
-            {<button style = {{visibility:(isLoading == 0 ? "hidden" : "visible")}} onClick={handleFollow}>Follow</button>}
-            <button style = {{visibility:(isLoading == 0 ? "hidden" : "visible")}} onClick={loadAllPostings} >{allPostingsHiddenState === "hidden" ? "Show postings": "Hide postings"}</button>
-            <div className="myRow2" style = {{visibility:allPostingsHiddenState}}>
-            {
-                    
-                    allPostingsState.map(function(object, i){
-                        if(object!= null) {
-                            return (   
-                                <> 
-                                    <img
-                                        id={i}
-                                        ref = {(ref) => allPostingsRefs[`img${i}`] = ref}
-                                        src = {object.fractal.dataURL}
-                                        width = "100vw" height = "100vw"
-                                        onClick={() => choosePosting(object)}
-                                        >
-                                    </img>
-                                    
-                                </>
-                            );
-                        }
-                    })
-                }
-            </div>
+            {<button style = {{visibility:(isLoading == 0 ? "hidden" : "visible")}} onClick={handleFollow}>{isLoading == 1 && checkIfObjectFromList(profile.followed) ? "Unfollow" : "Follow"}</button>}
+            <br></br>
+            {isLoading === 1 ? <Profile profile={profile} /> : <div></div>}
         </div>
     );
 }

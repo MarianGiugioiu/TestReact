@@ -3,11 +3,12 @@ import { useHistory, useParams } from "react-router-dom";
 import React, { useRef, useEffect, useCallback, useState, useContext } from 'react'
 import httpService from '../services/httpService';
 import AuthenticationContext from "../AuthenticationContext";
+import Profile from './Profile'
 
 export default function MyProfile(props) {
     const authentication = useContext(AuthenticationContext);
     const history = useHistory();
-    let myId = authentication.id;
+    let myId = authentication.getUser();
 
     const [myProfile, setMyProfile] = useState(null);
     const [isLoading, setIsLoading] = useState(0);
@@ -26,8 +27,6 @@ export default function MyProfile(props) {
             .get(URL)
             .then((response) => {
                 var data = response.data;
-                //data.following = data.following.map((elem) => {return {id: elem}});
-                //data.followed = data.followed.map((elem) => {return {id: elem}});
                 console.log(data);
                 setMyProfile(data);
             })
@@ -126,52 +125,7 @@ export default function MyProfile(props) {
         <div>
             <p>{isLoading === 1 ? myProfile.name : ""}</p>
             <p>{isLoading === 1 ? myProfile.description : ""}</p>
-            <button style = {{visibility:(isLoading == 0 ? "hidden" : "visible")}} onClick={loadAllPostings} >{allPostingsHiddenState === "hidden" ? "Show my postings": "Hide postings"}</button>
-            <div className="myRow2" style = {{visibility:allPostingsHiddenState}}>
-            {
-                    
-                    allPostingsState.map(function(object, i){
-                        if(object!= null) {
-                            return (   
-                                <> 
-                                    <img
-                                        id={i}
-                                        ref = {(ref) => allPostingsRefs[`img${i}`] = ref}
-                                        src = {object.fractal.dataURL}
-                                        width = "100vw" height = "100vw"
-                                        onClick={() => choosePosting(object)}
-                                        >
-                                    </img>
-                                    
-                                </>
-                            );
-                        }
-                    })
-                }
-            </div>
-            <button style = {{visibility:(isLoading == 0 ? "hidden" : "visible")}} onClick={loadAllImages} >{allImagesHiddenState === "hidden" ? "Show my images": "Hide images"}</button>
-            <div className="myRow2" style = {{visibility:allImagesHiddenState}}>
-            {
-                    
-                    allImagesState.map(function(object, i){
-                        if(object!= null) {
-                            return (   
-                                <> 
-                                    <img
-                                        id={i}
-                                        ref = {(ref) => allImagesRefs[`img${i}`] = ref}
-                                        src = {object.dataURL}
-                                        width = "100vw" height = "100vw"
-                                        onClick={() => chooseImage(object)}
-                                        >
-                                    </img>
-                                    
-                                </>
-                            );
-                        }
-                    })
-                }
-            </div>
+            {isLoading === 1 ? <Profile type="mine" profile={myProfile} /> : <div></div>}
         </div>
     );
 }

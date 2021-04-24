@@ -7,7 +7,7 @@ import AuthenticationContext from "../AuthenticationContext";
 export default function MyPosting(props) {
     const { id } = useParams();
     const authentication = useContext(AuthenticationContext);
-    let profileId = authentication.id;
+    let profileId = authentication.getUser();
     //console.log(profileId)
 
     const [postingState, setPostingState] = useState(null);
@@ -61,8 +61,6 @@ export default function MyPosting(props) {
     useEffect(()=>{
         if(postingState != null){
             loadAllComments();
-            saveLikePost();
-            console.log(postingState.likedBy)
             if(checkIfObjectFromList(postingState.likedBy)){
                 setLikePostButtonColor("#00F")
             }
@@ -234,10 +232,10 @@ export default function MyPosting(props) {
         return false;
     }
 
-    function saveLikePost(){
+    function saveLikePost(object){
         let URL = "/posting/" + id;
         httpService
-            .put(URL, postingState)
+            .put(URL, object)
             .then((response) => {
                 console.log(response.data);
                 
@@ -265,13 +263,15 @@ export default function MyPosting(props) {
                     removeObjectFromList(postingCopy.dislikedBy)
                 }
                 setPostingState(postingCopy);
-                //saveLikePost()
+                saveLikePost(postingCopy);
             } else {
                 setLikePostButtonColor("#FFF")
                 removeObjectFromList(postingCopy.likedBy)
                 setPostingState(postingCopy);
-                //saveLikePost();
+                saveLikePost(postingCopy);
             }
+        } else {
+            alert("You can't like your own post");
         }
         
     }
@@ -287,13 +287,15 @@ export default function MyPosting(props) {
                     removeObjectFromList(postingCopy.likedBy)
                 }
                 setPostingState(postingCopy);
-                //saveLikePost()
+                saveLikePost(postingCopy);
             } else {
                 setDislikePostButtonColor("#FFF")
                 removeObjectFromList(postingCopy.dislikedBy)
                 setPostingState(postingCopy);
-                //saveLikePost();
+                saveLikePost(postingCopy);
             }
+        } else {
+            alert("You can't dislike your own post");
         }
     }
 
@@ -307,27 +309,54 @@ export default function MyPosting(props) {
                 likeColors[i] = "#00F"
                 setLikeCommentButtonsColor(likeColors)
                 comment.likedBy.push({id:profileId})
+                if(dislikeColors[i] != "#FFF"){
+                    dislikeColors[i] = "#FFF";
+                    setDislikeCommentButtonsColor(dislikeColors);
+                    removeObjectFromList(comment.dislikedBy)
+                }
+                //console.log(comment)
                 setAllCommentsState(comments);
+                saveLikeComment(comment);
                 
             } else {
                 likeColors[i] = "#FFF"
                 setLikeCommentButtonsColor(likeColors)
                 removeObjectFromList(comment.likedBy)
                 setAllCommentsState(comments);
+                saveLikeComment(comment);
             }
+        } else {
+            alert("You can't like your own comment");
         }
     }
 
     function dislikeComment(object, i){
         if(profileId != object.profile.id){
-            let colors = [...dislikeCommentButtonsColor]
-            if(colors[i] === "#FFF"){
-                colors[i] = "#F00"
-                setDislikeCommentButtonsColor(colors)
+            let comments = JSON.parse(JSON.stringify(allCommentsState)) 
+            let comment = comments[i]
+            let likeColors = [...likeCommentButtonsColor]
+            let dislikeColors = [...dislikeCommentButtonsColor]
+            if(dislikeColors[i] === "#FFF"){
+                dislikeColors[i] = "#F00"
+                setDislikeCommentButtonsColor(dislikeColors)
+                comment.dislikedBy.push({id:profileId})
+                if(likeColors[i] != "#FFF"){
+                    likeColors[i] = "#FFF";
+                    setLikeCommentButtonsColor(likeColors);
+                    removeObjectFromList(comment.likedBy)
+                }
+                setAllCommentsState(comments);
+                saveLikeComment(comment);
+                
             } else {
-                colors[i] = "#FFF"
-                setDislikeCommentButtonsColor(colors)
+                likeColors[i] = "#FFF"
+                setDislikeCommentButtonsColor(dislikeColors)
+                removeObjectFromList(comment.dislikedBy)
+                setAllCommentsState(comments);
+                saveLikeComment(comment);
             }
+        } else {
+            alert("You can't dislike your own comment");
         }
     }
 

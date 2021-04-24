@@ -47,6 +47,11 @@ export default function NavMenu(props){
                   Generator
                 </NavLink>
               </NavItem>
+              <NavItem>
+                <NavLink tag={Link} className="text-dark" to="/settings">
+                  Settings
+                </NavLink>
+              </NavItem>
             </ul>
           </Collapse>
         </Container>
