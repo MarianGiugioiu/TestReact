@@ -1,7 +1,7 @@
-import React, { useRef, useEffect, useCallback, useState, useContext, useHistory } from 'react'
+import React, { useRef, useEffect, useCallback, useState, useContext } from 'react'
 import httpService from '../services/httpService';
 import '../App.css';
-import { useParams } from 'react-router';
+import { useHistory, useParams } from 'react-router';
 import AuthenticationContext from "../AuthenticationContext";
 
 export default function ImageCreator(props){

@@ -75,6 +75,11 @@ canvas {
   flex-direction: row;
 }
 
+.myColumnSimple{
+  display: flex;
+  flex-direction: column;
+}
+
 
 .hidden {
   visibility: hidden;

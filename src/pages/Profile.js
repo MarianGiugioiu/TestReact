@@ -107,6 +107,28 @@ export default function Profile(props) {
         history.push(path);
     }
 
+    function deleteFromList(name, i){
+        if (name == "Postings"){
+            let list = [...allPostingsState];
+            list.splice(i,1);
+            setAllPostingsState(list);
+        } else if (name == "Images"){
+            let URL = /fractal/ + allImagesState[i].imageId
+            httpService
+                .delete(URL)
+                .then((response) => {
+                    console.log(response);
+                    if (response.status == 202) {
+                        let list = [...allImagesState];
+                        list.splice(i,1);
+                        setAllImagesState(list);
+                    }
+                })
+        } 
+        
+
+    }
+
     function MyList(name, data, refs, visibility, loadFunction, chooseFunction){
         return (
             <div>
@@ -117,7 +139,7 @@ export default function Profile(props) {
                         data.map(function(object, i){
                             if(object!= null) {
                                 return (   
-                                    <> 
+                                    <div className="myColumnSimple"> 
                                         <img
                                             id={i}
                                             ref = {(ref) => refs[`img${i}`] = ref}
@@ -126,8 +148,9 @@ export default function Profile(props) {
                                             onClick={() => chooseFunction(object)}
                                             >
                                         </img>
-                                        
-                                    </>
+                                        <pre>{object.name}</pre>
+                                        <button style = {{visibility: ((visibility === "visible" && props.type === "mine") ? "visible" : "hidden")}} onClick={() => deleteFromList(name,i)}>Delete</button>
+                                    </div>
                                 );
                             }
                         })
