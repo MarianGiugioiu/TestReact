@@ -125,6 +125,7 @@ export default function MyProfile(props) {
         <div>
             <p>{isLoading === 1 ? myProfile.name : ""}</p>
             <p>{isLoading === 1 ? myProfile.description : ""}</p>
+            <img src = {isLoading === 1 ? myProfile.photo : ""} width="100" height="100" style={{display:isLoading === 1 ? "block" : "none"}}></img>
             {isLoading === 1 ? <Profile type="mine" profile={myProfile} /> : <div></div>}
         </div>
     );

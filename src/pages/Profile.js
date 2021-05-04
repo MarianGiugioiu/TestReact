@@ -3,6 +3,12 @@ import { useHistory, useParams } from "react-router-dom";
 import React, { useRef, useEffect, useCallback, useState, useContext } from 'react'
 import httpService from '../services/httpService';
 import AuthenticationContext from "../AuthenticationContext";
+import { Link } from "react-router-dom";
+
+function useForceUpdate(){
+    const [value, setValue] = useState(0); // integer state
+    return () => setValue(value => value + 1); // update the state to force render
+}
 
 export default function Profile(props) {
     const history = useHistory();
@@ -10,18 +16,19 @@ export default function Profile(props) {
     const privacyOptions = JSON.parse(props.profile.privacy);
     let myId = authentication.getUser();
 
-    const [allImagesState,setAllImagesState] = useState([]);
-    const [allImagesHiddenState, setAllImagesHiddenState] = useState("hidden");
-    const [allPostingsState,setAllPostingsState] = useState([]);
-    const [allPostingsHiddenState, setAllPostingsHiddenState] = useState("hidden");
-    const [allFollowedState,setAllFollowedState] = useState([]);
-    const [allFollowedHiddenState, setAllFollowedHiddenState] = useState("hidden");
-    const [allFollowingState,setAllFollowingState] = useState([]);
-    const [allFollowingHiddenState, setAllFollowingHiddenState] = useState("hidden");
-    const [allLikesState,setAllLikesState] = useState([]);
-    const [allLikesHiddenState, setAllLikesHiddenState] = useState("hidden");
-    const [allDislikesState,setAllDislikesState] = useState([]);
-    const [allDislikesHiddenState, setAllDislikesHiddenState] = useState("hidden");
+    const forceUpdate = useForceUpdate();
+    const [allImagesState,setAllImagesState] = useState(null);
+    const [allImagesHiddenState, setAllImagesHiddenState] = useState("none");
+    const [allPostingsState,setAllPostingsState] = useState(null);
+    const [allPostingsHiddenState, setAllPostingsHiddenState] = useState("none");
+    const [allFollowedState,setAllFollowedState] = useState(null);
+    const [allFollowedHiddenState, setAllFollowedHiddenState] = useState("none");
+    const [allFollowingState,setAllFollowingState] = useState(null);
+    const [allFollowingHiddenState, setAllFollowingHiddenState] = useState("none");
+    const [allLikesState,setAllLikesState] = useState(null);
+    const [allLikesHiddenState, setAllLikesHiddenState] = useState("none");
+    const [allDislikesState,setAllDislikesState] = useState(null);
+    const [allDislikesHiddenState, setAllDislikesHiddenState] = useState("none");
 
 
     const allImagesRefs = {};
@@ -32,7 +39,7 @@ export default function Profile(props) {
     const allDislikesRefs = {};
 
     function loadAllImages () {
-        if(allImagesState.length == 0){
+        if(allImagesState == null){
             var URL = "/profile/" + props.profile.id + "/fractals";
             httpService
                 .get(URL)
@@ -42,17 +49,16 @@ export default function Profile(props) {
                     setAllImagesState(data);
             })
         } else {
-            if(allImagesHiddenState === "hidden"){
-                setAllImagesHiddenState("visible");
+            if(allImagesHiddenState === "none"){
+                setAllImagesHiddenState("flex");
             } else {
-                setAllImagesHiddenState("hidden");
+                setAllImagesHiddenState("none");
             }
         }
     }
 
     function loadAllPostings () {
-        console.log(allPostingsState.length)
-        if(allPostingsState.length == 0){
+        if(allPostingsState == null){
             var URL = "/profile/" + props.profile.id + "/postings";
             httpService
                 .get(URL)
@@ -62,17 +68,16 @@ export default function Profile(props) {
                     setAllPostingsState(data);
             })
         } else {
-            if(allPostingsHiddenState === "hidden"){
-                setAllPostingsHiddenState("visible");
+            if(allPostingsHiddenState === "none"){
+                setAllPostingsHiddenState("flex");
             } else {
-                setAllPostingsHiddenState("hidden");
+                setAllPostingsHiddenState("none");
             }
         }  
     }
 
     function loadAllFollowed () {
-        //console.log(allPostingsState.length)
-        if(allFollowedState.length == 0){
+        if(allFollowedState == null){
             var URL = "/profile/" + props.profile.id + "/followed";
             httpService
                 .get(URL)
@@ -82,32 +87,32 @@ export default function Profile(props) {
                     setAllFollowedState(data);
             })
         } else {
-            if(allFollowedHiddenState === "hidden"){
-                setAllFollowedHiddenState("visible");
+            if(allFollowedHiddenState === "none"){
+                setAllFollowedHiddenState("flex");
             } else {
-                setAllFollowedHiddenState("hidden");
+                setAllFollowedHiddenState("none");
             }
         }  
     }
 
     useEffect(() => {
-        if (allImagesState.length > 0) {
+        if (allImagesState != null) {
 
-            setAllImagesHiddenState("visible");
+            setAllImagesHiddenState("flex");
         }
     },[allImagesState])
 
     useEffect(() => {
-        if (allPostingsState.length > 0) {
+        if (allPostingsState != null) {
 
-            setAllPostingsHiddenState("visible");
+            setAllPostingsHiddenState("flex");
         }
     },[allPostingsState])
 
     useEffect(() => {
-        if (allFollowedState.length > 0) {
+        if (allFollowedState != null) {
 
-            setAllFollowedHiddenState("visible");
+            setAllFollowedHiddenState("flex");
         }
     },[allFollowedState])
 
@@ -124,6 +129,9 @@ export default function Profile(props) {
             path = "/myprofile";
         }
         history.push(path);
+        if (props.type !== "mine"){
+            props.setChangeState(props.changeState + 1);
+        }
     }
 
     function chooseImage(object){
@@ -168,35 +176,51 @@ export default function Profile(props) {
                     }
                 })
         } 
-        
-
     }
+
+    useEffect(() => {
+        console.log("#####");
+        setAllPostingsState(null);
+        setAllImagesState(null);
+        setAllFollowedState(null);
+        setAllFollowingState(null);
+        setAllPostingsHiddenState("none");
+        setAllImagesHiddenState("none");
+        setAllFollowedHiddenState("none");
+        setAllFollowingHiddenState("none");
+
+    },[props.changeState])
 
     function MyList(name, data, refs, visibility, loadFunction, chooseFunction){
         return (
             <div>
-                <button onClick={loadFunction} >{visibility === "hidden" ? "Show " + name: "Hide " + name}</button>
-                <div className="myRow2" style = {{visibility:visibility}}>
-                {
-                        
-                        data.map(function(object, i){
-                            if(object!= null) {
-                                return (   
-                                    <div className="myColumnSimple"> 
-                                        <img
-                                            id={i}
-                                            ref = {(ref) => refs[`img${i}`] = ref}
-                                            src = {object.image}
-                                            width = "100vw" height = "100vw"
-                                            onClick={() => chooseFunction(object)}
-                                            >
-                                        </img>
-                                        <pre>{object.name}</pre>
-                                        <button style = {{visibility: ((visibility === "visible" && props.type === "mine") ? "visible" : "hidden")}} onClick={() => deleteFromList(name,i)}>Delete</button>
-                                    </div>
-                                );
-                            }
-                        })
+                <button onClick={loadFunction} >{visibility === "none" ? "Show " + name: "Hide " + name}</button>
+                <div className="myRow2" style = {{display:visibility}}>
+                    {
+                        data != null ?
+                        (data.length > 0 ?
+                            (data.map(function(object, i){
+                                if(object!= null) {
+                                    return (   
+                                        <div className="myColumnSimple" key={i}>
+                                            <Link to={"/profile" + object.id}>
+                                            </Link> 
+                                            <img
+                                                id={i}
+                                                ref = {(ref) => refs[`img${i}`] = ref}
+                                                src = {object.image}
+                                                width = "100vw" height = "100vw"
+                                                onClick={() => chooseFunction(object)}
+                                                >
+                                            </img>
+                                            <pre>{object.name}</pre>
+                                            <button style = {{display: ((visibility === "flex" && props.type === "mine" && (name === "Postings" || name === "Images")) ? "flex" : "none")}} onClick={() => deleteFromList(name,i)}>Delete</button>
+                                        </div>
+                                    );
+                                }
+                            })) : 
+                            <pre>The are no {name}</pre>
+                        ) : <div></div>
                     }
                 </div>
             </div>
