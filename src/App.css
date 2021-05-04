@@ -40,13 +40,10 @@
   flex-direction: row;
   float: center;
   height: 100%;
-  width: 50%;
+  width: 70%;
 }
 
-.image-part {
-  display: flex;
-  flex-direction: column;
-}
+
 
 .myColumn21 {
   display: flex;

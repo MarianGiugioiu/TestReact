@@ -6,17 +6,30 @@ import AuthenticationContext from "../AuthenticationContext";
 
 export default function Profile(props) {
     const history = useHistory();
+    const authentication = useContext(AuthenticationContext);
+    const privacyOptions = JSON.parse(props.profile.privacy);
+    let myId = authentication.getUser();
+
     const [allImagesState,setAllImagesState] = useState([]);
     const [allImagesHiddenState, setAllImagesHiddenState] = useState("hidden");
     const [allPostingsState,setAllPostingsState] = useState([]);
     const [allPostingsHiddenState, setAllPostingsHiddenState] = useState("hidden");
+    const [allFollowedState,setAllFollowedState] = useState([]);
+    const [allFollowedHiddenState, setAllFollowedHiddenState] = useState("hidden");
+    const [allFollowingState,setAllFollowingState] = useState([]);
+    const [allFollowingHiddenState, setAllFollowingHiddenState] = useState("hidden");
+    const [allLikesState,setAllLikesState] = useState([]);
+    const [allLikesHiddenState, setAllLikesHiddenState] = useState("hidden");
+    const [allDislikesState,setAllDislikesState] = useState([]);
+    const [allDislikesHiddenState, setAllDislikesHiddenState] = useState("hidden");
 
-    //console.log(props.profile)
-    const privacyOptions = JSON.parse(props.profile.privacy);
-    //console.log(privacyOptions)
 
     const allImagesRefs = {};
     const allPostingsRefs = {};
+    const allFollowedRefs = {};
+    const allFollowingRefs = {};
+    const allLikesRefs = {};
+    const allDislikesRefs = {};
 
     function loadAllImages () {
         if(allImagesState.length == 0){
@@ -26,13 +39,7 @@ export default function Profile(props) {
                 .then((response) => {
                     var data = response.data;
                     console.log(data);
-                    let imageCopy = data.map((elem) => { return {
-                        imageId: elem.id,
-                        type: elem.type,
-                        name: elem.name,
-                        image: elem.dataURL
-                    }})
-                    setAllImagesState(imageCopy);
+                    setAllImagesState(data);
             })
         } else {
             if(allImagesHiddenState === "hidden"){
@@ -41,8 +48,6 @@ export default function Profile(props) {
                 setAllImagesHiddenState("hidden");
             }
         }
-        
-        
     }
 
     function loadAllPostings () {
@@ -54,13 +59,7 @@ export default function Profile(props) {
                 .then((response) => {
                     var data = response.data;
                     console.log(data);
-                    let postingCopy = data.map((elem) => { return {
-                        postingId: elem.id,
-                        imageId: elem.fractal.id,
-                        name: elem.fractal.name,
-                        image: elem.fractal.dataURL
-                    }})
-                    setAllPostingsState(postingCopy);
+                    setAllPostingsState(data);
             })
         } else {
             if(allPostingsHiddenState === "hidden"){
@@ -68,16 +67,28 @@ export default function Profile(props) {
             } else {
                 setAllPostingsHiddenState("hidden");
             }
-        }
-        
-        
+        }  
     }
-    useEffect(() => {
-        if (allPostingsState.length > 0) {
 
-            setAllPostingsHiddenState("visible");
-        }
-    },[allPostingsState])
+    function loadAllFollowed () {
+        //console.log(allPostingsState.length)
+        if(allFollowedState.length == 0){
+            var URL = "/profile/" + props.profile.id + "/followed";
+            httpService
+                .get(URL)
+                .then((response) => {
+                    var data = response.data;
+                    console.log(data);
+                    setAllFollowedState(data);
+            })
+        } else {
+            if(allFollowedHiddenState === "hidden"){
+                setAllFollowedHiddenState("visible");
+            } else {
+                setAllFollowedHiddenState("hidden");
+            }
+        }  
+    }
 
     useEffect(() => {
         if (allImagesState.length > 0) {
@@ -86,17 +97,41 @@ export default function Profile(props) {
         }
     },[allImagesState])
 
+    useEffect(() => {
+        if (allPostingsState.length > 0) {
+
+            setAllPostingsHiddenState("visible");
+        }
+    },[allPostingsState])
+
+    useEffect(() => {
+        if (allFollowedState.length > 0) {
+
+            setAllFollowedHiddenState("visible");
+        }
+    },[allFollowedState])
+
     function choosePosting(object){
-        let idPosting= object.postingId;
+        let idPosting= object.id;
         let path = "/posting/" + idPosting;
         history.push(path);
     }
 
+    function chooseFollowed(object){
+        let idFollowed= object.id;
+        let path = "/profile/" + idFollowed;
+        if (idFollowed == myId){
+            path = "/myprofile";
+        }
+        history.push(path);
+    }
+
     function chooseImage(object){
-        let idImg = object.imageId;
-        let img = allImagesState.filter(obj => {
+        let idImg = object.id;
+        /*let img = allImagesState.filter(obj => {
             return obj.imageId === idImg;
-        })[0]
+        })[0]*/
+        let img = object;
         console.log(img);
         let path = "/";
         if(img.type === "image"){
@@ -109,11 +144,19 @@ export default function Profile(props) {
 
     function deleteFromList(name, i){
         if (name == "Postings"){
-            let list = [...allPostingsState];
-            list.splice(i,1);
-            setAllPostingsState(list);
+            let URL = /posting/ + allPostingsState[i].id;
+            httpService
+                .delete(URL)
+                .then((response) => {
+                    console.log(response);
+                    if (response.status == 202) {
+                        let list = [...allPostingsState];
+                        list.splice(i,1);
+                        setAllPostingsState(list);
+                    }
+                })
         } else if (name == "Images"){
-            let URL = /fractal/ + allImagesState[i].imageId
+            let URL = /fractal/ + allImagesState[i].id;
             httpService
                 .delete(URL)
                 .then((response) => {
@@ -163,7 +206,8 @@ export default function Profile(props) {
     return (
         <div>
             {MyList("Postings",allPostingsState,allPostingsRefs,allPostingsHiddenState,loadAllPostings,choosePosting)}
-            {props.type === "mine" || privacyOptions.fractals == true ? MyList("Images",allImagesState,allPostingsRefs,allImagesHiddenState,loadAllImages,chooseImage) : <pre>You can't see this profile's images</pre>}
+            {props.type === "mine" || privacyOptions.fractals == true ? MyList("Images",allImagesState,allImagesRefs,allImagesHiddenState,loadAllImages,chooseImage) : <pre>You can't see this profile's images</pre>}
+            {props.type === "mine" || privacyOptions.followers == true ? MyList("Followers",allFollowedState,allFollowedRefs,allFollowedHiddenState,loadAllFollowed,chooseFollowed) : <pre>You can't see this profile's followers</pre>}
         </div>
     );
 }

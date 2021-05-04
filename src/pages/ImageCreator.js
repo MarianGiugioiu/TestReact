@@ -1,8 +1,9 @@
 import React, { useRef, useEffect, useCallback, useState, useContext } from 'react'
 import httpService from '../services/httpService';
-import '../App.css';
 import { useHistory, useParams } from 'react-router';
+import { ChromePicker } from 'react-color';
 import AuthenticationContext from "../AuthenticationContext";
+import '../App.css';
 
 export default function ImageCreator(props){
     const history = useHistory();
@@ -17,8 +18,11 @@ export default function ImageCreator(props){
     const [started, setStarted] =useState(0);
     const [imagePartsState,setImagePartsState] = useState([]);
     const [allImagesState,setAllImagesState] = useState([]);
+    const [nameState, setNameState] = useState("");
+    const [descriptionState, setDescriptionState] = useState("");
 
     const canvasRef = useRef(null);
+    const canvasRef1 = useRef(null);
     const imgCanvas = useRef(null);
     const downloadRef = useRef(null);
     const imagePartsRefs = {};
@@ -30,6 +34,8 @@ export default function ImageCreator(props){
     const [posXState, setPosXState] = useState(canvasDimX / 2);
     const [posYState, setPosYState] = useState(canvasDimY / 2);
     const [canvasDataUrl, setCanvasDataUrl] = useState(null)
+    const [backgroungColorState, setBackgroungColorState] = useState({r: 0, g: 0, b: 0, a: 1});
+    const [isPngState, setIsPngState] = useState(false);
 
     const [imagePropertiesListState, setImagePropertiesListState] = useState([]);
     const [imgCanvasState,setImgCanvasState] = useState(null);
@@ -123,14 +129,32 @@ export default function ImageCreator(props){
             //console.log(datetime);
     
             const canvas = canvasRef.current;
-            var sourceImageData = canvas.toDataURL("image/jpeg",0.7);
-            //console.log(sourceImageData)
-    
+            const context = canvas.getContext('2d');
+            const canvas1 = canvasRef1.current;
+            const context1 = canvas1.getContext('2d');
+            canvas1.width = canvasDimX;
+            canvas1.height = canvasDimY;
+            var sourceImageData = canvas.toDataURL("image/" + "png", 0.7);
+            if (!isPngState) {
+                context1.save();
+                context1.fillStyle = 'rgb(' + backgroungColorState.r + ',' + backgroungColorState.g + ',' + backgroungColorState.b + ',' + backgroungColorState.a + ')';
+                context1.fillRect(0, 0, canvas1.width, canvas1.height);
+                context1.drawImage(canvas,0,0,canvasDimX,canvasDimY);
+                /*var destinationImage = new Image;
+                destinationImage.onload = function(){
+                    context1.drawImage(destinationImage,0,0);
+                };*/
+                //destinationImage.src = sourceImageData;
+                var sourceImageData = canvas1.toDataURL("image/" + "jpeg", 0.7);
+                context1.restore();
+            }
+
             var image = {
                 "id": newOrOldImageState,
                 "type": "image",
-                "name": "first",
-                "description": "description",
+                "name": nameState,
+                "status": isPngState,
+                "description": descriptionState,
                 "options": JSON.stringify(options),
                 "dataURL": sourceImageData,
                 "lastModified": datetime,
@@ -139,7 +163,13 @@ export default function ImageCreator(props){
                 }
             }
 
-            allImagesState.push(image);
+            let imageCopy = {
+                "id":image.id,
+                "name":image.name,
+                "image":image.dataURL
+            }
+
+            allImagesState.push(imageCopy);
             var URL = "/fractal"
                 httpService
                     .post(URL, image)
@@ -195,14 +225,16 @@ export default function ImageCreator(props){
     },[started])
 
     function loadImage() {
-        //console.log("asd");
-        //let myId = props.location.state.id;
         let myId = params.id;
+        setSavedIdState(myId);
         let URL = "/fractal/" + myId;
         httpService
             .get(URL)
             .then(async (response) => {
                 var data = response.data;
+                setNameState(data.name);
+                setDescriptionState(data.description);
+                setIsPngState(data.status);
                 const imagePropertiesList = JSON.parse(data.options).imagePropertiesList;
                 setImgCanvasState(data.dataURL);
                 setImagePropertiesListState(imagePropertiesList)
@@ -210,21 +242,17 @@ export default function ImageCreator(props){
                 imagePropertiesList.forEach(elem => {
                     ids.push(elem.id);
                 });
-                let imageParts = new Array(ids.length)
-                for(let i = 0; i < ids.length; i++){
-                //imagePropertiesList.forEach(async (elem) => {
-                    var URLPart = "/fractal/" + ids[i];
-                    const response = await httpService.get(URLPart).then(response => {
-                        const imagePart = response.data;
-                        //console.log(imagePart);
-                        imageParts[i] = imagePart;
-                    });
-                    
-                }
                 ids.push(myId);
-                setPartIdListState(ids);
-                setImagePartsState(imageParts);
-                setLoadingImagePartsState(1);
+                //setPartIdListState(ids);
+                let URLParts = "/fractal/" + data.id + "/parts";
+                httpService
+                    .get(URLParts)
+                    .then((response) => {
+                        console.log(response.data);
+                        setImagePartsState(response.data);
+                        setLoadingImagePartsState(1);
+                    })
+                
             })
         setNewOrOldImageState(myId); 
     }
@@ -262,7 +290,7 @@ export default function ImageCreator(props){
 
         setImagePartsState(parts);
         setImagePropertiesListState(properties);
-        setPartIdListState(ids);
+        //setPartIdListState(ids);
     }
 
     function newImage() {
@@ -321,6 +349,12 @@ export default function ImageCreator(props){
     }
 
     useEffect(() => {
+        if(allImagesState.length != 0){
+            setLoadingAllImagesState(1);
+        }
+    },[allImagesState])
+
+    useEffect(() => {
         if (allImagesState.length > 0) {
             setBtnAfterAllHiddenState("visible");
         }
@@ -331,7 +365,7 @@ export default function ImageCreator(props){
         const context = canvas.getContext('2d');
         const image = imgCanvas.current;
 
-        console.log(image)
+        //console.log(image)
         context.drawImage(image,0,0);
         setCanvasDataUrl(canvas.toDataURL("image/png"));
     }
@@ -386,6 +420,7 @@ export default function ImageCreator(props){
             context.stroke();
             }
         }
+        //context.restore();
         if (readyState == 1){
             setReadyState(2);
         }
@@ -397,14 +432,17 @@ export default function ImageCreator(props){
         if (idState != -1){
             const list = [...imagePropertiesListState];
             var idImage = list[idState].id;
-            list[idState] = {
-                "posX": posXState,
-                "posY": posYState,
-                "rotation": rotationState,
-                "scale": scaleState,
-                "id": idImage
+            if(idState != id) {
+                list[idState] = {
+                    "posX": posXState,
+                    "posY": posYState,
+                    "rotation": rotationState,
+                    "scale": scaleState,
+                    "id": idImage
+                }
+                setImagePropertiesListState(list);
             }
-            setImagePropertiesListState(list);
+            
         }
         setIdState(id);
 
@@ -480,23 +518,23 @@ export default function ImageCreator(props){
                     {
                         //console.log(imagePartsState)
                         imagePartsState.map(function(object, i){
-                            //console.log(i);
-                            //console.log(object);
-
-                            //const canvasRef = useRef(null);
                             if(object != null){
                                 return (   
-                                    <div className="image-part"> 
+                                    <div className="myRowSimple"> 
                                         <img
                                             id={i}
                                             ref = {(ref) => imagePartsRefs[`img${i}`] = ref}
-                                            src = {object.dataURL}
+                                            src = {object.image}
                                             width = "50%" height = "50%"
                                             onClick={changeImage}
                                             className={imagePartsHiddenState}
                                             >
                                         </img>
-                                        {<button style = {{visibility:((btnAfterAllHiddenState ==="visible" && imagePartsHiddenState === "visible") ? "visible" : "hidden")}} onClick={() => deletePart(i)}>Delete</button>}
+                                        <div className="myColumnSimple">
+                                            <pre>{object.name}</pre>
+                                            {<button style = {{visibility:((btnAfterAllHiddenState ==="visible" && imagePartsHiddenState === "visible") ? "visible" : "hidden")}} onClick={() => deletePart(i)}>Delete</button>}
+                                        </div>
+                                        
                                     </div>
                                 );
                             }
@@ -510,14 +548,68 @@ export default function ImageCreator(props){
 		            </div>
                 </div>
                 <div className="myColumn2">
-                    <div className="myColumn21">
-                        <canvas ref={canvasRef} onClick={handleClick} {...props}/>
+                    <div className="myColumnSimple">
+                        <div className="myColumn21">
+                            <canvas 
+                                ref={canvasRef} 
+                                style={{background:'rgb(' + backgroungColorState.r + ',' + backgroungColorState.g + ',' + backgroungColorState.b + ',' + backgroungColorState.a + ')'}} 
+                                onClick={handleClick} 
+                                {...props}
+                            />
+                        </div>
+                        <div className="myRowSimple">
+                            <div>
+                                <ChromePicker 
+                                    color={backgroungColorState}
+                                    onChange={(event) => setBackgroungColorState(event.rgb)}
+                                />
+                            </div>
+                            <div className="myColumnSimple">
+                                <div className="myRowSimple">
+                                    <pre>Name:        </pre>
+                                    {
+                                        loadingAllImagesState == 0 ? 
+                                        <pre>{nameState}</pre> : 
+                                        <input
+                                            type="text"
+                                            value={nameState}
+                                            onChange={(event) => {setNameState(event.target.value)}}
+                                        />
+                                    }
+                                </div>
+                                <div className="myRowSimple">
+                                    <pre>Description: </pre>
+                                    {
+                                        loadingAllImagesState == 0 ? 
+                                        <pre>{descriptionState}</pre> : 
+                                        <input
+                                            type="text"
+                                            value={descriptionState}
+                                            onChange={(event) => setDescriptionState(event.target.value)}
+                                        />
+                                    }
+                                </div>
+                                <div className="myRowSimple">
+                                    <pre>PNG </pre>
+                                    <input type="checkbox" id="checkbox1" checked={isPngState} onChange={() => setIsPngState(!isPngState)}></input>
+                                </div>
+                                <canvas 
+                                    ref={canvasRef1}
+                                    style={{display:"none"}}
+                                    {...props}
+                                />
+                            </div>
+                        </div>
+                        
+                        
                     </div>
+                    
+                    
                     <div className="myColumn22">
-                        <div className="slidecontainer">
+                        <div className="slidecontainer" style = {{visibility:(loadingAllImagesState == 1 ? "visible" : "hidden")}}>
                             <input onInput={changeRotation} defaultValue="0" type="range" step="1" min="-180" max="180" className="slider" id="myRange4" />  
                         </div>
-                        <div className="slidecontainer">
+                        <div className="slidecontainer" style = {{visibility:(loadingAllImagesState == 1 ? "visible" : "hidden")}}>
                             <input onInput={changeScale} defaultValue="1" type="range" step="0.1" min="0.1" max="5" className="slider" id="myRange4" />  
                         </div>
                         {<button style = {{visibility:(params.action === "new" ? "visible" : "hidden")}} onClick={newImage}>New Image</button>}
@@ -539,17 +631,17 @@ export default function ImageCreator(props){
                     allImagesState.map(function(object, i){
                         if(object!= null && !partIdListState.includes(object.id)) {
                             return (   
-                                <> 
+                                <div className="myColumnSimple"> 
                                     <img
                                         id={i}
                                         ref = {(ref) => allImagesRefs[`img${i}`] = ref}
-                                        src = {object.dataURL}
+                                        src = {object.image}
                                         width = "100vw" height = "100vw"
                                         onClick={() => chooseImage(object)}
                                         >
                                     </img>
-                                    
-                                </>
+                                    <pre>{object.name}</pre>
+                                </div>
                             );
                         }
                     })

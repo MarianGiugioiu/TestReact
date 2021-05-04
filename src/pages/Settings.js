@@ -120,7 +120,7 @@ export default function Settings(props) {
                 <br></br>
                 <input
                     type="text"
-                    placeholder="Enter Name"
+                    placeholder="Enter Description"
                     name="description"
                     value={isLoading === 1 ? myProfile.description : ""}
                     onChange={handleChangeData}
