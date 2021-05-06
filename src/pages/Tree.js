@@ -1,12 +1,16 @@
-import React, { useRef, useEffect, useCallback, useState } from 'react'
+import React, { useRef, useEffect, useCallback, useState, useContext } from 'react'
 import Slider from 'react';
 import { ChromePicker } from 'react-color';
 import { useParams } from 'react-router';
 import httpService from '../services/httpService';
+import AuthenticationContext from "../AuthenticationContext";
 
 
 export default function Tree(props){
     const params = useParams();
+    const authentication = useContext(AuthenticationContext);
+    let profileId = authentication.getUser();
+    
     const canvasRef1 = useRef(null);
     const downloadRef = useRef(null);
     const [imgUrl, setImgUrl] = useState(null);
@@ -254,13 +258,14 @@ export default function Tree(props){
         var fractal = {
             "id": 0,
             "type": "tree",
+            "status":false,
             "name": "name5",
             "description": "description",
             "options": JSON.stringify(options),
             "dataURL": sourceImageData,
             "lastModified": datetime,
             "profile": {
-                "id": 1
+                "id": profileId
             }
         }
 

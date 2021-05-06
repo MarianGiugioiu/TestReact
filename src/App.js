@@ -11,9 +11,11 @@ import Layout from './components/Layout';
 import Tree from './pages/Tree';
 import SnowFlake from './pages/SnowFlake';
 import ImageCreator from "./pages/ImageCreator";
-import Posting from "./pages/Posting"
+import Posting from "./pages/Posting";
+import ScrollComp from "./pages/ScrollComp";
 import AuthenticationContext from "./AuthenticationContext";
 import httpService from './services/httpService';
+import { v4 as uuidv4 } from 'uuid';
 
 //<TreeList action="old" id="82"/>
 
@@ -57,7 +59,7 @@ export default function App(props){
           <Layout>
             <Route exact path="/" component={Home} />
             <Route path="/myprofile" component={MyProfile} />
-            <Route path="/profile/:id" component={OtherProfile} />
+            <Route path="/profile/:id" render={(props) => <OtherProfile {...props} key={uuidv4()}/>} />
             <Route path="/generator" component={Generator} />
             <Route path="/settings" component={Settings} />
             <Route path="/posting/:id" component={Posting} />

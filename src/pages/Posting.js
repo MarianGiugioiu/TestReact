@@ -3,6 +3,7 @@ import { useHistory, useParams } from "react-router-dom";
 import React, { useRef, useEffect, useCallback, useState, useContext } from 'react'
 import httpService from '../services/httpService';
 import AuthenticationContext from "../AuthenticationContext";
+import { Link } from "react-router-dom";
 
 export default function MyPosting(props) {
     const { id } = useParams();
@@ -34,6 +35,9 @@ export default function MyPosting(props) {
                 //console.log(data);
                 setMyProfile(data);
             })
+            .catch((e) => {
+                console.log(e);
+              });
     }
 
     function loadPosting(){
@@ -45,6 +49,9 @@ export default function MyPosting(props) {
                 //console.log(data);
                 setPostingState(data);
             })
+            .catch((e) => {
+                console.log(e);
+              });
     }
 
     function loadAllComments(){
@@ -56,6 +63,9 @@ export default function MyPosting(props) {
                     
                     setAllCommentsState(data);
             })
+            .catch((e) => {
+                console.log(e);
+              });
     }
 
     useEffect(()=>{
@@ -144,7 +154,10 @@ export default function MyPosting(props) {
                 comment.id = response.data.id
                 commentList.push(comment);
                 setAllCommentsState(commentList);
-            });
+            })
+            .catch((e) => {
+                console.log(e);
+              });
         
         setTextNewCommentState("");
         setNewCommentHiddenState("hidden")
@@ -175,7 +188,10 @@ export default function MyPosting(props) {
             .then((response) => {
                 console.log(response.data);
                 
-            });
+            })
+            .catch((e) => {
+                console.log(e);
+              });
     }
 
     function CommentText(object,i){
@@ -239,7 +255,10 @@ export default function MyPosting(props) {
             .then((response) => {
                 console.log(response.data);
                 
-            });
+            })
+            .catch((e) => {
+                console.log(e);
+              });
     }
 
     function saveLikeComment(comment){
@@ -249,7 +268,10 @@ export default function MyPosting(props) {
             .then((response) => {
                 console.log(response.data);
                 
-            });
+            })
+            .catch((e) => {
+                console.log(e);
+              });
     }
 
     function likePost(){
@@ -373,7 +395,9 @@ export default function MyPosting(props) {
             </div>
             <div className="myRowSimple">
                 <pre style={{visibility:(isLoading == 0 ? "hidden" : "visible")}}>Created by: </pre>
-                <pre>{isLoading === 1 ? postingState.profile.name : ""}</pre>
+                <Link to={isLoading ===1 ? ("/profile/" + postingState.profile.id) : "myprofile"}>
+                    <pre>{isLoading === 1 ? postingState.profile.name : ""}</pre>
+                </Link>
             </div>
             <img src={isLoading === 1 ? postingState.fractal.dataURL : ""} height="200" width="200" style={{visibility:(isLoading === 1 ? "visible" : "hidden")}}></img>
             <div className="myRowSimple" style={{visibility:(isLoading == 0 ? "hidden" : "visible")}}>

@@ -127,7 +127,7 @@ export default function Settings(props) {
                 />
                 <br></br>
                 <img ref={imgCanvas} src = {uploadedImage} width="100" height="100" onLoad={loadCanvas}></img>
-                <canvas style={{display:'none'}} ref={canvasRef} {...props}/>
+                <canvas style={{display:'none'}} ref={canvasRef}/>
                 <br></br>
                 <input type="file" name="file" onChange={uploadImage} />
 

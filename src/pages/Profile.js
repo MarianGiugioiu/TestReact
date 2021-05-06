@@ -5,10 +5,6 @@ import httpService from '../services/httpService';
 import AuthenticationContext from "../AuthenticationContext";
 import { Link } from "react-router-dom";
 
-function useForceUpdate(){
-    const [value, setValue] = useState(0); // integer state
-    return () => setValue(value => value + 1); // update the state to force render
-}
 
 export default function Profile(props) {
     const history = useHistory();
@@ -16,7 +12,6 @@ export default function Profile(props) {
     const privacyOptions = JSON.parse(props.profile.privacy);
     let myId = authentication.getUser();
 
-    const forceUpdate = useForceUpdate();
     const [allImagesState,setAllImagesState] = useState(null);
     const [allImagesHiddenState, setAllImagesHiddenState] = useState("none");
     const [allPostingsState,setAllPostingsState] = useState(null);
@@ -47,7 +42,10 @@ export default function Profile(props) {
                     var data = response.data;
                     console.log(data);
                     setAllImagesState(data);
-            })
+                })
+                .catch((e) => {
+                    console.log(e);
+                  });
         } else {
             if(allImagesHiddenState === "none"){
                 setAllImagesHiddenState("flex");
@@ -66,7 +64,10 @@ export default function Profile(props) {
                     var data = response.data;
                     console.log(data);
                     setAllPostingsState(data);
-            })
+                })
+                .catch((e) => {
+                    console.log(e);
+                  });
         } else {
             if(allPostingsHiddenState === "none"){
                 setAllPostingsHiddenState("flex");
@@ -85,12 +86,81 @@ export default function Profile(props) {
                     var data = response.data;
                     console.log(data);
                     setAllFollowedState(data);
-            })
+                })
+                .catch((e) => {
+                    console.log(e);
+                  });
         } else {
             if(allFollowedHiddenState === "none"){
                 setAllFollowedHiddenState("flex");
             } else {
                 setAllFollowedHiddenState("none");
+            }
+        }  
+    }
+
+    function loadAllFollowing () {
+        if(allFollowingState == null){
+            var URL = "/profile/" + props.profile.id + "/following";
+            httpService
+                .get(URL)
+                .then((response) => {
+                    var data = response.data;
+                    console.log(data);
+                    setAllFollowingState(data);
+                })
+                .catch((e) => {
+                    console.log(e);
+                  });
+        } else {
+            if(allFollowingHiddenState === "none"){
+                setAllFollowingHiddenState("flex");
+            } else {
+                setAllFollowingHiddenState("none");
+            }
+        }  
+    }
+
+    function loadAllLikes () {
+        if(allLikesState == null){
+            var URL = "/profile/" + props.profile.id + "/likes";
+            httpService
+                .get(URL)
+                .then((response) => {
+                    var data = response.data;
+                    console.log(data);
+                    setAllLikesState(data);
+                })
+                .catch((e) => {
+                    console.log(e);
+                  });
+        } else {
+            if(allLikesHiddenState === "none"){
+                setAllLikesHiddenState("flex");
+            } else {
+                setAllLikesHiddenState("none");
+            }
+        }  
+    }
+
+    function loadAllDislikes () {
+        if(allDislikesState == null){
+            var URL = "/profile/" + props.profile.id + "/dislikes";
+            httpService
+                .get(URL)
+                .then((response) => {
+                    var data = response.data;
+                    console.log(data);
+                    setAllDislikesState(data);
+                })
+                .catch((e) => {
+                    console.log(e);
+                  });
+        } else {
+            if(allDislikesHiddenState === "none"){
+                setAllDislikesHiddenState("flex");
+            } else {
+                setAllDislikesHiddenState("none");
             }
         }  
     }
@@ -116,6 +186,27 @@ export default function Profile(props) {
         }
     },[allFollowedState])
 
+    useEffect(() => {
+        if (allFollowingState != null) {
+
+            setAllFollowingHiddenState("flex");
+        }
+    },[allFollowingState])
+
+    useEffect(() => {
+        if (allLikesState != null) {
+
+            setAllLikesHiddenState("flex");
+        }
+    },[allLikesState])
+
+    useEffect(() => {
+        if (allDislikesState != null) {
+
+            setAllDislikesHiddenState("flex");
+        }
+    },[allDislikesState])
+
     function choosePosting(object){
         let idPosting= object.id;
         let path = "/posting/" + idPosting;
@@ -129,16 +220,31 @@ export default function Profile(props) {
             path = "/myprofile";
         }
         history.push(path);
-        if (props.type !== "mine"){
-            props.setChangeState(props.changeState + 1);
+    }
+
+    function chooseFollowing(object){
+        let idFollowing= object.id;
+        let path = "/profile/" + idFollowing;
+        if (idFollowing == myId){
+            path = "/myprofile";
         }
+        history.push(path);
+    }
+
+    function chooseLikes(object){
+        let idLikes= object.id;
+        let path = "/posting/" + idLikes;
+        history.push(path);
+    }
+
+    function chooseDislikes(object){
+        let idDislikes= object.id;
+        let path = "/posting/" + idDislikes;
+        history.push(path);
     }
 
     function chooseImage(object){
         let idImg = object.id;
-        /*let img = allImagesState.filter(obj => {
-            return obj.imageId === idImg;
-        })[0]*/
         let img = object;
         console.log(img);
         let path = "/";
@@ -177,19 +283,6 @@ export default function Profile(props) {
                 })
         } 
     }
-
-    useEffect(() => {
-        console.log("#####");
-        setAllPostingsState(null);
-        setAllImagesState(null);
-        setAllFollowedState(null);
-        setAllFollowingState(null);
-        setAllPostingsHiddenState("none");
-        setAllImagesHiddenState("none");
-        setAllFollowedHiddenState("none");
-        setAllFollowingHiddenState("none");
-
-    },[props.changeState])
 
     function MyList(name, data, refs, visibility, loadFunction, chooseFunction){
         return (
@@ -232,6 +325,9 @@ export default function Profile(props) {
             {MyList("Postings",allPostingsState,allPostingsRefs,allPostingsHiddenState,loadAllPostings,choosePosting)}
             {props.type === "mine" || privacyOptions.fractals == true ? MyList("Images",allImagesState,allImagesRefs,allImagesHiddenState,loadAllImages,chooseImage) : <pre>You can't see this profile's images</pre>}
             {props.type === "mine" || privacyOptions.followers == true ? MyList("Followers",allFollowedState,allFollowedRefs,allFollowedHiddenState,loadAllFollowed,chooseFollowed) : <pre>You can't see this profile's followers</pre>}
+            {props.type === "mine" || privacyOptions.followers == true ? MyList("Following",allFollowingState,allFollowingRefs,allFollowingHiddenState,loadAllFollowing,chooseFollowing) : <pre>You can't see this profile's followed people</pre>}
+            {props.type === "mine" || privacyOptions.followers == true ? MyList("Likes",allLikesState,allLikesRefs,allLikesHiddenState,loadAllLikes,chooseLikes) : <pre>You can't see this profile's followed people</pre>}
+            {props.type === "mine" || privacyOptions.followers == true ? MyList("Dislikes",allDislikesState,allDislikesRefs,allDislikesHiddenState,loadAllDislikes,chooseDislikes) : <pre>You can't see this profile's followed people</pre>}
         </div>
     );
 }

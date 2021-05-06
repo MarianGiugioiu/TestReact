@@ -11,7 +11,6 @@ export default function OtherProfile(props) {
     let profileId = authentication.getUser();
     const history = useHistory();
 
-    const [changeState, setChangeState] = useState(0);
     const [myProfile, setMyProfile] = useState(null);
     const [profile, setProfile] = useState(null);
     const [isLoading, setIsLoading] = useState(0);
@@ -97,7 +96,7 @@ export default function OtherProfile(props) {
     useEffect(()=>{
         loadMyProfile();
         loadProfile();
-    },[changeState])
+    },[])
 
     useEffect(()=>{
         if(profile!=null){
@@ -106,27 +105,6 @@ export default function OtherProfile(props) {
         }
     },[profile])
 
-    function loadAllPostings () {
-        console.log(allPostingsState.length)
-        if(allPostingsState.length == 0){
-            var URL = "/profile/" + id + "/postings";
-            httpService
-                .get(URL)
-                .then((response) => {
-                    var data = response.data;
-                    console.log(data);
-                    setAllPostingsState(data);
-            })
-        } else {
-            if(allPostingsHiddenState === "hidden"){
-                setAllPostingsHiddenState("visible");
-            } else {
-                setAllPostingsHiddenState("hidden");
-            }
-        }
-        
-        
-    }
     useEffect(() => {
         if (allPostingsState.length > 0) {
 
@@ -147,7 +125,7 @@ export default function OtherProfile(props) {
             <img src = {isLoading === 1 ? profile.photo : ""} width="100" height="100" style={{display:isLoading === 1 ? "block" : "none"}}></img>
             {<button style = {{visibility:(isLoading == 0 ? "hidden" : "visible")}} onClick={handleFollow}>{isLoading == 1 && checkIfObjectFromList(profile.followed) ? "Unfollow" : "Follow"}</button>}
             <br></br>
-            {isLoading === 1 ? <Profile type="other" profile={profile} changeState={changeState} setChangeState={setChangeState}/> : <div></div>}
+            {isLoading === 1 ? <Profile type="other" profile={profile} /> : <div></div>}
         </div>
     );
 }

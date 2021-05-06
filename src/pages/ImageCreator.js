@@ -8,7 +8,7 @@ import '../App.css';
 export default function ImageCreator(props){
     const history = useHistory();
     const authentication = useContext(AuthenticationContext);
-    let profileId = authentication.id;
+    let profileId = authentication.getUser();
     const params = useParams();
     const canvasDimX = 1500;
     const canvasDimY = 1500;
@@ -336,7 +336,7 @@ export default function ImageCreator(props){
     }
 
     function loadAllImages () {
-        var URL = "/profile/1/fractals";
+        var URL = "/profile/" + profileId + "/fractals";
         
         httpService
             .get(URL)
