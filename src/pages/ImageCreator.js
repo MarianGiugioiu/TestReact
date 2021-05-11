@@ -134,7 +134,7 @@ export default function ImageCreator(props){
             const context1 = canvas1.getContext('2d');
             canvas1.width = canvasDimX;
             canvas1.height = canvasDimY;
-            var sourceImageData = canvas.toDataURL("image/" + "png", 0.7);
+            var sourceImageData = canvas.toDataURL("image/png", 0.5);
             if (!isPngState) {
                 context1.save();
                 context1.fillStyle = 'rgb(' + backgroungColorState.r + ',' + backgroungColorState.g + ',' + backgroungColorState.b + ',' + backgroungColorState.a + ')';
@@ -145,7 +145,7 @@ export default function ImageCreator(props){
                     context1.drawImage(destinationImage,0,0);
                 };*/
                 //destinationImage.src = sourceImageData;
-                var sourceImageData = canvas1.toDataURL("image/" + "jpeg", 0.7);
+                var sourceImageData = canvas1.toDataURL("image/jpeg", 0.5);
                 context1.restore();
             }
 
@@ -619,7 +619,7 @@ export default function ImageCreator(props){
                         {<button style = {{visibility:((btnAfterPartsHiddenState === "visible" && params.action === "old") ? "visible" : "hidden")}}  onClick={loadAllImages} >Edit Image</button>}
                         {<button onClick={createPosting}>Create Posting</button>}
                         <button onClick={downloadClick}>Download</button>
-                        {<a ref={downloadRef} href = {canvasDataUrl} download = 'image.png'>Download Image </a>}
+                        {<a ref={downloadRef} href = {canvasDataUrl} download = {nameState + '.' + (isPngState ? "png" : "jpeg")}>Download Image </a>}
                         
                     </div>
                 </div>

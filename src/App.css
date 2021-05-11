@@ -20,6 +20,11 @@
   flex-direction: row;
 }
 
+.myColorPicker {
+  height: 20vh;
+  width: 20vh;
+}
+
 .myRow2 {
   display: flex;
   overflow: auto;
@@ -43,6 +48,19 @@
   width: 70%;
 }
 
+.myColumnCanvasTree {
+  display: flex;
+  flex-direction: column;
+  float: center;
+  height: 50vw;
+  width: 50vw;
+}
+.myColumnOptionsTree {
+  display: flex;
+  flex-direction: column;
+  float: center;
+  width: 30vw;
+}
 
 
 .myColumn21 {
@@ -99,13 +117,11 @@ canvas {
   cursor: pointer;
   outline: none;
   border: none;
-  position: absolute;
   left: 0;
   bottom: 5%;
   z-index: 10;
   left: 50%;
-  transform: translate(-50%, 0);
-  padding: 20px 30px;
+  padding: 5px 5px;
   border-radius: 50px;
   background: brown;
   color: black;

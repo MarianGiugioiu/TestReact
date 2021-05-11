@@ -9,15 +9,26 @@ export default function Generator() {
   return (
     <div>
       <Link to={{
-        pathname: '/Tree',
-        state: {
-          action: "new",
-          id: 2
-        }
+        pathname: '/Tree/new'
       }}>
           Tree
       </Link>
       <hr></hr>
+
+      <Link to={{
+        pathname: '/SnowFlake/new'
+      }}>
+          SnowFlake
+      </Link>
+      <hr></hr>
+
+      <Link to={{
+        pathname: '/Mountain/new'
+      }}>
+          Mountain
+      </Link>
+      <hr></hr>
+
       <Link to={{
         pathname: '/ImageCreator/new'
       }}>

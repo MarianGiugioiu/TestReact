@@ -11,9 +11,17 @@ export default function Tree(props){
     const authentication = useContext(AuthenticationContext);
     let profileId = authentication.getUser();
     
+    const canvasRef = useRef(null);
     const canvasRef1 = useRef(null);
     const downloadRef = useRef(null);
-    const [imgUrl, setImgUrl] = useState(null);
+
+    const [backgroungColorState, setBackgroungColorState] = useState({r: 0, g: 0, b: 0, a: 1});
+    const [isPngState, setIsPngState] = useState(false);
+    const [canvasDataUrl, setCanvasDataUrl] = useState(null);
+
+    const [nameState, setNameState] = useState("");
+    const [descriptionState, setDescriptionState] = useState("");
+
     const [bodyColorState, setbodyColorState] = useState({r: 255, g: 255, b: 255, a: 1});
     const [leafColorState, setleafColorState] = useState({r: 255, g: 255, b: 255, a: 1});
     const [shadowColorState, setShadowColorState] = useState({r: 255, g: 255, b: 255, a: 1});
@@ -26,6 +34,9 @@ export default function Tree(props){
     const [curveListState, setCurveListState] = useState([]);
 
     const [started, setStarted] =useState(0);
+
+    let canvasDimX = 600;
+    let canvasDimY = 600;
     
     
     const drawTree = useCallback((rand, context, startX, startY, length, branchWidth, nrBranchesList, angle, angleList, curveList, bodyColor, leafColor, shadowColor)  => {
@@ -105,12 +116,11 @@ export default function Tree(props){
     }, [bodyColorState,leafColorState,shadowColorState])
 
     const randomTree = useCallback(()  => {
-        const canvas = canvasRef1.current;
+        const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
 
-        var scale = 2;
-        canvas.width = 300 * scale;
-        canvas.height = 300 * scale;
+        canvas.width = canvasDimX;
+        canvas.height = canvasDimY;
         context.clearRect(0, 0, context.canvas.width, context.canvas.height)
 
         let startX = canvas.width / 2;
@@ -152,19 +162,33 @@ export default function Tree(props){
         context.rect(100, 100, 100, 100);
         context.stroke();
         context.fill();*/
+        const canvas1 = canvasRef1.current;
+        const context1 = canvas1.getContext('2d');
+        canvas1.width = canvasDimX;
+        canvas1.height = canvasDimY;
+        var sourceImageData = canvas.toDataURL("image/png",0.5);
+        //console.log(sourceImageData);
 
-        var sourceImageData = canvas.toDataURL("image/png");
-        setImgUrl(sourceImageData);
+        if (!isPngState) {
+            context1.save();
+            context1.fillStyle = 'rgb(' + backgroungColorState.r + ',' + backgroungColorState.g + ',' + backgroungColorState.b + ',' + backgroungColorState.a + ')';
+            console.log(context1.fillStyle);
+            context1.fillRect(0, 0, canvas1.width, canvas1.height);
+            context1.drawImage(canvas,0,0,canvasDimX,canvasDimY);
+            var sourceImageData = canvas1.toDataURL("image/jpeg", 0.5);
+            //console.log(sourceImageData);
+            context1.restore();
+        }
+        setCanvasDataUrl(sourceImageData);
 
     }, [bodyColorState,leafColorState, shadowColorState, angleListState, curveListState, lengthState, startXState, startYState, branchWidthState])
 
     function existingTree ()  {
-        const canvas = canvasRef1.current;
+        const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
 
-        var scale = 2;
-        canvas.width = 300 * scale;
-        canvas.height = 300 * scale;
+        canvas.width = canvasDimX;
+        canvas.height = canvasDimY;
         context.clearRect(0, 0, context.canvas.width, context.canvas.height)
 
         let startX = startXState;
@@ -192,15 +216,31 @@ export default function Tree(props){
 
         //console.log(angleList)
         //console.log("####")
-        var sourceImageData = canvas.toDataURL("image/png");
+        const canvas1 = canvasRef1.current;
+        const context1 = canvas1.getContext('2d');
+        canvas1.width = canvasDimX;
+        canvas1.height = canvasDimY;
+        var sourceImageData = canvas.toDataURL("image/png",0.5);
         //console.log(sourceImageData);
-        setImgUrl(sourceImageData);
+
+        if (!isPngState) {
+            context1.save();
+            context1.fillStyle = 'rgb(' + backgroungColorState.r + ',' + backgroungColorState.g + ',' + backgroungColorState.b + ',' + backgroungColorState.a + ')';
+            
+            context1.fillRect(0, 0, canvas1.width, canvas1.height);
+            context1.drawImage(canvas,0,0,canvasDimX,canvasDimY);
+            var sourceImageData = canvas1.toDataURL("image/jpeg", 0.5);
+            //console.log(sourceImageData);
+            context1.restore();
+        }
+        //console.log(sourceImageData);
+        setCanvasDataUrl(sourceImageData);
 
     }
 
     useEffect(()=>{
-        //console.log(imgUrl)
-    },[imgUrl])
+        //console.log(canvasDataUrl)
+    },[canvasDataUrl])
 
     function changeBodyColorState (event) {
         let val = event.rgb;
@@ -237,7 +277,8 @@ export default function Tree(props){
             "curveList": curveListState,
             "bodyColor": bodyColorState,
             "leafColor": leafColorState,
-            "shadowColor": shadowColorState
+            "shadowColor": shadowColorState,
+            "background":backgroungColorState
         }
         //console.log(JSON.stringify(options));
 
@@ -250,17 +291,32 @@ export default function Tree(props){
                 + (currentdate.getSeconds() < 10 ? "0"+ currentdate.getSeconds() : currentdate.getSeconds());
         //console.log(datetime);
 
-        const canvas = canvasRef1.current;
+        const canvas = canvasRef.current;
+        const context = canvas.getContext('2d');
+        const canvas1 = canvasRef1.current;
+        const context1 = canvas1.getContext('2d');
+        canvas1.width = canvasDimX;
+        canvas1.height = canvasDimY;
         var sourceImageData = canvas.toDataURL("image/png",0.5);
-        console.log(sourceImageData);
+        //console.log(sourceImageData);
 
+        if (!isPngState) {
+            context1.save();
+            context1.fillStyle = 'rgb(' + backgroungColorState.r + ',' + backgroungColorState.g + ',' + backgroungColorState.b + ',' + backgroungColorState.a + ')';
+            console.log(context1.fillStyle);
+            context1.fillRect(0, 0, canvas1.width, canvas1.height);
+            context1.drawImage(canvas,0,0,canvasDimX,canvasDimY);
+            var sourceImageData = canvas1.toDataURL("image/jpeg", 0.5);
+            //console.log(sourceImageData);
+            context1.restore();
+        }
 
         var fractal = {
             "id": 0,
             "type": "tree",
-            "status":false,
-            "name": "name5",
-            "description": "description",
+            "status":isPngState,
+            "name": nameState,
+            "description": descriptionState,
             "options": JSON.stringify(options),
             "dataURL": sourceImageData,
             "lastModified": datetime,
@@ -286,8 +342,14 @@ export default function Tree(props){
             .get(URL)
             .then((response) => {
                 var data = response.data;
+                console.log(data);
                 var options = JSON.parse(data.options);
-                console.log(options);
+                setNameState(data.name);
+                setDescriptionState(data.description);
+                setIsPngState(data.status);
+                if(options.background != null){
+                    setBackgroungColorState(options.background);
+                }
                 setStartXState(options.startX);
                 setStartYState(options.startY);
                 setLengthState(options.length);
@@ -310,15 +372,20 @@ export default function Tree(props){
     useEffect(() => {
         existingTree();
 
-    }, [bodyColorState,leafColorState,shadowColorState])
+    }, [bodyColorState,leafColorState,shadowColorState,backgroungColorState,isPngState])
 
     function downloadClick(){
         const link = downloadRef.current;
         link.click();
     }
 
+    useEffect(() => {
+        console.log(isPngState);
+    },[isPngState])
+
     useEffect(()=>{
         if(started == 0){
+            console.log(params.action)
             if(params.action === "old"){
                 loadTree();
             } else if(params.action === "new"){
@@ -329,39 +396,99 @@ export default function Tree(props){
     },[started])
     
     return(
-        <>
-            <div>
-                <canvas ref={canvasRef1} {...props}/>
-            </div>
-            <div>
-                {/*<canvas ref={canvasRef2} {...props}/>*/}
-            </div>
-            <a ref={downloadRef} id="download" download="myImage.png" href={"imgUrl"}>img</a>
-            <button onClick={downloadClick}>Download</button>
-            <div className="column-div">
-                <div>
-                    <ChromePicker 
-                        color={bodyColorState}
-                        onChange={changeBodyColorState}
+        <div className="mainDiv1">
+            <div className="myRowSimple">
+                <div className="myColumnCanvasTree">
+                    <canvas 
+                        ref={canvasRef}
+                        style={{background:'rgb(' + backgroungColorState.r + ',' + backgroungColorState.g + ',' + backgroungColorState.b + ',' + backgroungColorState.a + ')'}} 
                     />
+                    
                 </div>
-                <div>
-                    <ChromePicker 
-                        color={leafColorState}
-                        onChange={changeLeafColorState}
-                    />
+                <div className="myColumnOptionsTree">
+                    <div className="myRowSimple">
+                        <div>
+                            <ChromePicker 
+                                color={bodyColorState}
+                                onChange={changeBodyColorState}
+                                width="10vw"
+                            />
+                        </div>
+                        <div>
+                            <ChromePicker 
+                                color={leafColorState}
+                                onChange={changeLeafColorState}
+                                width="10vw"
+                            />
+                        </div>
+                        <div>
+                            <ChromePicker 
+                                color={shadowColorState}
+                                onChange={changeShadowColorState}
+                                width="10vw"
+                            />
+                        </div>
+                    </div>
+                    <br></br>
+                    <div className="myColumnSimple">
+                        {<button onClick={saveTree}>Save Tree</button>}
+                        {<button style={{display:((params.action === "old") ? "flex" : "none")}} onClick={loadTree}>Load Tree</button>}
+                        <a ref={downloadRef} id="download" download={nameState + '.' + (isPngState ? "png" : "jpeg")} href={canvasDataUrl} style={{display:"none"}}>img</a>
+                        <button onClick={downloadClick}>Download</button>
+
+                        {<button onClick={randomTree} className="generate-tree-button">Generate Random Tree</button>}
+
+                        <div className="myRowSimple">
+                            <pre>Name:        </pre>
+                            {
+                                //(params.action === "old") ? 
+                                //<pre>{nameState}</pre> : 
+                                <input
+                                    type="text"
+                                    value={nameState}
+                                    onChange={(event) => {setNameState(event.target.value)}}
+                                />
+                            }
+                        </div>
+                        <div className="myRowSimple">
+                            <pre>Description: </pre>
+                            {
+                                //(params.action === "old") ? 
+                                //<pre>{descriptionState}</pre> : 
+                                <input
+                                    type="text"
+                                    value={descriptionState}
+                                    onChange={(event) => setDescriptionState(event.target.value)}
+                                />
+                            }
+                        </div>
+                        <div className="myRowSimple">
+                            <div>
+                                <ChromePicker 
+                                    color={backgroungColorState}
+                                    onChange={(event) => setBackgroungColorState(event.rgb)}
+                                    width="10vw"
+                                />
+                            </div>
+                            <div className="myColumnSimple">
+                                
+                                <div className="myRowSimple">
+                                    <pre>PNG </pre>
+                                    <input type="checkbox" id="checkbox1" checked={isPngState} onChange={() => setIsPngState(!isPngState)}></input>
+                                </div>
+                                <canvas 
+                                    ref={canvasRef1}
+                                    style={{display:"none"}}
+                                />
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <ChromePicker 
-                        color={shadowColorState}
-                        onChange={changeShadowColorState}
-                    />
-                </div>
+                
+                
             </div>
-            {/*<button onClick={existingTree}>Generate Previous Tree</button>*/}
-            {<button onClick={saveTree}>Save Tree</button>}
-            {<button style={{visibility:((params.action === "old") ? "visible" : "hidden")}} onClick={loadTree}>Load Tree</button>}
-            {<button onClick={randomTree} className="generate-tree-button">Generate Random Tree</button>}
-        </>
+            
+            
+        </div>
     ) 
 }

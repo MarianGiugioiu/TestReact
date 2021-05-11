@@ -10,6 +10,7 @@ import Settings from './pages/Settings'
 import Layout from './components/Layout';
 import Tree from './pages/Tree';
 import SnowFlake from './pages/SnowFlake';
+import Mountain from './pages/Mountain';
 import ImageCreator from "./pages/ImageCreator";
 import Posting from "./pages/Posting";
 import ScrollComp from "./pages/ScrollComp";
@@ -63,9 +64,10 @@ export default function App(props){
             <Route path="/generator" component={Generator} />
             <Route path="/settings" component={Settings} />
             <Route path="/posting/:id" component={Posting} />
-            <Route path="/Tree" component={Tree} />
+            <Route path="/Tree/:action/:id?" component={Tree} />
+            <Route path="/SnowFlake/:action/:id?" component={SnowFlake} />
+            <Route path="/Mountain/:action/:id?" component={Mountain} />
             <Route path="/ImageCreator/:action/:id?" component={ImageCreator} />
-            <Route path="/SnowFlake" component={SnowFlake} />
           </Layout>
         </AuthenticationContext.Provider>
       </Switch>
