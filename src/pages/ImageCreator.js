@@ -554,7 +554,6 @@ export default function ImageCreator(props){
                                 ref={canvasRef} 
                                 style={{background:'rgb(' + backgroungColorState.r + ',' + backgroungColorState.g + ',' + backgroungColorState.b + ',' + backgroungColorState.a + ')'}} 
                                 onClick={handleClick} 
-                                {...props}
                             />
                         </div>
                         <div className="myRowSimple">

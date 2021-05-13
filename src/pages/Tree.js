@@ -396,96 +396,93 @@ export default function Tree(props){
     },[started])
     
     return(
-        <div className="mainDiv1">
-            <div className="myRowSimple">
+        <div className="myRowSimple">
+            <div className="myColumnSimple">
                 <div className="myColumnCanvasTree">
                     <canvas 
                         ref={canvasRef}
                         style={{background:'rgb(' + backgroungColorState.r + ',' + backgroungColorState.g + ',' + backgroungColorState.b + ',' + backgroungColorState.a + ')'}} 
                     />
-                    
                 </div>
-                <div className="myColumnOptionsTree">
-                    <div className="myRowSimple">
+                <div className="myRowSimple">
                         <div>
                             <ChromePicker 
                                 color={bodyColorState}
                                 onChange={changeBodyColorState}
-                                width="10vw"
+                                width="8vw"
                             />
                         </div>
                         <div>
                             <ChromePicker 
                                 color={leafColorState}
                                 onChange={changeLeafColorState}
-                                width="10vw"
+                                width="8vw"
                             />
                         </div>
                         <div>
                             <ChromePicker 
                                 color={shadowColorState}
                                 onChange={changeShadowColorState}
-                                width="10vw"
+                                width="8vw"
                             />
                         </div>
                     </div>
-                    <br></br>
-                    <div className="myColumnSimple">
-                        {<button onClick={saveTree}>Save Tree</button>}
-                        {<button style={{display:((params.action === "old") ? "flex" : "none")}} onClick={loadTree}>Load Tree</button>}
-                        <a ref={downloadRef} id="download" download={nameState + '.' + (isPngState ? "png" : "jpeg")} href={canvasDataUrl} style={{display:"none"}}>img</a>
-                        <button onClick={downloadClick}>Download</button>
+                </div>
+            <div className="myColumnOptionsTree">
+                <br></br>
+                <div className="myColumnSimple">
+                    {<button onClick={saveTree}>Save Tree</button>}
+                    {<button style={{display:((params.action === "old") ? "flex" : "none")}} onClick={loadTree}>Load Tree</button>}
+                    <a ref={downloadRef} id="download" download={nameState + '.' + (isPngState ? "png" : "jpeg")} href={canvasDataUrl} style={{display:"none"}}>img</a>
+                    <button onClick={downloadClick}>Download</button>
 
-                        {<button onClick={randomTree} className="generate-tree-button">Generate Random Tree</button>}
+                    {<button onClick={randomTree} className="generate-tree-button">Generate Random Tree</button>}
 
-                        <div className="myRowSimple">
-                            <pre>Name:        </pre>
-                            {
-                                //(params.action === "old") ? 
-                                //<pre>{nameState}</pre> : 
-                                <input
-                                    type="text"
-                                    value={nameState}
-                                    onChange={(event) => {setNameState(event.target.value)}}
-                                />
-                            }
+                    <div className="myRowSimple">
+                        <pre>Name:        </pre>
+                        {
+                            //(params.action === "old") ? 
+                            //<pre>{nameState}</pre> : 
+                            <input
+                                type="text"
+                                value={nameState}
+                                onChange={(event) => {setNameState(event.target.value)}}
+                            />
+                        }
+                    </div>
+                    <div className="myRowSimple">
+                        <pre>Description: </pre>
+                        {
+                            //(params.action === "old") ? 
+                            //<pre>{descriptionState}</pre> : 
+                            <input
+                                type="text"
+                                value={descriptionState}
+                                onChange={(event) => setDescriptionState(event.target.value)}
+                            />
+                        }
+                    </div>
+                    <div className="myRowSimple">
+                        <div>
+                            <ChromePicker 
+                                color={backgroungColorState}
+                                onChange={(event) => setBackgroungColorState(event.rgb)}
+                                width="8vw"
+                            />
                         </div>
-                        <div className="myRowSimple">
-                            <pre>Description: </pre>
-                            {
-                                //(params.action === "old") ? 
-                                //<pre>{descriptionState}</pre> : 
-                                <input
-                                    type="text"
-                                    value={descriptionState}
-                                    onChange={(event) => setDescriptionState(event.target.value)}
-                                />
-                            }
-                        </div>
-                        <div className="myRowSimple">
-                            <div>
-                                <ChromePicker 
-                                    color={backgroungColorState}
-                                    onChange={(event) => setBackgroungColorState(event.rgb)}
-                                    width="10vw"
-                                />
+                        <div className="myColumnSimple">
+                            
+                            <div className="myRowSimple">
+                                <pre>PNG </pre>
+                                <input type="checkbox" id="checkbox1" checked={isPngState} onChange={() => setIsPngState(!isPngState)}></input>
                             </div>
-                            <div className="myColumnSimple">
-                                
-                                <div className="myRowSimple">
-                                    <pre>PNG </pre>
-                                    <input type="checkbox" id="checkbox1" checked={isPngState} onChange={() => setIsPngState(!isPngState)}></input>
-                                </div>
-                                <canvas 
-                                    ref={canvasRef1}
-                                    style={{display:"none"}}
-                                />
-                            </div>
+                            <canvas 
+                                ref={canvasRef1}
+                                style={{display:"none"}}
+                            />
                         </div>
                     </div>
                 </div>
-                
-                
             </div>
             
             

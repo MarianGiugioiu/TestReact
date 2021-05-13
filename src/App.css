@@ -52,8 +52,8 @@
   display: flex;
   flex-direction: column;
   float: center;
-  height: 50vw;
-  width: 50vw;
+  height: 24vw;
+  width: 24vw;
 }
 .myColumnOptionsTree {
   display: flex;

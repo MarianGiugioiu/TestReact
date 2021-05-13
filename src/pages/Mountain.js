@@ -16,8 +16,10 @@ export default function Mountain(props) {
 
     let colors = [["#506e55", "#314448", "#548bb0", "#afbcbb"],
         ["#2b2c18", "#314448", "#908102", "#e2ce8a"],
-        ["#241f0f","#927420","#c7c2bb","#b8c0c8","#6e7478"]]
-    let colorNr = 2;
+        ["#241f0f","#908102","#c7c2bb","#b8c0c8","#6e7478"]];
+
+    const [colorNrState, setColorNrState] = useState(0);
+    const [pointsState, setPointsState] = useState(null);
 
     function weightedRandom(prob) {
         let i, sum=0, r=Math.random();
@@ -170,14 +172,14 @@ export default function Mountain(props) {
             g = h;
             k++;
         }
-        return [points,margins,g,max]
+        return [points,g,max]
     }
 
     function getColor(x, y, max) {
         let start = 200;
         let end = max;
         let height = end - start;
-        if (colorNr == 0){
+        if (colorNrState == 0){
             let fa1 = 1 / (end - 500);
             let fb1 = -500 * fa1; 
             let fa2 = 1 / (450 - 300);
@@ -187,69 +189,74 @@ export default function Mountain(props) {
             if (y >= start + 2 * height / 3) {
                 let c1 = fa1 * y + fb1;
                 let c = weightedRandom({0:c1, 1:(1 - c1)})
-                return colors[colorNr][c];
+                return colors[colorNrState][c];
             } else if (y <= start + 2 * height / 3 && y >= start + height / 3) {
                 let c1 = fa2 * y + fb2;
                 let c = weightedRandom({0:0.1, 1:c1, 2:(0.9 - c1)})
-                return colors[colorNr][c];
+                return colors[colorNrState][c];
             } else {
                 //let c1 = fa3 * y + fb3;
                 let c = weightedRandom({2:0.15, 3:0.85})
-                return colors[colorNr][c];
+                return colors[colorNrState][c];
             }
-        } else if (colorNr == 1) {
-            let fa1 = 1 / (500 - 300);
-            let fb1 = -300 * fa1; 
+        } else if (colorNrState == 1) {
+            let fa1 = 1 / (500 - 400);
+            let fb1 = -400 * fa1; 
             let fa2 = 1 / (400 - 300);
             let fb2 = -300 * fa2; 
             if (y <= end && y >= start + 3 * height / 4){
                 let c = weightedRandom({0:0.9, 1:0.1})
-                return colors[colorNr][c]
+                return colors[colorNrState][c]
             }
             if (y >= start + height / 3) {
                 let c1 = fa1 * y + fb1;
                 let c = weightedRandom({0:c1,1:0.1, 2:(0.85-c1), 3:0.05})
-                return colors[colorNr][c];
+                return colors[colorNrState][c];
             } else  {
                 //let c1 = fa2 * y + fb2;
                 let c = weightedRandom({0:0.1, 2:0.8, 3:0.1})
-                return colors[colorNr][c];
+                return colors[colorNrState][c];
             }
-        } else if (colorNr == 2) {
+        } else if (colorNrState == 2) {
             let fa1 = 1 / ((end + 500) - (400 + 450));
             //((1.1 ** ((x + y) / 1000)) - 1) * 8;
             let fb1 = -(400 + 450) * fa1;
             if (3*y + 1.5*x > Math.random() * 100 + 1900) {
                 let c1 = fa1 * (x + y) + fb1
                 let c = weightedRandom({0:c1, 4:(1-c1)});
-                return colors[colorNr][c];
+                return colors[colorNrState][c];
             } else if(2.2*y + 1.8*x > Math.random() * 100 + 1450){
                 let c = weightedRandom({2:0.5, 3:0.5});
-                return colors[colorNr][c]
+                return colors[colorNrState][c]
             } else {
                 if (y > Math.random() * 50 + 300){
-                    return colors[colorNr][1];
+                    return colors[colorNrState][1];
                 } else {
                     let c = weightedRandom({2:0.5, 3:0.5});
-                    return colors[colorNr][c]
+                    return colors[colorNrState][c]
                 }
             }
         }
         
     }
 
-    function drawMountain() {
+    function drawMountain(action) {
         let canvas = canvasRef.current;
         let context = canvas.getContext('2d');
         canvas.width = canvasDimX;
         canvas.height = canvasDimY;
         context.clearRect(0,0,canvas.width,canvas.height);
+        let res;
+        if (action === "new"){
+            res = calculateTriangles();
+            setPointsState(res);
+        } else {
+            res = pointsState;
+        }
 
-        let res = calculateTriangles();
         let points = res[0];
-        let margins = res[1];
-        let g = res[2];
-        let max = res[3]
+        let g = res[1];
+        let max = res[2]
 
         fillTriangles(context,points,g,max)
         
@@ -258,18 +265,47 @@ export default function Mountain(props) {
 
     useEffect(() => {
         if(params.action === "old"){
-            drawMountain();
+            drawMountain("new");
         } else if(params.action === "new"){
-            drawMountain();
+            drawMountain("new");
         }
 
     }, [])
 
+    useEffect(() => {
+        drawMountain("old");
+    },[colorNrState])
+
+
     return (
-        <div>
+        <div className="myRowSimple">
             <div className="myColumn21">
                 <canvas ref={canvasRef}/>
             </div>
+            <div className="myColumnSimple"> 
+                <div onChange={(event) => setColorNrState(event.target.value)}>
+                        <div className="myRowSimple">
+                            {
+                                colors.map((obj, index) => 
+                                <div className="myColumnSimple">
+                                    <div className="myRowSimple">
+                                        {
+                                            colors[index].map(elem => <div style={{background:elem}} width="1vh" height="1vh"><pre>   </pre></div>)
+                                        }
+                                    </div>
+                                    <div className="myRowSimple">
+                                        <input type="radio" value={index} checked={colorNrState == index} name="ponits" />
+                                        <pre>Palette {index}</pre>
+                                    </div>
+        
+                                </div>
+                                )
+                            }
+                        </div>
+                </div>
+                {<button onClick={() => drawMountain("new")} className="generate-tree-button">Generate Random Tree</button>}
+            </div>
+            
         </div>
     )
 }
