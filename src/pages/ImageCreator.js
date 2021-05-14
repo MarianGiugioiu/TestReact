@@ -32,7 +32,8 @@ export default function ImageCreator(props){
     const allImagesRefs = {};
 
     const [idState, setIdState] = useState(-1);
-    const [scaleState, setScaleState] = useState(1);
+    const [scaleXState, setScaleXState] = useState(1);
+    const [scaleYState, setScaleYState] = useState(1);
     const [rotationState, setRotationState] = useState(0);
     const [posXState, setPosXState] = useState(canvasDimX / 2);
     const [posYState, setPosYState] = useState(canvasDimY / 2);
@@ -102,7 +103,8 @@ export default function ImageCreator(props){
                 "posX": posXState,
                 "posY": posYState,
                 "rotation": rotationState,
-                "scale": scaleState,
+                "scaleX":scaleXState,
+                "scaleY":scaleYState,
                 "id": idImage
             }
             setImagePropertiesListState(list);
@@ -328,7 +330,8 @@ export default function ImageCreator(props){
             posX:canvasDimX/2,
             posY:canvasDimY/2,
             rotation:0,
-            scale:1
+            scaleX:1,
+            scaleY:1
         }
 
         let parts = [...imagePartsState];
@@ -381,7 +384,8 @@ export default function ImageCreator(props){
                     "posX": posXState,
                     "posY": posYState,
                     "rotation": rotationState,
-                    "scale": scaleState,
+                    "scaleX":scaleXState,
+                    "scaleY":scaleYState,
                     "id": idImage
                 }
                 setImagePropertiesListState(list);
@@ -395,7 +399,9 @@ export default function ImageCreator(props){
         setPosXState(imagePropertiesListState[id].posX);
         setPosYState(imagePropertiesListState[id].posY);
         setRotationState(imagePropertiesListState[id].rotation);
-        setScaleState(imagePropertiesListState[id].scale)
+        //setScaleState(imagePropertiesListState[id].scale)
+        setScaleXState(imagePropertiesListState[id].scaleX)
+        setScaleYState(imagePropertiesListState[id].scaleY)
     }
 
     function prepareDownload() {
@@ -405,7 +411,6 @@ export default function ImageCreator(props){
         const context1 = canvas1.getContext('2d');
         canvas1.width = canvasDimX;
         canvas1.height = canvasDimY;
-        console.log(isPngState)
         var sourceImageData = canvas.toDataURL("image/png", 0.5);
         if (!isPngState) {
             context1.save();
@@ -438,10 +443,10 @@ export default function ImageCreator(props){
                 context.translate(imagePropertiesListState[i].posX, imagePropertiesListState[i].posY);
                 context.rotate(imagePropertiesListState[i].rotation*Math.PI/180);
 
-                context.drawImage(imageCurrent, -imageDimX * imagePropertiesListState[i].scale / 2,
-                    -imageDimY * imagePropertiesListState[i].scale / 2,
-                    imageDimX * imagePropertiesListState[i].scale,
-                    imageDimY * imagePropertiesListState[i].scale);
+                context.drawImage(imageCurrent, -imageDimX * imagePropertiesListState[i].scaleX / 2,
+                    -imageDimY * imagePropertiesListState[i].scaleY / 2,
+                    imageDimX * imagePropertiesListState[i].scaleX,
+                    imageDimY * imagePropertiesListState[i].scaleY);
                 //context.drawImage(imageCurrent,imageDimX * i , imageDimY * i, imageDimX, imageDimY);
                 context.restore();
             }
@@ -454,7 +459,7 @@ export default function ImageCreator(props){
             //context.moveTo(0,0);
             context.translate(posXState, posYState);
             context.rotate(rotationState*Math.PI/180);
-            context.drawImage(image, -imageDimX * scaleState / 2, -imageDimY * scaleState / 2, imageDimX * scaleState, imageDimY * scaleState);
+            context.drawImage(image, -imageDimX * scaleXState / 2, -imageDimY * scaleYState / 2, imageDimX * scaleXState, imageDimY * scaleYState);
 
             prepareDownload()
 
@@ -464,7 +469,7 @@ export default function ImageCreator(props){
                 context.strokeStyle = 'blue';
                 context.lineWidth = 5;
                 context.fillStyle = 'red';
-                context.rect(-imageDimX * scaleState / 2, -imageDimY * scaleState / 2, imageDimX * scaleState, imageDimY * scaleState);
+                context.rect(-imageDimX * scaleXState / 2, -imageDimY * scaleYState / 2, imageDimX * scaleXState, imageDimY * scaleYState);
                 context.stroke();
             }
         } else {
@@ -483,8 +488,8 @@ export default function ImageCreator(props){
             var offset = canvas.getBoundingClientRect();
             var offsetX = offset.left;
             var offsetY = offset.top;
-            var width = offset.height;
-            var height = offset.bottom;
+            var width = offset.width;
+            var height = offset.height;
             //console.log(offset);
             //console.log(width,height)
             //console.log(event.clientX,event.clientY)
@@ -495,23 +500,12 @@ export default function ImageCreator(props){
         }
     }
 
-    //Change properties of selected image
-    function changeScale(event) {
-        let val = event.target.value;
-        setScaleState(val);
-    }
-
-    function changeRotation(event){
-        let val = event.target.value;
-        setRotationState(val)
-    }
-
     //Update canvas 
     useEffect(() => {
         //console.log("asd");
         drawImages();
         
-    }, [idState,rotationState,scaleState,posXState,posYState,isPngState])
+    }, [idState,rotationState,scaleXState,scaleYState,posXState,posYState,isPngState])
     
     useEffect(() => {
         //console.log(imagePropertiesListState.length)
@@ -526,9 +520,9 @@ export default function ImageCreator(props){
     return (
         <div className="mainDiv1">
             <div className="myRow1">
+                {/*Part List*/}
                 <div className="myColumn1">
                     {<button style = {{display:btnAfterPartsHiddenState}} onClick={()=> imagePartsHiddenState == "none" ? setImagePartsHiddenState("flex") : setImagePartsHiddenState("none")}>Show Components</button>}
-                    
                     <div className="myColumnSimple" style = {{display:imagePartsHiddenState}}>
                         <p>Image's Components:</p>
 
@@ -541,7 +535,9 @@ export default function ImageCreator(props){
                         </button>}
                     </div>
                 </div>
+
                 <div className="myColumn2">
+                    {/*Canvas and options*/}
                     <div className="myColumnSimple">
                         <div className="myColumn21">
                             <canvas 
@@ -550,16 +546,19 @@ export default function ImageCreator(props){
                                 onClick={handleClick} 
                             />
                         </div>
+
                         <div className="slidecontainer" style = {{display:(loadingAllImagesState == 1 ? "flex" : "none")}}>
-                            <input onInput={changeRotation} defaultValue="0" type="range" step="1" min="-180" max="180" className="slider" id="myRange4" />  
+                            <input onInput={(event) => setRotationState(event.target.value)} defaultValue="0" type="range" step="1" min="-180" max="180" className="slider" id="myRange4" />  
                         </div>
                         <div className="slidecontainer" style = {{display:(loadingAllImagesState == 1 ? "flex" : "none")}}>
-                            <input onInput={changeScale} defaultValue="1" type="range" step="0.1" min="0.1" max="5" className="slider" id="myRange4" />  
+                            <input onInput={(event) => setScaleXState(event.target.value)} defaultValue="1" type="range" step="0.1" min="0.1" max="5" className="slider" id="myRange4" />  
                         </div>
-                        
+                        <div className="slidecontainer" style = {{display:(loadingAllImagesState == 1 ? "flex" : "none")}}>
+                            <input onInput={(event) => setScaleYState(event.target.value)} defaultValue="1" type="range" step="0.1" min="0.1" max="5" className="slider" id="myRange4" />  
+                        </div>
                     </div>
                     
-                    
+                    {/*Saving, Editing, Details*/}
                     <div className="myColumn22">
                         {<button style = {{display:(params.action === "new" ? "flex" : "none")}} onClick={newImage}>New Image</button>}
                         {<button style = {{display:(params.action === "old" ? "flex" : "none")}} onClick={reloadImage}>Reload Image</button>}
@@ -569,6 +568,7 @@ export default function ImageCreator(props){
                         {<button style = {{display:(imageProfileId == profileId ? "flex" : "none")}} onClick={createPosting}>Create Posting</button>}
                         <button onClick={downloadClick}>Download</button>
                         {<a ref={downloadRef} href = {canvasDataUrl} download = {nameState + '.' + (isPngState ? "png" : "jpeg")} style={{display:"none"}}>Download Image </a>}
+                        
                         <ImageDetails 
                             backgroungColorState={backgroungColorState} 
                             setBackgroungColorState={setBackgroungColorState}
