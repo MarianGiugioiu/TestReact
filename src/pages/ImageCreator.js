@@ -121,6 +121,7 @@ export default function ImageCreator(props){
     function saveImage() {
         //if(readyState != 0){
             var options = {
+                "background":backgroungColorState,
                 "imagePropertiesList": imagePropertiesListState
             }
             //console.log(JSON.stringify(options));
@@ -203,7 +204,13 @@ export default function ImageCreator(props){
                 setNameState(data.name);
                 setDescriptionState(data.description);
                 setIsPngState(data.status);
-                const imagePropertiesList = JSON.parse(data.options).imagePropertiesList;
+                const options = JSON.parse(data.options);
+                const imagePropertiesList = options.imagePropertiesList;
+                const background = options.background;
+                if(background != null){
+                    setBackgroungColorState(background)
+                }
+                
                 setImgCanvasState(data.dataURL);
                 setImagePropertiesListState(imagePropertiesList)
                 let ids = []
@@ -228,7 +235,8 @@ export default function ImageCreator(props){
     useEffect(() => {
         if(loadingImagePartsState == 1){
             setBtnAfterPartsHiddenState("flex");
-            onLoad();
+            drawImages();
+            //onLoad();
         }
     }, [loadingImagePartsState])
 
@@ -292,13 +300,16 @@ export default function ImageCreator(props){
 
     //Put image in canvas when started
     function onLoad() {
-        const canvas = canvasRef.current;
-        const context = canvas.getContext('2d');
+        const canvas1 = canvasRef1.current;
+        const context1 = canvas1.getContext('2d');
+        canvas1.width = canvasDimX;
+        canvas1.height = canvasDimY;
         const image = imgCanvas.current;
 
+
         //console.log(image)
-        context.drawImage(image,0,0);
-        setCanvasDataUrl(canvas.toDataURL("image/png"));
+        context1.drawImage(image,0,0);
+        setCanvasDataUrl(canvas1.toDataURL("image/png"));
     }
 
     //Download
@@ -387,12 +398,31 @@ export default function ImageCreator(props){
         setScaleState(imagePropertiesListState[id].scale)
     }
 
+    function prepareDownload() {
+        const canvas = canvasRef.current;
+        const context = canvas.getContext('2d');
+        const canvas1 = canvasRef1.current;
+        const context1 = canvas1.getContext('2d');
+        canvas1.width = canvasDimX;
+        canvas1.height = canvasDimY;
+        console.log(isPngState)
+        var sourceImageData = canvas.toDataURL("image/png", 0.5);
+        if (!isPngState) {
+            context1.save();
+            context1.fillStyle = 'rgb(' + backgroungColorState.r + ',' + backgroungColorState.g + ',' + backgroungColorState.b + ',' + backgroungColorState.a + ')';
+            context1.fillRect(0, 0, canvas1.width, canvas1.height);
+            context1.drawImage(canvas,0,0,canvasDimX,canvasDimY);
+            var sourceImageData = canvas1.toDataURL("image/jpeg", 0.5);
+            context1.restore();
+        }
+        setCanvasDataUrl(sourceImageData);
+    }
+
     //Draw current state in canvas
     function drawImages(){
         const id = idState;
         //console.log(imagePartsRefs);
         const nrImages = Object.keys(imagePartsRefs).length;
-        //console.log(nrImages)
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
         canvas.width = canvasDimX;
@@ -417,24 +447,28 @@ export default function ImageCreator(props){
             }
         }
 
+
         if(id != -1){
             const image = imagePartsRefs[`img${id}`];
         
-        //context.moveTo(0,0);
-        context.translate(posXState, posYState);
-        context.rotate(rotationState*Math.PI/180);
-        context.drawImage(image, -imageDimX * scaleState / 2, -imageDimY * scaleState / 2, imageDimX * scaleState, imageDimY * scaleState);
-        setCanvasDataUrl(canvas.toDataURL("image/png"));
+            //context.moveTo(0,0);
+            context.translate(posXState, posYState);
+            context.rotate(rotationState*Math.PI/180);
+            context.drawImage(image, -imageDimX * scaleState / 2, -imageDimY * scaleState / 2, imageDimX * scaleState, imageDimY * scaleState);
 
-        if(readyState == 0){
-            context.beginPath();
-            context.save();
-            context.strokeStyle = 'blue';
-            context.lineWidth = 5;
-            context.fillStyle = 'red';
-            context.rect(-imageDimX * scaleState / 2, -imageDimY * scaleState / 2, imageDimX * scaleState, imageDimY * scaleState);
-            context.stroke();
+            prepareDownload()
+
+            if(readyState == 0){
+                context.beginPath();
+                context.save();
+                context.strokeStyle = 'blue';
+                context.lineWidth = 5;
+                context.fillStyle = 'red';
+                context.rect(-imageDimX * scaleState / 2, -imageDimY * scaleState / 2, imageDimX * scaleState, imageDimY * scaleState);
+                context.stroke();
             }
+        } else {
+            prepareDownload()
         }
         //context.restore();
         if (readyState == 1){
@@ -477,12 +511,17 @@ export default function ImageCreator(props){
         //console.log("asd");
         drawImages();
         
-    }, [idState,rotationState,scaleState,posXState,posYState])
+    }, [idState,rotationState,scaleState,posXState,posYState,isPngState])
     
     useEffect(() => {
         //console.log(imagePropertiesListState.length)
         drawImages();
     }, [imagePropertiesListState])
+
+    useEffect(() => {
+        //console.log(backgroungColorState)
+        drawImages();
+    },[backgroungColorState])
 
     return (
         <div className="mainDiv1">
@@ -524,7 +563,7 @@ export default function ImageCreator(props){
                     <div className="myColumn22">
                         {<button style = {{display:(params.action === "new" ? "flex" : "none")}} onClick={newImage}>New Image</button>}
                         {<button style = {{display:(params.action === "old" ? "flex" : "none")}} onClick={reloadImage}>Reload Image</button>}
-                        {<button style = {{display:((btnAfterPartsHiddenState === "flex" && imageProfileId == profileId) ? "flex" : "none")}} onClick={prepareImage} >Save Image</button>}
+                        {<button style = {{display:((btnAfterPartsHiddenState === "flex" && (imageProfileId == profileId || imageProfileId == -1 )) ? "flex" : "none")}} onClick={prepareImage} >Save Image</button>}
                         
                         {<button style = {{display:((btnAfterPartsHiddenState === "flex" && params.action === "old" && imageProfileId == profileId) ? "flex" : "none")}}  onClick={loadAllImages} >Edit Image</button>}
                         {<button style = {{display:(imageProfileId == profileId ? "flex" : "none")}} onClick={createPosting}>Create Posting</button>}
@@ -534,6 +573,7 @@ export default function ImageCreator(props){
                             backgroungColorState={backgroungColorState} 
                             setBackgroungColorState={setBackgroungColorState}
                             condition={loadingAllImagesState == 0}
+                            canvasRef1={canvasRef1}
                             nameState={nameState}
                             setNameState={setNameState}
                             descriptionState={descriptionState}

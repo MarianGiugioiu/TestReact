@@ -23,7 +23,7 @@ export default function MyList(props){
         if (name == "Postings" || name == "Images"){
             let URL = /posting/ + data[i].id;
             if (name == "Images") {
-                let URL = /fractal/ + data[i].id;
+                URL = /fractal/ + data[i].id;
             }
             httpService
                 .delete(URL)

@@ -3,6 +3,7 @@ import { ChromePicker } from 'react-color';
 import '../App.css';
 
 export default function ImageDetails (props) {
+    //console.log(props.canvasRef1)
     return (
         <div className="myRowSimple">
             <div>
@@ -43,6 +44,8 @@ export default function ImageDetails (props) {
                 </div>
                 <canvas 
                     ref={props.canvasRef1}
+                    width="100"
+                    height="100"
                     style={{display:"none"}}
                 />
             </div>
