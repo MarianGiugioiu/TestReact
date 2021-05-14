@@ -3,7 +3,7 @@ import { useHistory, useParams } from "react-router-dom";
 import React, { useRef, useEffect, useCallback, useState, useContext } from 'react'
 import httpService from '../services/httpService';
 import AuthenticationContext from "../AuthenticationContext";
-import { Link } from "react-router-dom";
+import MyList from '../components/MyList';
 
 
 export default function Profile(props) {
@@ -256,78 +256,15 @@ export default function Profile(props) {
         history.push(path);
     }
 
-    function deleteFromList(name, i){
-        if (name == "Postings"){
-            let URL = /posting/ + allPostingsState[i].id;
-            httpService
-                .delete(URL)
-                .then((response) => {
-                    console.log(response);
-                    if (response.status == 202) {
-                        let list = [...allPostingsState];
-                        list.splice(i,1);
-                        setAllPostingsState(list);
-                    }
-                })
-        } else if (name == "Images"){
-            let URL = /fractal/ + allImagesState[i].id;
-            httpService
-                .delete(URL)
-                .then((response) => {
-                    console.log(response);
-                    if (response.status == 202) {
-                        let list = [...allImagesState];
-                        list.splice(i,1);
-                        setAllImagesState(list);
-                    }
-                })
-        } 
-    }
-
-    function MyList(name, data, refs, visibility, loadFunction, chooseFunction){
-        return (
-            <div>
-                <button onClick={loadFunction} >{visibility === "none" ? "Show " + name: "Hide " + name}</button>
-                <div className="myRow2" style = {{display:visibility}}>
-                    {
-                        data != null ?
-                        (data.length > 0 ?
-                            (data.map(function(object, i){
-                                if(object!= null) {
-                                    return (   
-                                        <div className="myColumnSimple" key={i}>
-                                            <Link to={"/profile" + object.id}>
-                                            </Link> 
-                                            <img
-                                                id={i}
-                                                ref = {(ref) => refs[`img${i}`] = ref}
-                                                src = {object.image}
-                                                width = "100vw" height = "100vw"
-                                                onClick={() => chooseFunction(object)}
-                                                >
-                                            </img>
-                                            <pre>{object.name}</pre>
-                                            <button style = {{display: ((visibility === "flex" && props.type === "mine" && (name === "Postings" || name === "Images")) ? "flex" : "none")}} onClick={() => deleteFromList(name,i)}>Delete</button>
-                                        </div>
-                                    );
-                                }
-                            })) : 
-                            <pre>The are no {name}</pre>
-                        ) : <div></div>
-                    }
-                </div>
-            </div>
-        )
-    }
-
     return (
         <div>
-            {MyList("Postings",allPostingsState,allPostingsRefs,allPostingsHiddenState,loadAllPostings,choosePosting)}
-            {props.type === "mine" || privacyOptions.fractals == true ? MyList("Images",allImagesState,allImagesRefs,allImagesHiddenState,loadAllImages,chooseImage) : <pre>You can't see this profile's images</pre>}
-            {props.type === "mine" || privacyOptions.followers == true ? MyList("Followers",allFollowedState,allFollowedRefs,allFollowedHiddenState,loadAllFollowed,chooseFollowed) : <pre>You can't see this profile's followers</pre>}
-            {props.type === "mine" || privacyOptions.followers == true ? MyList("Following",allFollowingState,allFollowingRefs,allFollowingHiddenState,loadAllFollowing,chooseFollowing) : <pre>You can't see this profile's followed people</pre>}
-            {props.type === "mine" || privacyOptions.followers == true ? MyList("Likes",allLikesState,allLikesRefs,allLikesHiddenState,loadAllLikes,chooseLikes) : <pre>You can't see this profile's followed people</pre>}
-            {props.type === "mine" || privacyOptions.followers == true ? MyList("Dislikes",allDislikesState,allDislikesRefs,allDislikesHiddenState,loadAllDislikes,chooseDislikes) : <pre>You can't see this profile's followed people</pre>}
+            {<MyList isProfile={true} type={props.type} name="Postings" data={allPostingsState} setData={setAllPostingsState} refs={allPostingsRefs} visibility={allPostingsHiddenState} loadFunction={loadAllPostings} chooseFunction={choosePosting} />}
+            {props.type === "mine" || privacyOptions.fractals == true ? <MyList isProfile={true} type={props.type} name="Images" data={allImagesState} setData={setAllImagesState} refs={allImagesRefs} visibility={allImagesHiddenState} loadFunction={loadAllImages} chooseFunction={chooseImage} /> : <pre>You can't see this profile's images</pre>}
+            {props.type === "mine" || privacyOptions.followers == true ? <MyList isProfile={true} type={props.type} name="Followers" data={allFollowedState} setData={setAllFollowedState} refs={allFollowedRefs} visibility={allFollowedHiddenState} loadFunction={loadAllFollowed} chooseFunction={chooseFollowed} /> : <pre>You can't see this profile's images</pre>}
+            {props.type === "mine" || privacyOptions.following == true ? <MyList isProfile={true} type={props.type} name="Following" data={allFollowingState} setData={setAllFollowingState} refs={allFollowingRefs} visibility={allFollowingHiddenState} loadFunction={loadAllFollowing} chooseFunction={chooseFollowing} /> : <pre>You can't see this profile's images</pre>}
+            {props.type === "mine" || privacyOptions.likes == true ? <MyList isProfile={true} type={props.type} name="Likes" data={allLikesState} setData={setAllLikesState} refs={allLikesRefs} visibility={allLikesHiddenState} loadFunction={loadAllLikes} chooseFunction={chooseLikes} /> : <pre>You can't see this profile's images</pre>}
+            {props.type === "mine" || privacyOptions.dislikes== true ? <MyList isProfile={true} type={props.type} name="Dislikes" data={allDislikesState} setData={setAllDislikesState} refs={allDislikesRefs} visibility={allDislikesHiddenState} loadFunction={loadAllDislikes} chooseFunction={chooseDislikes} /> : <pre>You can't see this profile's images</pre>}
+            
         </div>
     );
 }

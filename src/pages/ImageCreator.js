@@ -3,6 +3,8 @@ import httpService from '../services/httpService';
 import { useHistory, useParams } from 'react-router';
 import { ChromePicker } from 'react-color';
 import AuthenticationContext from "../AuthenticationContext";
+import MyList from '../components/MyList';
+import ImageDetails from "../components/ImageDetails";
 import '../App.css';
 
 export default function ImageCreator(props){
@@ -15,7 +17,8 @@ export default function ImageCreator(props){
     const imageDimX = 300;
     const imageDimY = 300;
 
-    const [started, setStarted] =useState(0);
+    const [imageProfileId, setImageProfileId] = useState(-1);
+    const [started, setStarted] = useState(0);
     const [imagePartsState,setImagePartsState] = useState([]);
     const [allImagesState,setAllImagesState] = useState([]);
     const [nameState, setNameState] = useState("");
@@ -41,44 +44,21 @@ export default function ImageCreator(props){
     const [imgCanvasState,setImgCanvasState] = useState(null);
 
     const [readyState, setReadyState] = useState(0);
-    const [imagePartsHiddenState, setImagePartsHiddenState] = useState("hidden");
-    const [allImagesHiddenState, setAllImagesHiddenState] = useState("hidden");
-    const [btnAfterPartsHiddenState, setBtnAfterPartsHiddenState] = useState("hidden");
-    const [btnAfterAllHiddenState, setBtnAfterAllHiddenState] = useState("hidden");
+    const [imagePartsHiddenState, setImagePartsHiddenState] = useState("none");
+    const [allImagesHiddenState, setAllImagesHiddenState] = useState("none");
+    const [btnAfterPartsHiddenState, setBtnAfterPartsHiddenState] = useState("none");
+    const [btnAfterAllHiddenState, setBtnAfterAllHiddenState] = useState("none");
     const [loadingImagePartsState, setLoadingImagePartsState] = useState(0);
     const [loadingAllImagesState, setLoadingAllImagesState] = useState(0);
     const [partIdListState, setPartIdListState] = useState([]);
-    const [btnMakePostingHiddenState, setBtnMakePostingHiddenState] = useState("hidden");
+    const [btnMakePostingHiddenState, setBtnMakePostingHiddenState] = useState("none");
     const [newOrOldImageState, setNewOrOldImageState] = useState(0);
 
     const [uploadedImage, setUploadedImage] = useState();
 
     const [savedIdState, setSavedIdState] = useState(0);
 
-    function prepareImage(){
-        if (idState != -1){
-            const list = [...imagePropertiesListState];
-            var idImage = list[idState].id;
-            list[idState] = {
-                "posX": posXState,
-                "posY": posYState,
-                "rotation": rotationState,
-                "scale": scaleState,
-                "id": idImage
-            }
-            setImagePropertiesListState(list);
-        }
-        setReadyState(1);
-    }
-
-    useEffect(()=>{
-        if(readyState == 1){
-            drawImages();
-        }
-        else if(readyState == 2)
-            saveImage();
-    },[readyState])
-
+    //POSTING
     function createPosting(){
         console.log(savedIdState);
         var currentdate = new Date(); 
@@ -112,6 +92,32 @@ export default function ImageCreator(props){
                 });
     }
 
+
+    //SAVING PROCESS
+    function prepareImage(){
+        if (idState != -1){
+            const list = [...imagePropertiesListState];
+            var idImage = list[idState].id;
+            list[idState] = {
+                "posX": posXState,
+                "posY": posYState,
+                "rotation": rotationState,
+                "scale": scaleState,
+                "id": idImage
+            }
+            setImagePropertiesListState(list);
+        }
+        setReadyState(1);
+    }
+
+    useEffect(()=>{
+        if(readyState == 1){
+            drawImages();
+        }
+        else if(readyState == 2)
+            saveImage();
+    },[readyState])
+
     function saveImage() {
         //if(readyState != 0){
             var options = {
@@ -128,8 +134,8 @@ export default function ImageCreator(props){
                     + (currentdate.getSeconds() < 10 ? "0"+ currentdate.getSeconds() : currentdate.getSeconds())
             //console.log(datetime);
     
+            //add background
             const canvas = canvasRef.current;
-            const context = canvas.getContext('2d');
             const canvas1 = canvasRef1.current;
             const context1 = canvas1.getContext('2d');
             canvas1.width = canvasDimX;
@@ -177,53 +183,14 @@ export default function ImageCreator(props){
                         console.log(response.data);
                         setSavedIdState(response.data.id);
                     });
-            /*console.log(newOrOldImageState)
-            if(newOrOldImageState == 0){
-                var URL = "/fractal"
-                httpService
-                    .post(URL, image)
-                    .then((response) => {
-                    console.log(response.data);
-                    });
-            } else {
-                var URL = "/fractal/" + newOrOldImageState;
-                httpService
-                    .put(URL, image)
-                    .then((response) => {
-                    console.log(response.data);
-                    });
-            }*/
+            
             
 
             setReadyState(0);
         //}
     }
 
-    function reloadImage(){
-        setIdState(-1);
-        setLoadingImagePartsState(0);
-        setBtnAfterPartsHiddenState("hidden");
-        setImagePartsHiddenState("hidden");
-        setAllImagesHiddenState("hidden");
-        loadImage();
-    }
-
-    useEffect(()=>{
-        if(started == 0){
-            /*if(props.location.state.action === "old"){
-                loadImage();
-            } else if(props.location.state.action === "new"){
-                newImage();
-            }*/
-            if(params.action === "old"){
-                loadImage();
-            } else if(params.action === "new"){
-                newImage();
-            }
-        }
-        setStarted(1)
-    },[started])
-
+    //Loading Image
     function loadImage() {
         let myId = params.id;
         setSavedIdState(myId);
@@ -232,6 +199,7 @@ export default function ImageCreator(props){
             .get(URL)
             .then(async (response) => {
                 var data = response.data;
+                setImageProfileId(data.profile.id);
                 setNameState(data.name);
                 setDescriptionState(data.description);
                 setIsPngState(data.status);
@@ -259,18 +227,90 @@ export default function ImageCreator(props){
 
     useEffect(() => {
         if(loadingImagePartsState == 1){
-            setBtnAfterPartsHiddenState("visible");
+            setBtnAfterPartsHiddenState("flex");
             onLoad();
         }
     }, [loadingImagePartsState])
 
-    function addImage() {
-        setAllImagesHiddenState("visible");
+    function reloadImage(){
+        setIdState(-1);
+        setLoadingImagePartsState(0);
+        setBtnAfterPartsHiddenState("none");
+        setImagePartsHiddenState("none");
+        setAllImagesHiddenState("none");
+        loadImage();
     }
 
+    //New Image
+    function newImage() {
+        //console.log()
+        if(imagePartsState.length != 0) {
+            setImagePartsState([]);
+            setPartIdListState([]);
+            setIdState(-1);
+        }
+        setBtnAfterPartsHiddenState("flex");
+        setImagePartsHiddenState("flex");
+        if(allImagesState.length == 0){
+            loadAllImages();
+        }
+        setNewOrOldImageState(0);
+    }
+
+    //Load all Images
+    function loadAllImages () {
+        var URL = "/profile/" + profileId + "/fractals";
+        
+        httpService
+            .get(URL)
+            .then((response) => {
+                var data = response.data;
+                console.log(data);
+                setAllImagesState(data);
+        })
+
+    }
+
+    useEffect(() => {
+        if(allImagesState.length != 0){
+            setLoadingAllImagesState(1);
+            setBtnAfterAllHiddenState("flex");
+        }
+    },[allImagesState])
+
+    //Starting
+    useEffect(()=>{
+        if(started == 0){
+            if(params.action === "old"){
+                loadImage();
+            } else if(params.action === "new"){
+                newImage();
+            }
+        }
+        setStarted(1)
+    },[started])
+
+    //Put image in canvas when started
+    function onLoad() {
+        const canvas = canvasRef.current;
+        const context = canvas.getContext('2d');
+        const image = imgCanvas.current;
+
+        //console.log(image)
+        context.drawImage(image,0,0);
+        setCanvasDataUrl(canvas.toDataURL("image/png"));
+    }
+
+    //Download
+    function downloadClick(){
+        const link = downloadRef.current;
+        link.click();
+    }
+
+    //Choose Image to add to Parts
     function chooseImage(object) {
         console.log("asd");
-        setAllImagesHiddenState("hidden");
+        setAllImagesHiddenState("none");
         let id = object.id;
         let property = {
             id:id,
@@ -290,25 +330,9 @@ export default function ImageCreator(props){
 
         setImagePartsState(parts);
         setImagePropertiesListState(properties);
-        //setPartIdListState(ids);
     }
 
-    function newImage() {
-        //console.log()
-        if(imagePartsState.length != 0) {
-            setImagePartsState([]);
-            setPartIdListState([]);
-            setIdState(-1);
-        }
-        setBtnAfterPartsHiddenState("visible");
-        setImagePartsHiddenState("visible");
-        if(allImagesState.length == 0){
-            loadAllImages();
-        }
-        setNewOrOldImageState(0);
-    }
-
-
+    //Delete Part
     function deletePart(i){
         //console.log("asd");
         let myId = imagePartsState[i].id;
@@ -335,43 +359,35 @@ export default function ImageCreator(props){
         setPartIdListState(ids);
     }
 
-    function loadAllImages () {
-        var URL = "/profile/" + profileId + "/fractals";
-        
-        httpService
-            .get(URL)
-            .then((response) => {
-                var data = response.data;
-                console.log(data);
-                setAllImagesState(data);
-        })
+    //Select Part for options
+    function changeImage (event,i) {
+        const id = i;
+        if (idState != -1){
+            const list = [...imagePropertiesListState];
+            var idImage = list[idState].id;
+            if(idState != id) {
+                list[idState] = {
+                    "posX": posXState,
+                    "posY": posYState,
+                    "rotation": rotationState,
+                    "scale": scaleState,
+                    "id": idImage
+                }
+                setImagePropertiesListState(list);
+            }
+            
+        }
+        setIdState(id);
 
+        //console.log(id);
+
+        setPosXState(imagePropertiesListState[id].posX);
+        setPosYState(imagePropertiesListState[id].posY);
+        setRotationState(imagePropertiesListState[id].rotation);
+        setScaleState(imagePropertiesListState[id].scale)
     }
 
-    useEffect(() => {
-        if(allImagesState.length != 0){
-            setLoadingAllImagesState(1);
-        }
-    },[allImagesState])
-
-    useEffect(() => {
-        if (allImagesState.length > 0) {
-            setBtnAfterAllHiddenState("visible");
-        }
-    },[allImagesState])
-
-    function onLoad() {
-        const canvas = canvasRef.current;
-        const context = canvas.getContext('2d');
-        const image = imgCanvas.current;
-
-        //console.log(image)
-        context.drawImage(image,0,0);
-        setCanvasDataUrl(canvas.toDataURL("image/png"));
-    }
-
-
-
+    //Draw current state in canvas
     function drawImages(){
         const id = idState;
         //console.log(imagePartsRefs);
@@ -426,32 +442,29 @@ export default function ImageCreator(props){
         }
     }
 
-    function changeImage (event) {
-        const image = event.target;
-        const id = image.id;
-        if (idState != -1){
-            const list = [...imagePropertiesListState];
-            var idImage = list[idState].id;
-            if(idState != id) {
-                list[idState] = {
-                    "posX": posXState,
-                    "posY": posYState,
-                    "rotation": rotationState,
-                    "scale": scaleState,
-                    "id": idImage
-                }
-                setImagePropertiesListState(list);
-            }
-            
+    //Move selected image in canvas
+    function handleClick(event){
+        if(loadingAllImagesState == 1){
+            const canvas = canvasRef.current;
+            var offset = canvas.getBoundingClientRect();
+            var offsetX = offset.left;
+            var offsetY = offset.top;
+            var width = offset.height;
+            var height = offset.bottom;
+            //console.log(offset);
+            //console.log(width,height)
+            //console.log(event.clientX,event.clientY)
+            var posX = (event.clientX - offsetX) * 1500 / width;
+            var posY = (event.clientY - offsetY) * 1500 / height;
+            setPosXState(posX);
+            setPosYState(posY);
         }
-        setIdState(id);
+    }
 
-        //console.log(id);
-
-        setPosXState(imagePropertiesListState[id].posX);
-        setPosYState(imagePropertiesListState[id].posY);
-        setRotationState(imagePropertiesListState[id].rotation);
-        setScaleState(imagePropertiesListState[id].scale)
+    //Change properties of selected image
+    function changeScale(event) {
+        let val = event.target.value;
+        setScaleState(val);
     }
 
     function changeRotation(event){
@@ -459,93 +472,35 @@ export default function ImageCreator(props){
         setRotationState(val)
     }
 
-    function handleClick(event){
-        const canvas = canvasRef.current;
-        var offset = canvas.getBoundingClientRect();
-        var offsetX = offset.left;
-        var offsetY = offset.top;
-        var width = offset.height;
-        var height = offset.bottom;
-        //console.log(offset);
-        //console.log(width,height)
-        //console.log(event.clientX,event.clientY)
-        var posX = (event.clientX - offsetX) * 1500 / width;
-        var posY = (event.clientY - offsetY) * 1500 / height;
-        setPosXState(posX);
-        setPosYState(posY);
-    }
-
-    function changeScale(event) {
-        let val = event.target.value;
-        setScaleState(val);
-    }
-
+    //Update canvas 
     useEffect(() => {
         //console.log("asd");
         drawImages();
-        //console.log(posXState,posYState,rotationState,scaleState)
-        //console.log(imagePropertiesListState);
         
     }, [idState,rotationState,scaleState,posXState,posYState])
     
-
-    useEffect(() => {
-        
-        //console.log(partIdListState)
-    }, [partIdListState])
-
-    function uploadImage(event){
-        let file = event.target.files[0];
-        console.log(file);
-        setUploadedImage(URL.createObjectURL(file));
-    }
-
     useEffect(() => {
         //console.log(imagePropertiesListState.length)
         drawImages();
     }, [imagePropertiesListState])
 
-    function downloadClick(){
-        const link = downloadRef.current;
-        link.click();
-    }
-
     return (
         <div className="mainDiv1">
             <div className="myRow1">
-                <div className="myColumn1" style = {{visibility:imagePartsHiddenState}}>
-                    <p>Image's Components:</p>
-                    {
-                        //console.log(imagePartsState)
-                        imagePartsState.map(function(object, i){
-                            if(object != null){
-                                return (   
-                                    <div className="myRowSimple"> 
-                                        <img
-                                            id={i}
-                                            ref = {(ref) => imagePartsRefs[`img${i}`] = ref}
-                                            src = {object.image}
-                                            width = "50%" height = "50%"
-                                            onClick={changeImage}
-                                            className={imagePartsHiddenState}
-                                            >
-                                        </img>
-                                        <div className="myColumnSimple">
-                                            <pre>{object.name}</pre>
-                                            {<button style = {{visibility:((btnAfterAllHiddenState ==="visible" && imagePartsHiddenState === "visible") ? "visible" : "hidden")}} onClick={() => deletePart(i)}>Delete</button>}
-                                        </div>
-                                        
-                                    </div>
-                                );
-                            }
-                            
-                        })
-                    }
-                    {<button style = {{visibility:((btnAfterAllHiddenState ==="visible" && imagePartsHiddenState === "visible") ? "visible" : "hidden")}}  onClick={addImage}>Add Image</button>}
-                    <div style={{visibility:"hidden"}}>
-                        <input type="file" name="file" onChange={uploadImage} />
-                        <img src = {uploadedImage} width="100" height="100"></img>
-		            </div>
+                <div className="myColumn1">
+                    {<button style = {{display:btnAfterPartsHiddenState}} onClick={()=> imagePartsHiddenState == "none" ? setImagePartsHiddenState("flex") : setImagePartsHiddenState("none")}>Show Components</button>}
+                    
+                    <div className="myColumnSimple" style = {{display:imagePartsHiddenState}}>
+                        <p>Image's Components:</p>
+
+                        <MyList isProfile={false} isColumn={true} name="Parts" data={imagePartsState} deletePart={deletePart} refs={imagePartsRefs} allVisibility={btnAfterAllHiddenState} visibility={imagePartsHiddenState} chooseFunction={changeImage}/>
+                        
+                        {<button 
+                            style = {{display:((btnAfterAllHiddenState ==="flex" && imagePartsHiddenState === "flex") ? "flex" : "none")}}
+                            onClick={() => allImagesHiddenState === "flex" ? setAllImagesHiddenState("none") : setAllImagesHiddenState("flex")}
+                        >{allImagesHiddenState === "flex" ? "Hide Images" : "Add Image"}
+                        </button>}
+                    </div>
                 </div>
                 <div className="myColumn2">
                     <div className="myColumnSimple">
@@ -556,96 +511,41 @@ export default function ImageCreator(props){
                                 onClick={handleClick} 
                             />
                         </div>
-                        <div className="myRowSimple">
-                            <div>
-                                <ChromePicker 
-                                    color={backgroungColorState}
-                                    onChange={(event) => setBackgroungColorState(event.rgb)}
-                                />
-                            </div>
-                            <div className="myColumnSimple">
-                                <div className="myRowSimple">
-                                    <pre>Name:        </pre>
-                                    {
-                                        loadingAllImagesState == 0 ? 
-                                        <pre>{nameState}</pre> : 
-                                        <input
-                                            type="text"
-                                            value={nameState}
-                                            onChange={(event) => {setNameState(event.target.value)}}
-                                        />
-                                    }
-                                </div>
-                                <div className="myRowSimple">
-                                    <pre>Description: </pre>
-                                    {
-                                        loadingAllImagesState == 0 ? 
-                                        <pre>{descriptionState}</pre> : 
-                                        <input
-                                            type="text"
-                                            value={descriptionState}
-                                            onChange={(event) => setDescriptionState(event.target.value)}
-                                        />
-                                    }
-                                </div>
-                                <div className="myRowSimple">
-                                    <pre>PNG </pre>
-                                    <input type="checkbox" id="checkbox1" checked={isPngState} onChange={() => setIsPngState(!isPngState)}></input>
-                                </div>
-                                <canvas 
-                                    ref={canvasRef1}
-                                    style={{display:"none"}}
-                                    {...props}
-                                />
-                            </div>
+                        <div className="slidecontainer" style = {{display:(loadingAllImagesState == 1 ? "flex" : "none")}}>
+                            <input onInput={changeRotation} defaultValue="0" type="range" step="1" min="-180" max="180" className="slider" id="myRange4" />  
                         </div>
-                        
+                        <div className="slidecontainer" style = {{display:(loadingAllImagesState == 1 ? "flex" : "none")}}>
+                            <input onInput={changeScale} defaultValue="1" type="range" step="0.1" min="0.1" max="5" className="slider" id="myRange4" />  
+                        </div>
                         
                     </div>
                     
                     
                     <div className="myColumn22">
-                        <div className="slidecontainer" style = {{visibility:(loadingAllImagesState == 1 ? "visible" : "hidden")}}>
-                            <input onInput={changeRotation} defaultValue="0" type="range" step="1" min="-180" max="180" className="slider" id="myRange4" />  
-                        </div>
-                        <div className="slidecontainer" style = {{visibility:(loadingAllImagesState == 1 ? "visible" : "hidden")}}>
-                            <input onInput={changeScale} defaultValue="1" type="range" step="0.1" min="0.1" max="5" className="slider" id="myRange4" />  
-                        </div>
-                        {<button style = {{visibility:(params.action === "new" ? "visible" : "hidden")}} onClick={newImage}>New Image</button>}
-                        {<button style = {{visibility:(params.action === "old" ? "visible" : "hidden")}} onClick={reloadImage}>Reload Image</button>}
-                        {<button style = {{visibility:btnAfterPartsHiddenState}} onClick={prepareImage} >Save Image</button>}
-                        {<button style = {{visibility:btnAfterPartsHiddenState}} onClick={()=> imagePartsHiddenState == "hidden" ? setImagePartsHiddenState("visible") : setImagePartsHiddenState("hidden")}>Show Components</button>}
-                        {<button style = {{visibility:((btnAfterPartsHiddenState === "visible" && params.action === "old") ? "visible" : "hidden")}}  onClick={loadAllImages} >Edit Image</button>}
-                        {<button onClick={createPosting}>Create Posting</button>}
-                        <button onClick={downloadClick}>Download</button>
-                        {<a ref={downloadRef} href = {canvasDataUrl} download = {nameState + '.' + (isPngState ? "png" : "jpeg")}>Download Image </a>}
+                        {<button style = {{display:(params.action === "new" ? "flex" : "none")}} onClick={newImage}>New Image</button>}
+                        {<button style = {{display:(params.action === "old" ? "flex" : "none")}} onClick={reloadImage}>Reload Image</button>}
+                        {<button style = {{display:((btnAfterPartsHiddenState === "flex" && imageProfileId == profileId) ? "flex" : "none")}} onClick={prepareImage} >Save Image</button>}
                         
+                        {<button style = {{display:((btnAfterPartsHiddenState === "flex" && params.action === "old" && imageProfileId == profileId) ? "flex" : "none")}}  onClick={loadAllImages} >Edit Image</button>}
+                        {<button style = {{display:(imageProfileId == profileId ? "flex" : "none")}} onClick={createPosting}>Create Posting</button>}
+                        <button onClick={downloadClick}>Download</button>
+                        {<a ref={downloadRef} href = {canvasDataUrl} download = {nameState + '.' + (isPngState ? "png" : "jpeg")} style={{display:"none"}}>Download Image </a>}
+                        <ImageDetails 
+                            backgroungColorState={backgroungColorState} 
+                            setBackgroungColorState={setBackgroungColorState}
+                            condition={loadingAllImagesState == 0}
+                            nameState={nameState}
+                            setNameState={setNameState}
+                            descriptionState={descriptionState}
+                            setDescriptionState={setDescriptionState}
+                            isPngState={isPngState}
+                            setIsPngState={setIsPngState}
+                        />
                     </div>
                 </div>
             </div>
-            {<img ref={imgCanvas} src={imgCanvasState} width="100" height="100"  className="hidden"/>}
-            <div className="myRow2" style = {{visibility:allImagesHiddenState}}>
-            {
-                    
-                    allImagesState.map(function(object, i){
-                        if(object!= null && !partIdListState.includes(object.id)) {
-                            return (   
-                                <div className="myColumnSimple"> 
-                                    <img
-                                        id={i}
-                                        ref = {(ref) => allImagesRefs[`img${i}`] = ref}
-                                        src = {object.image}
-                                        width = "100vw" height = "100vw"
-                                        onClick={() => chooseImage(object)}
-                                        >
-                                    </img>
-                                    <pre>{object.name}</pre>
-                                </div>
-                            );
-                        }
-                    })
-                }
-            </div>
+            {<img ref={imgCanvas} src={imgCanvasState} width="100" height="100"  style={{display:"none"}}/>}
+            <MyList isProfile={false} name="Images" data={allImagesState} refs={allImagesRefs} visibility={allImagesHiddenState} chooseFunction={chooseImage}/>
         </div>
     )
 }
