@@ -14,7 +14,7 @@ import "./NavMenu.css";
 
 export default function NavMenu(props){ 
   const authentication = useContext(AuthenticationContext);
-  let id = authentication.id;
+  let id = authentication.getUser();
   /*let id = -1;
   if(authentication.profile){
     id = authentication.profile.id;
@@ -38,17 +38,17 @@ export default function NavMenu(props){
           >
             <ul className="navbar-nav flex-grow">
               <NavItem>
-                <NavLink tag={Link} className="text-dark" to={"/myprofile"}>
+                <NavLink tag={Link} className="text-dark" to={id == -1 ? "/" : "/myprofile"}>
                   Profile
                 </NavLink>
               </NavItem>
               <NavItem>
-                <NavLink tag={Link} className="text-dark" to="/generator">
+                <NavLink tag={Link} className="text-dark" to={id == -1 ? "/" : "/generator"}>
                   Generator
                 </NavLink>
               </NavItem>
               <NavItem>
-                <NavLink tag={Link} className="text-dark" to="/settings">
+                <NavLink tag={Link} className="text-dark" to={id == -1 ? "/" : "/settings"}>
                   Settings
                 </NavLink>
               </NavItem>

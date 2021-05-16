@@ -4,12 +4,17 @@ import { ChromePicker } from 'react-color';
 import { useParams } from 'react-router';
 import httpService from '../services/httpService';
 import AuthenticationContext from "../AuthenticationContext";
+import ImageDetails from "../components/ImageDetails";
+import Loader from "react-loader-spinner";
+import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 
 
 export default function Tree(props){
     const params = useParams();
     const authentication = useContext(AuthenticationContext);
     let profileId = authentication.getUser();
+
+    const [imageProfileId, setImageProfileId] = useState(-1);
     
     const canvasRef = useRef(null);
     const canvasRef1 = useRef(null);
@@ -22,8 +27,8 @@ export default function Tree(props){
     const [nameState, setNameState] = useState("");
     const [descriptionState, setDescriptionState] = useState("");
 
-    const [bodyColorState, setbodyColorState] = useState({r: 255, g: 255, b: 255, a: 1});
-    const [leafColorState, setleafColorState] = useState({r: 255, g: 255, b: 255, a: 1});
+    const [bodyColorState, setBodyColorState] = useState({r: 255, g: 255, b: 255, a: 1});
+    const [leafColorState, setLeafColorState] = useState({r: 255, g: 255, b: 255, a: 1});
     const [shadowColorState, setShadowColorState] = useState({r: 255, g: 255, b: 255, a: 1});
     const [startXState, setStartXState] = useState(0);
     const [startYState, setStartYState] = useState(0);
@@ -37,6 +42,9 @@ export default function Tree(props){
 
     let canvasDimX = 600;
     let canvasDimY = 600;
+
+    const [loadingGetState,setLoadingGetState] = useState(2);
+    const [loadingPostState,setLoadingPostState] = useState(0);
     
     
     const drawTree = useCallback((rand, context, startX, startY, length, branchWidth, nrBranchesList, angle, angleList, curveList, bodyColor, leafColor, shadowColor)  => {
@@ -238,35 +246,8 @@ export default function Tree(props){
 
     }
 
-    useEffect(()=>{
-        //console.log(canvasDataUrl)
-    },[canvasDataUrl])
-
-    function changeBodyColorState (event) {
-        let val = event.rgb;
-        setbodyColorState(val);
-        //console.log(bodyColorState);
-        
-        //existingTree();
-    }
-
-    function changeLeafColorState(event) {
-        let val = event.rgb;
-        setleafColorState(val);
-        //console.log(val);
-        
-        //existingTree();
-    }
-
-    function changeShadowColorState(event) {
-        let val = event.rgb;
-        setShadowColorState(val);
-        console.log(shadowColorState);
-        
-        //existingTree();
-    }
-
     function saveTree() {
+        setLoadingPostState(1);
         var options = {
             "startX": startXState,
             "startY": startYState,
@@ -292,7 +273,6 @@ export default function Tree(props){
         //console.log(datetime);
 
         const canvas = canvasRef.current;
-        const context = canvas.getContext('2d');
         const canvas1 = canvasRef1.current;
         const context1 = canvas1.getContext('2d');
         canvas1.width = canvasDimX;
@@ -330,6 +310,7 @@ export default function Tree(props){
             .post(URL, fractal)
             .then((response) => {
               console.log(response.data);
+              setLoadingPostState(0);
             });
         
     }
@@ -337,33 +318,46 @@ export default function Tree(props){
     const loadTree = useCallback(() => {
         let myId = params.id;
         let URL = "/fractal/" + myId;
+        console.log(loadingGetState)
+        if(loadingGetState == 0) {
+            setLoadingGetState(1);
+        }
         
         httpService
             .get(URL)
             .then((response) => {
                 var data = response.data;
                 console.log(data);
-                var options = JSON.parse(data.options);
-                setNameState(data.name);
-                setDescriptionState(data.description);
-                setIsPngState(data.status);
-                if(options.background != null){
-                    setBackgroungColorState(options.background);
+                if (data.type == "tree"){
+                    var options = JSON.parse(data.options);
+                    setNameState(data.name);
+                    setImageProfileId(data.profile.id);
+                    setDescriptionState(data.description);
+                    setIsPngState(data.status);
+                    console.log(options.background)
+                    if(options.background != null){
+                        setBackgroungColorState(options.background);
+                    }
+                    setStartXState(options.startX);
+                    setStartYState(options.startY);
+                    setLengthState(options.length);
+                    setBranchWidthState(options.branchWidth);
+                    setNrBranchesListState(options.nrBranchesList);
+                    setAngleListState(options.angleList);
+                    setCurveListState(options.curveList);
+                    setBodyColorState(options.bodyColor);
+                    setLeafColorState(options.leafColor);
+                    setShadowColorState(options.shadowColor);
                 }
-                setStartXState(options.startX);
-                setStartYState(options.startY);
-                setLengthState(options.length);
-                setBranchWidthState(options.branchWidth);
-                setNrBranchesListState(options.nrBranchesList);
-                setAngleListState(options.angleList);
-                setCurveListState(options.curveList);
-                setbodyColorState(options.bodyColor);
-                setleafColorState(options.leafColor);
-                setShadowColorState(options.shadowColor);
+                setLoadingGetState(0);
             })
+            .catch((e) => {
+                setLoadingGetState(0);
+                console.log(e);
+              });
         
 
-    }, [])
+    }, [loadingGetState])
 
     useEffect(() => {
         existingTree();
@@ -379,113 +373,104 @@ export default function Tree(props){
         link.click();
     }
 
-    useEffect(() => {
-        console.log(isPngState);
-    },[isPngState])
-
     useEffect(()=>{
-        if(started == 0){
-            console.log(params.action)
-            if(params.action === "old"){
-                loadTree();
-            } else if(params.action === "new"){
-                randomTree()
-            }
+        //console.log(params.action)
+        if(params.action === "old"){
+            loadTree();
+        } else if(params.action === "new"){
+            setLoadingGetState(0);
+            randomTree()
         }
-        setStarted(1)
-    },[started])
+       
+    },[])
     
     return(
-        <div className="myRowSimple">
-            <div className="myColumnSimple">
-                <div className="myColumnCanvasTree">
-                    <canvas 
-                        ref={canvasRef}
-                        style={{background:'rgb(' + backgroungColorState.r + ',' + backgroungColorState.g + ',' + backgroungColorState.b + ',' + backgroungColorState.a + ')'}} 
-                    />
-                </div>
-                <div className="myRowSimple">
-                        <div>
-                            <ChromePicker 
-                                color={bodyColorState}
-                                onChange={changeBodyColorState}
-                                width="8vw"
-                            />
-                        </div>
-                        <div>
-                            <ChromePicker 
-                                color={leafColorState}
-                                onChange={changeLeafColorState}
-                                width="8vw"
-                            />
-                        </div>
-                        <div>
-                            <ChromePicker 
-                                color={shadowColorState}
-                                onChange={changeShadowColorState}
-                                width="8vw"
-                            />
-                        </div>
-                    </div>
-                </div>
-            <div className="myColumnOptionsTree">
-                <br></br>
+        <div>
+            <Loader
+                style={{display: loadingGetState == 2 ? "flex" : "none"}}
+                type="TailSpin"
+                color="#000000"
+                height={100}
+                width={100} 
+            />
+            <div className="myRowSimple" style={{display: loadingGetState != 2 ? "flex" : "none"}}>
                 <div className="myColumnSimple">
-                    {<button onClick={saveTree}>Save Tree</button>}
-                    {<button style={{display:((params.action === "old") ? "flex" : "none")}} onClick={loadTree}>Load Tree</button>}
-                    <a ref={downloadRef} id="download" download={nameState + '.' + (isPngState ? "png" : "jpeg")} href={canvasDataUrl} style={{display:"none"}}>img</a>
-                    <button onClick={downloadClick}>Download</button>
-
-                    {<button onClick={randomTree} className="generate-tree-button">Generate Random Tree</button>}
-
-                    <div className="myRowSimple">
-                        <pre>Name:        </pre>
-                        {
-                            //(params.action === "old") ? 
-                            //<pre>{nameState}</pre> : 
-                            <input
-                                type="text"
-                                value={nameState}
-                                onChange={(event) => {setNameState(event.target.value)}}
-                            />
-                        }
+                    <div className="myColumnCanvasTree">
+                        <canvas 
+                            ref={canvasRef}
+                            style={{background:'rgb(' + backgroungColorState.r + ',' + backgroungColorState.g + ',' + backgroungColorState.b + ',' + backgroungColorState.a + ')'}} 
+                        />
                     </div>
                     <div className="myRowSimple">
-                        <pre>Description: </pre>
-                        {
-                            //(params.action === "old") ? 
-                            //<pre>{descriptionState}</pre> : 
-                            <input
-                                type="text"
-                                value={descriptionState}
-                                onChange={(event) => setDescriptionState(event.target.value)}
-                            />
-                        }
-                    </div>
-                    <div className="myRowSimple">
-                        <div>
-                            <ChromePicker 
-                                color={backgroungColorState}
-                                onChange={(event) => setBackgroungColorState(event.rgb)}
-                                width="8vw"
-                            />
-                        </div>
-                        <div className="myColumnSimple">
-                            
-                            <div className="myRowSimple">
-                                <pre>PNG </pre>
-                                <input type="checkbox" id="checkbox1" checked={isPngState} onChange={() => setIsPngState(!isPngState)}></input>
+                            <div>
+                                <ChromePicker 
+                                    color={bodyColorState}
+                                    onChange={(event) => setBodyColorState(event.rgb)}
+                                    width="10vw"
+                                />
                             </div>
-                            <canvas 
-                                ref={canvasRef1}
-                                style={{display:"none"}}
+                            <div>
+                                <ChromePicker 
+                                    color={leafColorState}
+                                    onChange={(event) => setLeafColorState(event.rgb)}
+                                    width="10vw"
+                                />
+                            </div>
+                            <div>
+                                <ChromePicker 
+                                    color={shadowColorState}
+                                    onChange={(event) => setShadowColorState(event.rgb)}
+                                    width="10vw"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                <div className="myColumnOptionsTree">
+                    <br></br>
+                    <div className="myColumnSimple">
+                        <div className="myRowSimple">
+                            {<button style={{display:((params.action === "old") ? "flex" : "none")}} onClick={loadTree}>Reload Tree</button>}
+                            <Loader
+                                style={{display: loadingGetState != 0 ? "flex" : "none"}}
+                                type="TailSpin"
+                                color="#000000"
+                                height={25}
+                                width={25} 
                             />
                         </div>
+                        <div className="myRowSimple">
+                            {<button onClick={saveTree} style={{display:(((imageProfileId == profileId || imageProfileId == -1 ) && loadingGetState == 0) ? "flex" : "none")}}>Save Tree</button>}
+                            <Loader
+                                style={{display: loadingPostState != 0 ? "flex" : "none"}}
+                                type="TailSpin"
+                                color="#000000"
+                                height={25}
+                                width={25} 
+                            />
+                        </div>
+                        
+                        <a ref={downloadRef} id="download" download={nameState + '.' + (isPngState ? "png" : "jpeg")} href={canvasDataUrl} style={{display:"none"}}>img</a>
+                        <button style={{display:loadingGetState == 0 ? "flex" : "none"}} onClick={downloadClick}>Download</button>
+
+                        {<button onClick={randomTree} style={{display:(((imageProfileId == profileId || imageProfileId == -1) && loadingGetState == 0 ) ? "flex" : "none")}} className="generate-tree-button">Generate Random Tree</button>}
+
+                        <ImageDetails 
+                                backgroungColorState={backgroungColorState} 
+                                setBackgroungColorState={setBackgroungColorState}
+                                condition={!(imageProfileId == profileId || imageProfileId == -1 )}
+                                canvasRef1={canvasRef1}
+                                nameState={nameState}
+                                setNameState={setNameState}
+                                descriptionState={descriptionState}
+                                setDescriptionState={setDescriptionState}
+                                isPngState={isPngState}
+                                setIsPngState={setIsPngState}
+                        />
                     </div>
                 </div>
+                
+                
             </div>
-            
-            
         </div>
     ) 
 }

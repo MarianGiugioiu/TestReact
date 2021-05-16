@@ -58,7 +58,7 @@ export default function App(props){
       <Switch>
         <AuthenticationContext.Provider value={{id:userId, logIn:logIn, logOut:logOut, getUser:getUser}}>
           <Layout>
-            <Route exact path="/" component={Home} />
+            <Route exact path="/" render={(props) => <Home {...props} key={uuidv4()}/>} />
             <Route path="/myprofile" component={MyProfile} />
             <Route path="/profile/:id" render={(props) => <OtherProfile {...props} key={uuidv4()}/>} />
             <Route path="/generator" component={Generator} />

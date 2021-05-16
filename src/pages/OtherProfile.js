@@ -1,9 +1,14 @@
-import '../App.css';
 import { useHistory, useParams } from "react-router-dom";
 import React, { useRef, useEffect, useCallback, useState, useContext } from 'react'
+
 import httpService from '../services/httpService';
 import AuthenticationContext from "../AuthenticationContext";
-import Profile from "./Profile"
+
+import Profile from "./Profile";
+import '../App.css';
+
+import Loader from "react-loader-spinner";
+import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 
 export default function OtherProfile(props) {
     const { id } = useParams();
@@ -120,6 +125,13 @@ export default function OtherProfile(props) {
     
     return (
         <div>
+            <Loader
+                style={{display: isLoading === 0 ? "flex" : "none"}}
+                type="TailSpin"
+                color="#000000"
+                height={100}
+                width={100} //3 secs
+            />
             <p>{isLoading === 1 ? profile.name : ""}</p>
             <p>{isLoading === 1 ? profile.description : ""}</p>
             <img src = {isLoading === 1 ? profile.photo : ""} width="100" height="100" style={{display:isLoading === 1 ? "block" : "none"}}></img>

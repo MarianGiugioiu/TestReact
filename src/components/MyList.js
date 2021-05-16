@@ -2,6 +2,8 @@ import React from 'react'
 import { Link } from "react-router-dom";
 import httpService from '../services/httpService';
 import '../App.css';
+import Loader from "react-loader-spinner";
+import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 
 export default function MyList(props){
     let isProfile = props.isProfile;
@@ -17,6 +19,11 @@ export default function MyList(props){
     let isColumn = props.isColumn;
     if (isColumn == null) {
         isColumn = false;
+    }
+
+    let isLoading = props.isLoading;
+    if (isLoading == null) {
+        isLoading = 0;
     }
 
     function deleteFromList(name, i){
@@ -40,7 +47,21 @@ export default function MyList(props){
 
     return (
         <div>
-            {isProfile ? <button onClick={loadFunction} >{visibility === "none" ? "Show " + name: "Hide " + name}</button> : <></>}
+            {
+                isProfile ? 
+                    <div className="myRowSimple">
+                        <button onClick={loadFunction} >{visibility === "none" ? "Show " + name: "Hide " + name}</button>
+                        <Loader
+                            style={{display: isLoading == 1 ? "flex" : "none"}}
+                            type="TailSpin"
+                            color="#000000"
+                            height={25}
+                            width={25} 
+                        />
+                    </div>
+                : 
+                <></>
+            }
             <div className={!isColumn ? "myRow2": "myColumnSimple"} style = {{display:visibility}}>
                 {
                     data != null ?

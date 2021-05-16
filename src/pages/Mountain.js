@@ -3,13 +3,33 @@ import { ChromePicker } from 'react-color';
 import { useParams } from 'react-router';
 import httpService from '../services/httpService';
 import AuthenticationContext from "../AuthenticationContext";
+import ImageDetails from "../components/ImageDetails";
+import Loader from "react-loader-spinner";
+import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 
 export default function Mountain(props) {
     const params = useParams();
     const authentication = useContext(AuthenticationContext);
     let profileId = authentication.getUser();
 
+    const [imageProfileId, setImageProfileId] = useState(-1);
+    
     const canvasRef = useRef(null);
+    const canvasRef1 = useRef(null);
+    const downloadRef = useRef(null);
+
+    const [backgroungColorState, setBackgroungColorState] = useState({r: 0, g: 0, b: 0, a: 1});
+    const [isPngState, setIsPngState] = useState(false);
+    const [canvasDataUrl, setCanvasDataUrl] = useState(null);
+
+    const [nameState, setNameState] = useState("");
+    const [descriptionState, setDescriptionState] = useState("");
+
+    const [colorNrState, setColorNrState] = useState(0);
+    const [pointsState, setPointsState] = useState(null);
+
+    const [loadingGetState,setLoadingGetState] = useState(2);
+    const [loadingPostState,setLoadingPostState] = useState(0);
 
     let canvasDimX = 800;
     let canvasDimY = 800;
@@ -18,8 +38,6 @@ export default function Mountain(props) {
         ["#2b2c18", "#314448", "#908102", "#e2ce8a"],
         ["#241f0f","#908102","#c7c2bb","#b8c0c8","#6e7478"]];
 
-    const [colorNrState, setColorNrState] = useState(0);
-    const [pointsState, setPointsState] = useState(null);
 
     function weightedRandom(prob) {
         let i, sum=0, r=Math.random();
@@ -31,7 +49,7 @@ export default function Mountain(props) {
 
     function drawMargins(context,margins) {
         context.save();
-        context.strokeStyle = "red";
+        context.strokeStyle = "black";
         context.lineWidth = 3;
         let L = [[],[],[]];
         for (let z of Object.keys(margins)){
@@ -102,7 +120,7 @@ export default function Mountain(props) {
         margins[JSON.stringify(P2)] = 2;
         let randomRatio = 20;
         let max = 0;
-        let n = 8;
+        let n = 7;
         let k = 1;
         let g = 0;
         while (k < n) {
@@ -172,7 +190,7 @@ export default function Mountain(props) {
             g = h;
             k++;
         }
-        return [points,g,max]
+        return [points,g,max,margins]
     }
 
     function getColor(x, y, max) {
@@ -253,59 +271,242 @@ export default function Mountain(props) {
         } else {
             res = pointsState;
         }
+        if (res != null) {
+            let points = res[0];
+            let g = res[1];
+            let max = res[2]
+            let margins = res[3]
 
-        let points = res[0];
-        let g = res[1];
-        let max = res[2]
+            fillTriangles(context,points,g,max)
+            drawMargins(context,margins)
+        }
 
-        fillTriangles(context,points,g,max)
+        const canvas1 = canvasRef1.current;
+        const context1 = canvas1.getContext('2d');
+        canvas1.width = canvasDimX;
+        canvas1.height = canvasDimY;
+        var sourceImageData = canvas.toDataURL("image/png",0.5);
+
+        if (!isPngState) {
+            context1.save();
+            context1.fillStyle = 'rgb(' + backgroungColorState.r + ',' + backgroungColorState.g + ',' + backgroungColorState.b + ',' + backgroungColorState.a + ')';
+            console.log(context1.fillStyle);
+            context1.fillRect(0, 0, canvas1.width, canvas1.height);
+            context1.drawImage(canvas,0,0,canvasDimX,canvasDimY);
+            var sourceImageData = canvas1.toDataURL("image/jpeg", 0.5);
+            //console.log(sourceImageData);
+            context1.restore();
+        }
+        setCanvasDataUrl(sourceImageData);
         
-        //drawMargins(context,margins)
     }
+
+    function saveMountain () {
+        setLoadingPostState(1);
+        var options = {
+            "points": pointsState,
+            "color": colorNrState,
+            "background":backgroungColorState
+        }
+        var currentdate = new Date(); 
+        var datetime = currentdate.getFullYear() + "-"
+                + (currentdate.getMonth() < 9 ? "0"+ (currentdate.getMonth() + 1) : (currentdate.getMonth() + 1))  + "-" 
+                + (currentdate.getDate() < 10 ? "0"+ currentdate.getDate() : currentdate.getDate()) + " "  
+                + (currentdate.getHours() < 10 ? "0"+ currentdate.getHours() : currentdate.getHours()) + ":"  
+                + (currentdate.getMinutes() < 10 ? "0"+ currentdate.getMinutes() : currentdate.getMinutes()) + ":" 
+                + (currentdate.getSeconds() < 10 ? "0"+ currentdate.getSeconds() : currentdate.getSeconds());
+        //console.log(datetime);
+
+        const canvas = canvasRef.current;
+        const canvas1 = canvasRef1.current;
+        const context1 = canvas1.getContext('2d');
+        canvas1.width = canvasDimX;
+        canvas1.height = canvasDimY;
+        var sourceImageData = canvas.toDataURL("image/png",0.5);
+        //console.log(sourceImageData);
+
+        if (!isPngState) {
+            context1.save();
+            context1.fillStyle = 'rgb(' + backgroungColorState.r + ',' + backgroungColorState.g + ',' + backgroungColorState.b + ',' + backgroungColorState.a + ')';
+            //console.log(context1.fillStyle);
+            context1.fillRect(0, 0, canvas1.width, canvas1.height);
+            context1.drawImage(canvas,0,0,canvasDimX,canvasDimY);
+            var sourceImageData = canvas1.toDataURL("image/jpeg", 0.5);
+            //console.log(sourceImageData);
+            context1.restore();
+        }
+
+        var fractal = {
+            "id": 0,
+            "type": "mountain",
+            "status":isPngState,
+            "name": nameState,
+            "description": descriptionState,
+            "options": JSON.stringify(options),
+            "dataURL": sourceImageData,
+            "lastModified": datetime,
+            "profile": {
+                "id": profileId
+            }
+        }
+        //console.log(fractal);
+
+        var URL = "/fractal"
+        httpService
+            .post(URL, fractal)
+            .then((response) => {
+              console.log(response.data);
+              setLoadingPostState(0);
+            });
+    }
+
+    const loadMountain = useCallback(() => {
+        let myId = params.id;
+        let URL = "/fractal/" + myId;
+        if(loadingGetState == 0) {
+            setLoadingGetState(1);
+        }
+
+        httpService
+            .get(URL)
+            .then((response) => {
+                var data = response.data;
+                console.log(data);
+                if(data.type == "mountain"){
+                    var options = JSON.parse(data.options);
+                    setNameState(data.name);
+                    setImageProfileId(data.profile.id);
+                    setDescriptionState(data.description);
+                    setIsPngState(data.status);
+                    if(options.background != null){
+                        setBackgroungColorState(options.background);
+                    }
+                    setColorNrState(options.color);
+                    setPointsState(options.points);
+                }
+                setLoadingGetState(0);
+            })
+            .catch((e) => {
+                setLoadingGetState(0);
+                console.log(e);
+              });
+        
+
+    }, [loadingGetState])
+
+    useEffect(() => {
+        console.log(pointsState)
+        drawMountain("old");
+    }, [loadMountain])
 
     useEffect(() => {
         if(params.action === "old"){
-            drawMountain("new");
+            loadMountain();
         } else if(params.action === "new"){
+            setLoadingGetState(0);
             drawMountain("new");
         }
 
     }, [])
 
     useEffect(() => {
-        drawMountain("old");
-    },[colorNrState])
+        if(pointsState != null) {
+            drawMountain("old");
+        }
+    },[colorNrState,isPngState])
+
+    function downloadClick(){
+        const link = downloadRef.current;
+        link.click();
+    }
+
+    /*useEffect(() => {
+        console.log(isPngState,nameState,descriptionState)
+    },[isPngState,nameState,descriptionState])*/
 
 
     return (
-        <div className="myRowSimple">
-            <div className="myColumn21">
-                <canvas ref={canvasRef}/>
-            </div>
-            <div className="myColumnSimple"> 
-                <div onChange={(event) => setColorNrState(event.target.value)}>
-                        <div className="myRowSimple">
-                            {
-                                colors.map((obj, index) => 
-                                <div className="myColumnSimple">
-                                    <div className="myRowSimple">
-                                        {
-                                            colors[index].map(elem => <div style={{background:elem}} width="1vh" height="1vh"><pre>   </pre></div>)
-                                        }
-                                    </div>
-                                    <div className="myRowSimple">
-                                        <input type="radio" value={index} checked={colorNrState == index} name="ponits" />
-                                        <pre>Palette {index}</pre>
-                                    </div>
-        
+        <div>
+            <Loader
+                style={{display: loadingGetState == 2 ? "flex" : "none"}}
+                type="TailSpin"
+                color="#000000"
+                height={100}
+                width={100} 
+            />
+            <div className="myRowSimple" style={{display: loadingGetState != 2 ? "flex" : "none"}}>
+                <div className="myColumnSimple">
+                    <div className="myColumn21">
+                        <canvas 
+                            ref={canvasRef}
+                            style={{background:'rgb(' + backgroungColorState.r + ',' + backgroungColorState.g + ',' + backgroungColorState.b + ',' + backgroungColorState.a + ')'}} 
+                        />
+                    </div>
+                    <br></br>
+                    <div onChange={(event) => setColorNrState(event.target.value)}>
+                                <div className="myRowSimple">
+                                    {
+                                        colors.map((obj, index) => 
+                                        <div className="myColumnSimple">
+                                            <div className="myRowSimple">
+                                                {
+                                                    colors[index].map(elem => <div style={{background:elem}} width="1vh" height="1vh"><pre>   </pre></div>)
+                                                }
+                                            </div>
+                                            <div className="myRowSimple">
+                                                <input type="radio" value={index} checked={colorNrState == index} name="ponits" />
+                                                <pre>Palette {index}</pre>
+                                            </div>
+                
+                                        </div>
+                                        )
+                                    }
                                 </div>
-                                )
-                            }
                         </div>
+                    </div>
+                
+                <div className="myColumnSimple"> 
+                    <div className="myRowSimple">
+                        {<button style={{display:((params.action === "old") ? "flex" : "none")}} onClick={loadMountain}>Reload Mountain</button>}
+                        <Loader
+                            style={{display: loadingGetState != 0 ? "flex" : "none"}}
+                            type="TailSpin"
+                            color="#000000"
+                            height={25}
+                            width={25} 
+                        />
+                    </div>
+                    <div className="myRowSimple">
+                        {<button style={{display:(((imageProfileId == profileId || imageProfileId == -1 ) && loadingGetState == 0) ? "flex" : "none")}} onClick={saveMountain}>Save Mountain</button>}
+                        <Loader
+                            style={{display: loadingPostState != 0 ? "flex" : "none"}}
+                            type="TailSpin"
+                            color="#000000"
+                            height={25}
+                            width={25} 
+                        />
+                    </div>
+                    
+                    <a ref={downloadRef} id="download" download={nameState + '.' + (isPngState ? "png" : "jpeg")} href={canvasDataUrl} style={{display:"none"}}>img</a>
+                    <button style={{display:loadingGetState == 0 ? "flex" : "none"}} onClick={downloadClick}>Download</button>
+
+                    {<button onClick={() => drawMountain("new")} style={{display:(((imageProfileId == profileId || imageProfileId == -1) && loadingGetState == 0 ) ? "flex" : "none")}} className="generate-tree-button">Generate Random Tree</button>}
+                    
+                    <ImageDetails 
+                                backgroungColorState={backgroungColorState} 
+                                setBackgroungColorState={setBackgroungColorState}
+                                condition={!(imageProfileId == profileId || imageProfileId == -1 )}
+                                canvasRef1={canvasRef1}
+                                nameState={nameState}
+                                setNameState={setNameState}
+                                descriptionState={descriptionState}
+                                setDescriptionState={setDescriptionState}
+                                isPngState={isPngState}
+                                setIsPngState={setIsPngState}
+                    />
                 </div>
-                {<button onClick={() => drawMountain("new")} className="generate-tree-button">Generate Random Tree</button>}
+                
             </div>
-            
         </div>
     )
 }

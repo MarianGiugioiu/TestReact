@@ -4,6 +4,9 @@ import React, { useRef, useEffect, useCallback, useState, useContext } from 'rea
 import httpService from '../services/httpService';
 import AuthenticationContext from "../AuthenticationContext";
 
+import Loader from "react-loader-spinner";
+import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
+
 export default function Settings(props) {
     const history = useHistory();
     const authentication = useContext(AuthenticationContext);
@@ -107,68 +110,74 @@ export default function Settings(props) {
     },[uploadedImage])*/
 
     return(
-        <div style = {{visibility:(isLoading == 0 ? "hidden" : "visible")}}>
-            <h4>Personal data</h4>
-            <div>
-                <input
-                    type="text"
-                    placeholder="Enter Name"
-                    name="name"
-                    value={isLoading === 1 ? myProfile.name : ""}
-                    onChange={handleChangeData}
-                />
-                <br></br>
-                <input
-                    type="text"
-                    placeholder="Enter Description"
-                    name="description"
-                    value={isLoading === 1 ? myProfile.description : ""}
-                    onChange={handleChangeData}
-                />
-                <br></br>
-                <img ref={imgCanvas} src = {uploadedImage} width="100" height="100" onLoad={loadCanvas}></img>
-                <canvas style={{display:'none'}} ref={canvasRef}/>
-                <br></br>
-                <input type="file" name="file" onChange={uploadImage} />
+        <div>
+            <Loader
+                style={{display: isLoading === 0 ? "flex" : "none"}}
+                type="TailSpin"
+                color="#000000"
+                height={100}
+                width={100}
+            />
+            <div style = {{visibility:(isLoading == 0 ? "hidden" : "visible")}}>
+                <h4>Personal data</h4>
+                <div>
+                    <input
+                        type="text"
+                        placeholder="Enter Name"
+                        name="name"
+                        value={isLoading === 1 ? myProfile.name : ""}
+                        onChange={handleChangeData}
+                    />
+                    <br></br>
+                    <input
+                        type="text"
+                        placeholder="Enter Description"
+                        name="description"
+                        value={isLoading === 1 ? myProfile.description : ""}
+                        onChange={handleChangeData}
+                    />
+                    <br></br>
+                    <img ref={imgCanvas} src = {uploadedImage} width="100" height="100" onLoad={loadCanvas}></img>
+                    <canvas style={{display:'none'}} ref={canvasRef}/>
+                    <br></br>
+                    <input type="file" name="file" onChange={uploadImage} />
 
-            </div>
-            <br></br>
-            <br></br>
-            <h4>Privacy</h4>
-            <div className="myRow2">
-                <pre>Fractals </pre>
-                <input type="checkbox" id="checkbox1" checked={isLoading == 1 ? privacyOptions.fractals : false} onChange={() => handleChangePrivacy("fractals")}></input>
-            </div>
-            <div className="myRow2">
-                <pre>Followers </pre>
-                <input type="checkbox" id="checkbox1" checked={isLoading == 1 ? privacyOptions.followers : false} onChange={() => handleChangePrivacy("followers")}></input>
-            </div>
-            <div className="myRow2">
-                <pre>Following </pre>
-                <input type="checkbox" id="checkbox1" checked={isLoading == 1 ? privacyOptions.following : false} onChange={() => handleChangePrivacy("following")}></input>
-            </div>
-            <div className="myRow2">
-                <pre>Liked postings </pre>
-                <input type="checkbox" id="checkbox1" checked={isLoading == 1 ? privacyOptions.likes : false} onChange={() => handleChangePrivacy("likes")}></input>
-            </div>
-            <div className="myRow2">
-                <pre>Disliked postings </pre>
-                <input type="checkbox" id="checkbox1" checked={isLoading == 1 ? privacyOptions.dislikes : false} onChange={() => handleChangePrivacy("dislikes")}></input>
-            </div>
-            <br></br>
-            <br></br>
-            <button
-                onClick={saveChanges}
-            >
-                SaveChanges
-            </button>
-            <br></br>
-            <br></br>
-            <button
-                onClick={handleClickLogOut}
+                </div>
+                <br></br>
+                <h4>Privacy</h4>
+                <div className="myRow2">
+                    <pre>Fractals </pre>
+                    <input type="checkbox" id="checkbox1" checked={isLoading == 1 ? privacyOptions.fractals : false} onChange={() => handleChangePrivacy("fractals")}></input>
+                </div>
+                <div className="myRow2">
+                    <pre>Followers </pre>
+                    <input type="checkbox" id="checkbox1" checked={isLoading == 1 ? privacyOptions.followers : false} onChange={() => handleChangePrivacy("followers")}></input>
+                </div>
+                <div className="myRow2">
+                    <pre>Following </pre>
+                    <input type="checkbox" id="checkbox1" checked={isLoading == 1 ? privacyOptions.following : false} onChange={() => handleChangePrivacy("following")}></input>
+                </div>
+                <div className="myRow2">
+                    <pre>Liked postings </pre>
+                    <input type="checkbox" id="checkbox1" checked={isLoading == 1 ? privacyOptions.likes : false} onChange={() => handleChangePrivacy("likes")}></input>
+                </div>
+                <div className="myRow2">
+                    <pre>Disliked postings </pre>
+                    <input type="checkbox" id="checkbox1" checked={isLoading == 1 ? privacyOptions.dislikes : false} onChange={() => handleChangePrivacy("dislikes")}></input>
+                </div>
+                <br></br>
+                <button
+                    onClick={saveChanges}
                 >
-                LogOut
-            </button>
+                    SaveChanges
+                </button>
+                <br></br>
+                <button
+                    onClick={handleClickLogOut}
+                    >
+                    LogOut
+                </button>
+            </div>
         </div>
     );
 }
