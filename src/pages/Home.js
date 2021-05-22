@@ -80,7 +80,7 @@ function RegisterForm(props) {
             onBlur={(event) => setPasswordRequirements(false)}
           />
           {
-            //props.passwordState != "" ?
+            props.passwordState != "" ?
             (checkPassword(props.passwordState) != "ok" ?
             <pre>{checkPassword(props.passwordState)}</pre> :
             (
@@ -88,7 +88,7 @@ function RegisterForm(props) {
               <pre>Password and confirmation must be equal</pre> :
               <br/>
             ))
-            //:<br/>
+            :<br/>
           }
           {
             passwordRequirements ? 
@@ -169,8 +169,11 @@ function LoginForm(props) {
 export default function Home() {
   const history = useHistory();
   const authentication = useContext(AuthenticationContext);
+  let idAuth = authentication.getUser()
+  let idAux = -1;
   //let myId = authentication.getUser();
-  const [myId, setMyId] = useState(authentication.getUser());
+
+  const [myId, setMyId] = useState(-1);
 
   const [nameSearchState, setNameSearchState] = useState("");
   const [userIdState, setUserIdState] = useState("");
@@ -276,9 +279,10 @@ export default function Home() {
         if (response.status == 200) {
           setPasswordValidationState(0);
           setEmailValidationState(0);
+          //setMyId(response.data);
           authentication.logIn(response.data);
-          console.log(response.data);
-          setMyId(response.data);
+          let path = "/"
+          history.push(path);
         }
       })
       .catch((e) => {
@@ -330,12 +334,11 @@ export default function Home() {
   useEffect(() => {
     if(myId!=-1){
       loadMorePostings();
+    } else if (myId == -1 && idAuth != -1){
+      setMyId(idAuth);
     }
   },[myId])
 
-  useEffect(() => {
-    console.log(registerSuccessful)
-  },[registerSuccessful])
 
   function HomePage(){
     if(myId==-1){

@@ -24,7 +24,7 @@ export default function App(props){
   const [userId, setUserId] = useState(-1);
   function logIn(newState) {
     setUserId(newState);
-    console.log(newState);
+    //console.log(newState);
     localStorage.setItem(
       "user",
       JSON.stringify({
