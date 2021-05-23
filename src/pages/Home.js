@@ -141,7 +141,15 @@ function LoginForm(props) {
           }
         }}
       />
-      {props.emailValidationState == 1 ? <pre>There is no account registered with this email</pre> : <br/>}
+      {
+        props.emailValidationState == 0 ? 
+        <br/> : 
+        (
+          props.emailValidationState == 1 ? 
+          <pre>There is no account registered with this email</pre> :
+          <pre>This account is not verified</pre>
+        )
+      }
     
       <label>Password</label>
       <input 
@@ -233,36 +241,39 @@ export default function Home() {
   }
 
   function handleRegister() {
-    console.log("aqw");
-    let emailURL = "/account/exists/email/" + emailState;
-    let nameURL = "/profile/exists/name/" + nameState;
+    
+    let URL = "/account/process_register";
+    let account = {
+      "account": {
+        "id": 0,
+        "email": emailState,
+        "password": passwordState
+      },
+      "name": nameState
+    }
     httpService
-      .get(emailURL)
+      .post(URL, account)
       .then((response) => {
-        console.log(response.data)
-        if (response.data) {
+        console.log(response.data);
+        if (response.data == "register_success") {
+          setEmailValidationState(0);
+          setNameValidationState(0);
+          setRegisterSuccessful(1);
+          setEmailState("");
+          setNameState("");
+          setPasswordState("");
+          setConfirmPasswordState("");
+        } else if (response.data == "email_exists") {
           setEmailValidationState(1);
-        } else {
-          setEmailValidationState(2);
-        }
-      })
-      .catch((e) => {
-          console.log(e);
-        })
-
-      httpService
-      .get(nameURL)
-      .then((response) => {
-        console.log(response.data)
-        if (response.data) {
+        } else if (response.data == "name_exists") {
           setNameValidationState(1);
-        } else {
-          setNameValidationState(2);
         }
       })
       .catch((e) => {
-          console.log(e);
-        })
+        console.log(e);
+        setEmailValidationState(0);
+        setNameValidationState(0);
+      })
   }
 
   function handleLogin(){
@@ -290,40 +301,14 @@ export default function Home() {
         let response = e.response;
         if (response.status == 404) {
           setEmailValidationState(1);
+        } else if (response.status == 401) {
+          setEmailValidationState(2);
         } else if (response.status == 403) {
           setPasswordValidationState(1);
         }
       })
   }
 
-  useEffect(() => {
-    if(emailValidationState == 2 && nameValidationState == 2) {
-      let URL = "/account";
-      let account = {
-        "account": {
-          "id": 0,
-          "email": emailState,
-          "password": passwordState
-        },
-        "name": nameState
-      }
-      httpService
-        .post(URL, account)
-        .then((response) => {
-          console.log(response.data);
-          setEmailValidationState(0);
-          setNameValidationState(0);
-          setRegisterSuccessful(1);
-          setEmailState("");
-          setNameState("");
-          setPasswordState("");
-          setConfirmPasswordState("");
-        })
-        .catch((e) => {
-          console.log(e);
-        })
-    }
-  },[emailValidationState,nameValidationState])
 
   /*useEffect(() => {
     if(myId!=-1){

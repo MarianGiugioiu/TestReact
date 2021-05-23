@@ -137,7 +137,9 @@ export default function Settings(props) {
                         onChange={handleChangeData}
                     />
                     <br></br>
-                    <img ref={imgCanvas} src = {uploadedImage} width="100" height="100" onLoad={loadCanvas}></img>
+                    <button onClick={() => history.push("/change_password")}>Change Password</button>
+                    <br/>
+                    <img ref={imgCanvas} src = {uploadedImage} width="80vw" height="80vw" onLoad={loadCanvas}></img>
                     <canvas style={{display:'none'}} ref={canvasRef}/>
                     <br></br>
                     <input type="file" name="file" onChange={uploadImage} />
