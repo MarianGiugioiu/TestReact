@@ -5,33 +5,12 @@ import httpService from '../services/httpService';
 import AuthenticationContext from "../AuthenticationContext";
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Link } from "react-router-dom";
+import PasswordWithConfirmation from "../components/PasswordWithConfirmation";
+
+import Loader from "react-loader-spinner";
+import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 
 function RegisterForm(props) {
-  const [passwordRequirements, setPasswordRequirements] = useState(false);
-
-  function checkPassword(str) {
-    if (str.length < 6) {
-        return("Password has less than 6 characters!");
-    } else if (str.length > 20) {
-        return("Password has more than 20 characters!");
-    } else if (str.search(/\d/) == -1) {
-        return("Password has no digit!");
-    } else if (str.search(/[a-z]/) == -1) {
-        return("PassWord has no lowercase letter!");
-    } else if (str.search(/[A-Z]/) == -1) {
-      return("PassWord has no capital letter!");
-    } else if (str.search(/[^a-zA-Z0-9\!\@\#\$\%\^\&\*\(\)\_\+]/) != -1) {
-        return("Password contains an invalid character!");
-    }
-    return("ok");
-  }
-
-  function checkInfo() {
-    if (checkPassword(props.passwordState) && props.passwordState == props.confirmPasswordState){
-      return true;
-    }
-    return false;
-  }
 
   useEffect(() => {
     props.setEmailState("");
@@ -43,7 +22,10 @@ function RegisterForm(props) {
   return (
     <div>
       {
-        props.registerSuccessful == 0 ?
+        props.registerSuccessful == 2 ?
+        <div>
+          Register successful
+        </div> :
         <div className="myColumnSimple">
           <label>Email</label>
           <input 
@@ -71,52 +53,23 @@ function RegisterForm(props) {
           />
           {props.nameValidationState == 1 ? <pre>An account is already registered with this name</pre> : <br/>}
 
-          <label>Password</label>
-          <input 
-            type="password"
-            value={props.passwordState}
-            onChange={(event) => props.setPasswordState(event.target.value)}
-            onFocus={(event) => setPasswordRequirements(true)}
-            onBlur={(event) => setPasswordRequirements(false)}
-          />
-          {
-            props.passwordState != "" ?
-            (checkPassword(props.passwordState) != "ok" ?
-            <pre>{checkPassword(props.passwordState)}</pre> :
-            (
-              props.passwordState != props.confirmPasswordState ?
-              <pre>Password and confirmation must be equal</pre> :
-              <br/>
-            ))
-            :<br/>
-          }
-          {
-            passwordRequirements ? 
-            <div>
-              <p>Password:</p>
-              <p>-must have between 6 and 20 characters</p>
-              <p>-must contain at least one digit</p>
-              <p>-must contain at least one lowercase letter</p>
-              <p>-must contain at least one capital letter</p>
-              <p>can contain one of the following symbols: !@#$%^&*()_+</p>
-            </div> :
-            <></>
-          }
-
-          <label>Confirm Password</label>
-          <input 
-            type="password"
-            value={props.confirmPasswordState}
-            onChange={(event) => props.setConfirmPasswordState(event.target.value)}
+          <PasswordWithConfirmation
+            label="Password"
+            button="Register"
+            clickFunction={props.handleRegister}
+            passwordState={props.passwordState}
+            setPasswordState={props.setPasswordState}
+            confirmPasswordState={props.confirmPasswordState}
+            setConfirmPasswordState={props.setConfirmPasswordState}
           />
           <br/>
-          <hr></hr>
-          <button onClick={checkInfo() ? props.handleRegister : null}>
-            Register
-          </button>
-        </div> :
-        <div>
-          Register successful
+          <Loader
+            style={{display: props.registerSuccessful == 1 ? "flex" : "none"}}
+            type="TailSpin"
+            color="#000000"
+            height={50}
+            width={50}
+        />
         </div>
       }
     </div>
@@ -124,6 +77,7 @@ function RegisterForm(props) {
 }
 
 function LoginForm(props) {
+  const history = useHistory();
   useEffect(() => {
     props.setEmailState("");
     props.setPasswordState("");
@@ -168,6 +122,9 @@ function LoginForm(props) {
       <hr></hr>
       <button onClick={props.handleLogin}>
         Login
+      </button>
+      <button onClick={() => history.push("/forgot_password")}>
+        Forgot password?
       </button>
       
     </div>
@@ -243,6 +200,7 @@ export default function Home() {
   function handleRegister() {
     
     let URL = "/account/process_register";
+    setRegisterSuccessful(1);
     let account = {
       "account": {
         "id": 0,
@@ -258,21 +216,24 @@ export default function Home() {
         if (response.data == "register_success") {
           setEmailValidationState(0);
           setNameValidationState(0);
-          setRegisterSuccessful(1);
+          setRegisterSuccessful(2);
           setEmailState("");
           setNameState("");
           setPasswordState("");
           setConfirmPasswordState("");
         } else if (response.data == "email_exists") {
           setEmailValidationState(1);
+          setRegisterSuccessful(0);
         } else if (response.data == "name_exists") {
           setNameValidationState(1);
+          setRegisterSuccessful(0);
         }
       })
       .catch((e) => {
         console.log(e);
         setEmailValidationState(0);
         setNameValidationState(0);
+        setRegisterSuccessful(0);
       })
   }
 

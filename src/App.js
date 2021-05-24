@@ -15,6 +15,8 @@ import ImageCreator from "./pages/ImageCreator";
 import Posting from "./pages/Posting";
 import VerifyCode from "./pages/VerifyCode";
 import ChangePassword from "./pages/ChangePassword";
+import ResetPassword from "./pages/ResetPassword";
+import EmailForReset from "./pages/EmailForReset";
 
 import AuthenticationContext from "./AuthenticationContext";
 import httpService from './services/httpService';
@@ -62,7 +64,9 @@ export default function App(props){
           <Layout>
             <Route exact path="/" render={(props) => <Home {...props} key={uuidv4()}/>} />
             <Route path="/verify_code/:code" component={VerifyCode} />
+            <Route path="/reset_password/:code" component={ResetPassword} />
             <Route path="/change_password" component={ChangePassword} />
+            <Route path="/forgot_password" component={EmailForReset} />
             <Route path="/myprofile" component={MyProfile} />
             <Route path="/profile/:id" render={(props) => <OtherProfile {...props} key={uuidv4()}/>} />
             <Route path="/generator" component={Generator} />
