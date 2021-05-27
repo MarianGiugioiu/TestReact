@@ -14,11 +14,13 @@ export default function ResetPassword(props) {
     const [passwordState, setPasswordState] = useState("");
     const [confirmPasswordState, setConfirmPasswordState] = useState("");
     const [verifyStatus, setVerifyStatus] = useState("");
+    const [passwordChanged, setPasswordChanged] = useState(0);
     useEffect(() => {
         let URL = "account/verify_reset/" + params.code;
         httpService
             .get(URL)
             .then((response) => {
+                console.log(response.data);
                 setVerifyStatus(response.data);
             })
             .catch((e) => {
@@ -34,8 +36,10 @@ export default function ResetPassword(props) {
         console.log(password);
         httpService
             .put(URL,password)
-            .then(() => {
-                history.push("/");
+            .then((response) => {
+                console.log(response.data);
+                //history.push("/");
+                setPasswordChanged(1);
             })
             .catch((e) => {
                 console.log(e);
@@ -43,23 +47,47 @@ export default function ResetPassword(props) {
     }
 
     return (
-        <>
+        <div 
+            className="myColumnSimple border border-info border-1 rounded" 
+            style={{
+                background:"rgba(255, 255, 255, 0.85)",
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems:"center",
+                width : '40vw',
+                height:"92vh",
+                padding: "4px",
+                overflowX:"hidden",
+                overflowY:"scroll"
+            }}
+        >
+            <h4 className="fw-light">Reset Password</h4>
+            <hr></hr>
             {
                 verifyStatus == "" ?
                 <></> :
-                <div>
-                    <PasswordWithConfirmation
-                        label="New Password"
-                        button="Change Password"
-                        clickFunction={handleChangePassword}
-                        passwordState={passwordState}
-                        setPasswordState={setPasswordState}
-                        confirmPasswordState={confirmPasswordState}
-                        setConfirmPasswordState={setConfirmPasswordState}
-
-                    />
-                </div>
+                verifyStatus == "verify_success" ?
+                (
+                    passwordChanged == 1 ?
+                    <div>
+                        <h3 className="fw-light">Password has bees reset.</h3>
+                        <button className="btn btn-outline-success" onClick={() => history.push("/")}>Go back to login</button>
+                    </div> :
+                    <div>
+                        <PasswordWithConfirmation
+                            label="New Password"
+                            button="Change Password"
+                            clickFunction={handleChangePassword}
+                            passwordState={passwordState}
+                            setPasswordState={setPasswordState}
+                            confirmPasswordState={confirmPasswordState}
+                            setConfirmPasswordState={setConfirmPasswordState}
+                        />
+                    </div>
+                ):
+                <h3 className="fw-light">The code provided for reset may be incorrect or already used</h3>
             }
-        </>
+        </div>
     )
 }

@@ -27,6 +27,7 @@ export default function Mountain(props) {
 
     const [colorNrState, setColorNrState] = useState(0);
     const [pointsState, setPointsState] = useState(null);
+    const [isHQState, setIsHQState] = useState(false);
 
     const [loadingGetState,setLoadingGetState] = useState(2);
     const [loadingPostState,setLoadingPostState] = useState(0);
@@ -121,6 +122,9 @@ export default function Mountain(props) {
         let randomRatio = 20;
         let max = 0;
         let n = 7;
+        if (isHQState) {
+            n = 8;
+        }
         let k = 1;
         let g = 0;
         while (k < n) {
@@ -290,7 +294,6 @@ export default function Mountain(props) {
         if (!isPngState) {
             context1.save();
             context1.fillStyle = 'rgb(' + backgroungColorState.r + ',' + backgroungColorState.g + ',' + backgroungColorState.b + ',' + backgroungColorState.a + ')';
-            console.log(context1.fillStyle);
             context1.fillRect(0, 0, canvas1.width, canvas1.height);
             context1.drawImage(canvas,0,0,canvasDimX,canvasDimY);
             var sourceImageData = canvas1.toDataURL("image/jpeg", 0.5);
@@ -395,7 +398,7 @@ export default function Mountain(props) {
     }, [loadingGetState])
 
     useEffect(() => {
-        console.log(pointsState)
+        //console.log(pointsState)
         drawMountain("old");
     }, [loadMountain])
 
@@ -415,28 +418,44 @@ export default function Mountain(props) {
         }
     },[colorNrState,isPngState])
 
+    useEffect(() => {
+        if(pointsState != null) {
+            drawMountain("new");
+        }
+    },[isHQState])
+
     function downloadClick(){
         const link = downloadRef.current;
         link.click();
     }
-
-    /*useEffect(() => {
-        console.log(isPngState,nameState,descriptionState)
-    },[isPngState,nameState,descriptionState])*/
-
 
     return (
         <div>
             <Loader
                 style={{display: loadingGetState == 2 ? "flex" : "none"}}
                 type="TailSpin"
-                color="#000000"
+                color="#FFF"
                 height={100}
                 width={100} 
             />
-            <div className="myRowSimple" style={{display: loadingGetState != 2 ? "flex" : "none"}}>
-                <div className="myColumnSimple">
-                    <div className="myColumn21">
+            <div style={{
+                display: loadingGetState != 2 ? "flex" : "none",
+                justifyContent: "space-between",
+                background:"rgba(255, 255, 255, 0.75)",
+                padding: "1vh",
+                border: "1.5px dotted gray",
+                borderRadius: "15px",
+                height: "92vh",
+                width:"60vw",
+                overflow: "hidden"
+            }}
+            >
+                <div style={{
+                    display:"flex",
+                    flexDirection:"column",
+                    alignItems:"center"
+                }}>
+                    <div className="myColumnCanvas">
                         <canvas 
                             ref={canvasRef}
                             style={{background:'rgb(' + backgroungColorState.r + ',' + backgroungColorState.g + ',' + backgroungColorState.b + ',' + backgroungColorState.a + ')'}} 
@@ -444,66 +463,85 @@ export default function Mountain(props) {
                     </div>
                     <br></br>
                     <div onChange={(event) => setColorNrState(event.target.value)}>
-                                <div className="myRowSimple">
-                                    {
-                                        colors.map((obj, index) => 
-                                        <div className="myColumnSimple">
-                                            <div className="myRowSimple">
-                                                {
-                                                    colors[index].map(elem => <div style={{background:elem}} width="1vh" height="1vh"><pre>   </pre></div>)
-                                                }
-                                            </div>
-                                            <div className="myRowSimple">
-                                                <input type="radio" value={index} checked={colorNrState == index} name="ponits" />
-                                                <pre>Palette {index}</pre>
-                                            </div>
-                
-                                        </div>
-                                        )
-                                    }
+                        <div style={{
+                            display:"flex",
+                            width: "24vw",
+                            justifyContent:"space-between"
+                        }}>
+                            {
+                                colors.map((obj, index) => 
+                                <div style={{
+                                    display:"flex",
+                                    flexDirection:"column",
+                                    width:"8vw",
+                                    overflow:"hidden"
+                                }}>
+                                    <div className="myRowSimple">
+                                        {
+                                            colors[index].map(elem => <div style={{background:elem,width:"2vw",height:"4vh", overflow:"hidden"}}></div>)
+                                        }
+                                    </div>
+                                    <div className="myRowSimple">
+                                        <input type="radio" value={index} checked={colorNrState == index} name="ponits" />
+                                        <pre style={{fontSize:"1.2vw"}}>Palette {index}</pre>
+                                    </div>
+        
                                 </div>
+                                )
+                            }
                         </div>
                     </div>
+                    <div className="myRowSimple">
+                        <pre>High Quality </pre>
+                        <input type="checkbox" id="checkbox2" checked={isHQState} onChange={() => setIsHQState(!isHQState)}></input>
+                    </div>
+                </div>
                 
-                <div className="myColumnSimple"> 
-                    <div className="myRowSimple">
-                        {<button style={{display:((params.action === "old") ? "flex" : "none")}} onClick={loadMountain}>Reload Mountain</button>}
-                        <Loader
-                            style={{display: loadingGetState != 0 ? "flex" : "none"}}
-                            type="TailSpin"
-                            color="#000000"
-                            height={25}
-                            width={25} 
-                        />
-                    </div>
-                    <div className="myRowSimple">
-                        {<button style={{display:(((imageProfileId == profileId || imageProfileId == -1 ) && loadingGetState == 0) ? "flex" : "none")}} onClick={saveMountain}>Save Mountain</button>}
-                        <Loader
-                            style={{display: loadingPostState != 0 ? "flex" : "none"}}
-                            type="TailSpin"
-                            color="#000000"
-                            height={25}
-                            width={25} 
-                        />
-                    </div>
-                    
-                    <a ref={downloadRef} id="download" download={nameState + '.' + (isPngState ? "png" : "jpeg")} href={canvasDataUrl} style={{display:"none"}}>img</a>
-                    <button style={{display:loadingGetState == 0 ? "flex" : "none"}} onClick={downloadClick}>Download</button>
-
-                    {<button onClick={() => drawMountain("new")} style={{display:(((imageProfileId == profileId || imageProfileId == -1) && loadingGetState == 0 ) ? "flex" : "none")}} className="generate-tree-button">Generate Random Tree</button>}
-                    
+                <div className="myColumnOptions">
+                    <h3 className="fw-light">Mountain</h3>
                     <ImageDetails 
-                                backgroungColorState={backgroungColorState} 
-                                setBackgroungColorState={setBackgroungColorState}
-                                condition={!(imageProfileId == profileId || imageProfileId == -1 )}
-                                canvasRef1={canvasRef1}
-                                nameState={nameState}
-                                setNameState={setNameState}
-                                descriptionState={descriptionState}
-                                setDescriptionState={setDescriptionState}
-                                isPngState={isPngState}
-                                setIsPngState={setIsPngState}
-                    />
+                        backgroungColorState={backgroungColorState} 
+                        setBackgroungColorState={setBackgroungColorState}
+                        condition={!(imageProfileId == profileId || imageProfileId == -1 )}
+                        canvasRef1={canvasRef1}
+                        nameState={nameState}
+                        setNameState={setNameState}
+                        descriptionState={descriptionState}
+                        setDescriptionState={setDescriptionState}
+                        isPngState={isPngState}
+                        setIsPngState={setIsPngState}
+                    /> 
+                    <div style={{
+                        display:"flex",
+                        flexDirection:"column",
+                        alignItems: "center"
+                    }}>
+                        <div className="myRowSimple">
+                            {<button style={{display:((params.action === "old") ? "flex" : "none")}} onClick={loadMountain}>Reload Mountain</button>}
+                            <Loader
+                                style={{display: loadingGetState != 0 ? "flex" : "none"}}
+                                type="TailSpin"
+                                color="#000000"
+                                height={25}
+                                width={25} 
+                            />
+                        </div>
+                        <div className="myRowSimple">
+                            {<button style={{display:(((imageProfileId == profileId || imageProfileId == -1 ) && loadingGetState == 0) ? "flex" : "none")}} onClick={saveMountain}>Save Mountain</button>}
+                            <Loader
+                                style={{display: loadingPostState != 0 ? "flex" : "none"}}
+                                type="TailSpin"
+                                color="#000000"
+                                height={25}
+                                width={25} 
+                            />
+                        </div>
+                        
+                        <a ref={downloadRef} id="download" download={nameState + '.' + (isPngState ? "png" : "jpeg")} href={canvasDataUrl} style={{display:"none"}}>img</a>
+                        <button style={{display:loadingGetState == 0 ? "flex" : "none"}} onClick={downloadClick}>Download</button>
+
+                        {<button onClick={() => drawMountain("new")} style={{display:(((imageProfileId == profileId || imageProfileId == -1) && loadingGetState == 0 ) ? "flex" : "none")}}>Generate Random Tree</button>}
+                    </div>
                 </div>
                 
             </div>

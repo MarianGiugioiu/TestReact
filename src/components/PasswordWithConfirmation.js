@@ -22,6 +22,11 @@ export default function PasswordWithConfirmation(props) {
   }
 
   function checkInfo() {
+    if (props.emailState!=null) {
+        if(props.emailState.length < 6 || props.emailState.length > 30 || props.nameState.length < 6 || props.nameState.length > 20) {
+            return false;
+        }
+    }
     if (checkPassword(props.passwordState) && props.passwordState == props.confirmPasswordState){
       return true;
     }
@@ -29,47 +34,56 @@ export default function PasswordWithConfirmation(props) {
   }
     return (
         <>
-            <label>{props.label}</label>
-            <input 
-                type="password"
-                value={props.passwordState}
-                onChange={(event) => props.setPasswordState(event.target.value)}
-                onFocus={() => setPasswordRequirements(true)}
-                onBlur={() => setPasswordRequirements(false)}
-            />
-            {
-                props.passwordState != "" ?
-                (checkPassword(props.passwordState) != "ok" ?
-                <pre>{checkPassword(props.passwordState)}</pre> :
-                (
-                props.passwordState != props.confirmPasswordState ?
-                <pre>Password and confirmation must be equal</pre> :
+            <div style={{display:'flex',flexDirection: 'column' , alignItems: 'center'}}>
+                <label className="form-label">{props.label}</label>
+                <input 
+                    type="password"
+                    className="form-control"
+                    style={{width:"100%"}}
+                    placeholder="123aD@"
+                    value={props.passwordState}
+                    onChange={(event) => props.setPasswordState(event.target.value)}
+                    onFocus={() => setPasswordRequirements(true)}
+                    onBlur={() => setPasswordRequirements(false)}
+                />
+                {
+                    //props.passwordState != "" ?
+                    (checkPassword(props.passwordState) != "ok" ?
+                    <pre className="text-danger">{checkPassword(props.passwordState)}</pre> :
+                    (
+                    props.passwordState != props.confirmPasswordState ?
+                    <pre className="text-danger">Password and confirmation must be equal</pre> :
+                    <></>
+                    ))
+                    //:<></>
+                }
+                {
+                    passwordRequirements ? 
+                    <div>
+                    <p className="text-danger">Password:</p>
+                    <p className="text-danger">-must have between 6 and 20 characters</p>
+                    <p className="text-danger">-must contain at least one digit</p>
+                    <p className="text-danger">-must contain at least one lowercase letter</p>
+                    <p className="text-danger">-must contain at least one capital letter</p>
+                    <p className="text-danger">can contain one of the following symbols: !@#$%^&*()_+</p>
+                    </div> :
+                    <></>
+                }
+            </div>
+            <div style={{display:'flex',flexDirection: 'column' , alignItems: 'center'}}>
+                <label className="form-label">Confirm Password</label>
+                <input 
+                    type="password"
+                    className="form-control"
+                    style={{width:"100%"}}
+                    placeholder="123aD@"
+                    value={props.confirmPasswordState}
+                    onChange={(event) => props.setConfirmPasswordState(event.target.value)}
+                />
                 <br/>
-                ))
-                :<br/>
-            }
-            {
-                passwordRequirements ? 
-                <div>
-                <p>Password:</p>
-                <p>-must have between 6 and 20 characters</p>
-                <p>-must contain at least one digit</p>
-                <p>-must contain at least one lowercase letter</p>
-                <p>-must contain at least one capital letter</p>
-                <p>can contain one of the following symbols: !@#$%^&*()_+</p>
-                </div> :
-                <></>
-            }
-
-            <label>Confirm Password</label>
-            <input 
-                type="password"
-                value={props.confirmPasswordState}
-                onChange={(event) => props.setConfirmPasswordState(event.target.value)}
-            />
-            <br/>
+            </div>
             <hr></hr>
-            <button onClick={checkInfo() ? props.clickFunction : null}>
+            <button className="btn btn-outline-success mb-1 mx-5" onClick={checkInfo() ? props.clickFunction : null}>
                 {props.button}
             </button>
         </>

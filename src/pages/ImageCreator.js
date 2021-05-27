@@ -337,12 +337,13 @@ export default function ImageCreator(props){
 
     //Starting
     useEffect(()=>{
-        console.log(loadingGetState,loadingGetAllState)
+        //console.log(loadingGetState,loadingGetAllState)
         if(started == 0){
             if(params.action === "old"){
                 setLoadingGetAllState(0);
                 loadImage();
             } else if(params.action === "new"){
+                setLoadingGetState(0);
                 newImage();
             }
         }
@@ -559,57 +560,148 @@ export default function ImageCreator(props){
         
     }, [loadingGetState,imagePropertiesListState,backgroungColorState,idState,rotationState,scaleXState,scaleYState,posXState,posYState,isPngState])
 
+    useEffect(() => {
+        console.log(loadingGetState)
+    },[loadingGetState])
+
     return (
         <div>
             <Loader
                 style={{display: (loadingGetState == 2 && (loadingGetAllState == 2 || params.action=="old")) ? "flex" : "none"}}
                 type="TailSpin"
-                color="#000000"
+                color="#FFF"
                 height={100}
                 width={100} 
             />
-            <div className="mainDiv1" style={{display: !(loadingGetState == 2 && (loadingGetAllState == 2 || params.action=="old")) ? "flex" : "none"}}>
-                <div className="myRow1">
-                    {/*Part List*/}
-                    <div className="myColumn1">
-                        {<button style = {{display:btnAfterPartsHiddenState}} onClick={()=> imagePartsHiddenState == "none" ? setImagePartsHiddenState("flex") : setImagePartsHiddenState("none")}>Show Components</button>}
-                        <div className="myColumnSimple" style = {{display:imagePartsHiddenState}}>
-                            <p>Image's Components:</p>
-
-                            <MyList isProfile={false} isColumn={true} name="Parts" data={imagePartsState} deletePart={deletePart} refs={imagePartsRefs} allVisibility={btnAfterAllHiddenState} visibility={imagePartsHiddenState} chooseFunction={changeImage}/>
-                            
+            <div
+            style={{
+                display: !(loadingGetState == 2 && (loadingGetAllState == 2 || params.action=="old")) ? "flex" : "none",
+                flexDirection: 'column',
+                background:"rgba(255, 255, 255, 0.75)",
+                padding: "1vh",
+                border: "1.5px dotted gray",
+                borderRadius: "15px",
+                height: "92vh",
+                width:"80vw",
+                overflow: "hidden"
+            }}
+            >
+                <div 
+                    style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        height:"75%",
+                        width: "75vw"
+                    }}
+                >
+                    <div 
+                        style={{
+                            display:"flex",
+                            flexDirection: "column",
+                            height:"100%",
+                            width:"15vw",
+                            overflow:"hidden"
+                        }}
+                    >
+                        <div style={{
+                            display:"flex",
+                            flexDirection: "column",
+                            height:"15%",
+                            width:"15vw",
+                            overflow:"hidden"
+                        }}>
+                            {<button style = {{display:btnAfterPartsHiddenState}} onClick={()=> imagePartsHiddenState == "none" ? setImagePartsHiddenState("flex") : setImagePartsHiddenState("none")}>Show Components</button>}
                             {<button 
                                 style = {{display:((btnAfterAllHiddenState ==="flex" && imagePartsHiddenState === "flex") ? "flex" : "none")}}
                                 onClick={() => allImagesHiddenState === "flex" ? setAllImagesHiddenState("none") : setAllImagesHiddenState("flex")}
                             >{allImagesHiddenState === "flex" ? "Hide Images" : "Add Image"}
                             </button>}
                         </div>
+                        <div style = {{
+                            display:imagePartsHiddenState,
+                            flexDirection: "column",
+                            height:"80%",
+                            width:"15vw",
+                            overflow:"hidden"
+                        }}>
+                            <p>Image's Components:</p>
+
+                            <MyList isProfile={false} isColumn={true} name="Parts" data={imagePartsState} deletePart={deletePart} refs={imagePartsRefs} allVisibility={btnAfterAllHiddenState} visibility={imagePartsHiddenState} chooseFunction={changeImage}/>
+                            
+                            
+                        </div>
                     </div>
 
-                    <div className="myColumn2">
-                        {/*Canvas and options*/}
-                        <div className="myColumnSimple">
-                            <div className="myColumn21">
-                                <canvas 
-                                    ref={canvasRef} 
-                                    style={{background:'rgb(' + backgroungColorState.r + ',' + backgroungColorState.g + ',' + backgroungColorState.b + ',' + backgroungColorState.a + ')'}} 
-                                    onClick={handleClick} 
-                                />
-                            </div>
+                    {/*Canvas and options*/}
+                    <div
+                        style={{
+                            display:"flex",
+                            flexDirection: "column",
+                            alignItems : "center",
+                            height:"100%",
+                            width:"30vw"
+                        }}
+                    >
+                        <div className="myColumn21">
+                            <canvas 
+                                ref={canvasRef} 
+                                style={{background:'rgb(' + backgroungColorState.r + ',' + backgroungColorState.g + ',' + backgroungColorState.b + ',' + backgroungColorState.a + ')'}} 
+                                onClick={handleClick} 
+                            />
+                        </div>
 
+                        <div
+                            style={{
+                                display:"flex",
+                                flexDirection:"column",
+                                width: "80%"
+                            }}
+                        >
                             <div className="slidecontainer" style = {{display:(loadingAllImagesState == 1 ? "flex" : "none")}}>
-                                <input onInput={(event) => setRotationState(event.target.value)} value={rotationState} defaultValue="0" type="range" step="1" min="-180" max="180" className="slider" id="myRange4" />  
+                                <label>Rotation: {rotationState}</label>
+                                <input style={{width:"55%"}} onInput={(event) => setRotationState(event.target.value)} value={rotationState} defaultValue="0" type="range" step="1" min="-180" max="180" className="slider" id="myRange4" />  
                             </div>
                             <div className="slidecontainer" style = {{display:(loadingAllImagesState == 1 ? "flex" : "none")}}>
-                                <input onInput={(event) => setScaleXState(event.target.value)} value={scaleXState} defaultValue="1" type="range" step="0.1" min="0.1" max="5" className="slider" id="myRange4" />  
+                                <label>HorizontalScale: {scaleXState}</label>
+                                <input style={{width:"55%"}} onInput={(event) => setScaleXState(event.target.value)} value={scaleXState} defaultValue="1" type="range" step="0.1" min="0.1" max="5" className="slider" id="myRange4" />  
                             </div>
                             <div className="slidecontainer" style = {{display:(loadingAllImagesState == 1 ? "flex" : "none")}}>
-                                <input onInput={(event) => setScaleYState(event.target.value)} value={scaleYState} defaultValue="1" type="range" step="0.1" min="0.1" max="5" className="slider" id="myRange4" />  
+                                <label>VerticalScale: {scaleYState}</label>
+                                <input style={{width:"55%"}} onInput={(event) => setScaleYState(event.target.value)} value={scaleYState} defaultValue="1" type="range" step="0.1" min="0.1" max="5" className="slider" id="myRange4" />  
                             </div>
                         </div>
+                    </div>
                         
-                        {/*Saving, Editing, Details*/}
-                        <div className="myColumn22">
+                    {/*Saving, Editing, Details*/}
+                    <div 
+                        style={{
+                            display:"flex",
+                            flexDirection: "column",
+                            height:"100%",
+                            width:"25vw"
+                        }}
+                    >
+                        <h3 className="fw-light">Image Creator</h3>
+                        <ImageDetails
+                            backgroungColorState={backgroungColorState} 
+                            setBackgroungColorState={setBackgroungColorState}
+                            condition={loadingAllImagesState == 0}
+                            canvasRef1={canvasRef1}
+                            nameState={nameState}
+                            setNameState={setNameState}
+                            descriptionState={descriptionState}
+                            setDescriptionState={setDescriptionState}
+                            isPngState={isPngState}
+                            setIsPngState={setIsPngState}
+                        />
+                        <div
+                            style={{
+                                display:"flex",
+                                flexDirection:"column",
+                                alignItems: "center"
+                            }}
+                        >
                             {<button style = {{display:(params.action === "new" ? "flex" : "none")}} onClick={newImage}>New Image</button>}
                             <div className="myRowSimple">
                                 {<button style = {{display:(params.action === "old" ? "flex" : "none")}} onClick={reloadImage}>Reload Image</button>}
@@ -655,24 +747,11 @@ export default function ImageCreator(props){
                             </div>
                             <button onClick={downloadClick}>Download</button>
                             {<a ref={downloadRef} href = {canvasDataUrl} download = {nameState + '.' + (isPngState ? "png" : "jpeg")} style={{display:"none"}}>Download Image </a>}
-                            
-                            <ImageDetails 
-                                backgroungColorState={backgroungColorState} 
-                                setBackgroungColorState={setBackgroungColorState}
-                                condition={loadingAllImagesState == 0}
-                                canvasRef1={canvasRef1}
-                                nameState={nameState}
-                                setNameState={setNameState}
-                                descriptionState={descriptionState}
-                                setDescriptionState={setDescriptionState}
-                                isPngState={isPngState}
-                                setIsPngState={setIsPngState}
-                            />
                         </div>
                     </div>
                 </div>
                 {<img ref={imgCanvas} src={imgCanvasState} width="100" height="100"  style={{display:"none"}}/>}
-                <MyList isProfile={false} name="Images" data={allImagesState} refs={allImagesRefs} visibility={allImagesHiddenState} chooseFunction={chooseImage}/>
+                <MyList style={{height:"15%"}} isProfile={false} name="Images" data={allImagesState} refs={allImagesRefs} visibility={allImagesHiddenState} chooseFunction={chooseImage}/>
             </div>
         </div>
     )

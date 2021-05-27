@@ -7,6 +7,7 @@ import AuthenticationContext from "../AuthenticationContext";
 import ImageDetails from "../components/ImageDetails";
 import Loader from "react-loader-spinner";
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
+import SaveAndLoad from "../components/SaveAndLoad";
 
 
 export default function Tree(props){
@@ -389,13 +390,28 @@ export default function Tree(props){
             <Loader
                 style={{display: loadingGetState == 2 ? "flex" : "none"}}
                 type="TailSpin"
-                color="#000000"
+                color="#FFF"
                 height={100}
                 width={100} 
             />
-            <div className="myRowSimple" style={{display: loadingGetState != 2 ? "flex" : "none"}}>
-                <div className="myColumnSimple">
-                    <div className="myColumnCanvasTree">
+            <div style={{
+                display: loadingGetState != 2 ? "flex" : "none",
+                justifyContent: "space-between",
+                background:"rgba(255, 255, 255, 0.75)",
+                padding: "1vh",
+                border: "1.5px dotted gray",
+                borderRadius: "15px",
+                height: "92vh",
+                width:"60vw",
+                overflow: "hidden"
+            }}
+            >
+                <div style={{
+                    display:"flex",
+                    flexDirection:"column",
+                    alignItems:"center"
+                }}>
+                    <div className="myColumnCanvas">
                         <canvas 
                             ref={canvasRef}
                             style={{background:'rgb(' + backgroungColorState.r + ',' + backgroungColorState.g + ',' + backgroungColorState.b + ',' + backgroungColorState.a + ')'}} 
@@ -406,28 +422,44 @@ export default function Tree(props){
                                 <ChromePicker 
                                     color={bodyColorState}
                                     onChange={(event) => setBodyColorState(event.rgb)}
-                                    width="10vw"
+                                    width="9vw"
                                 />
                             </div>
                             <div>
                                 <ChromePicker 
                                     color={leafColorState}
                                     onChange={(event) => setLeafColorState(event.rgb)}
-                                    width="10vw"
+                                    width="9vw"
                                 />
                             </div>
                             <div>
                                 <ChromePicker 
                                     color={shadowColorState}
                                     onChange={(event) => setShadowColorState(event.rgb)}
-                                    width="10vw"
+                                    width="9vw"
                                 />
                             </div>
                         </div>
                     </div>
-                <div className="myColumnOptionsTree">
-                    <br></br>
-                    <div className="myColumnSimple">
+                <div className="myColumnOptions">
+                    <h3 className="fw-light">Tree</h3>
+                    <ImageDetails 
+                        backgroungColorState={backgroungColorState} 
+                        setBackgroungColorState={setBackgroungColorState}
+                        condition={!(imageProfileId == profileId || imageProfileId == -1 )}
+                        canvasRef1={canvasRef1}
+                        nameState={nameState}
+                        setNameState={setNameState}
+                        descriptionState={descriptionState}
+                        setDescriptionState={setDescriptionState}
+                        isPngState={isPngState}
+                        setIsPngState={setIsPngState}
+                    />
+                    {/*<div style={{
+                        display:"flex",
+                        flexDirection:"column",
+                        alignItems: "center"
+                    }}>
                         <div className="myRowSimple">
                             {<button style={{display:((params.action === "old") ? "flex" : "none")}} onClick={loadTree}>Reload Tree</button>}
                             <Loader
@@ -452,21 +484,24 @@ export default function Tree(props){
                         <a ref={downloadRef} id="download" download={nameState + '.' + (isPngState ? "png" : "jpeg")} href={canvasDataUrl} style={{display:"none"}}>img</a>
                         <button style={{display:loadingGetState == 0 ? "flex" : "none"}} onClick={downloadClick}>Download</button>
 
-                        {<button onClick={randomTree} style={{display:(((imageProfileId == profileId || imageProfileId == -1) && loadingGetState == 0 ) ? "flex" : "none")}} className="generate-tree-button">Generate Random Tree</button>}
-
-                        <ImageDetails 
-                                backgroungColorState={backgroungColorState} 
-                                setBackgroungColorState={setBackgroungColorState}
-                                condition={!(imageProfileId == profileId || imageProfileId == -1 )}
-                                canvasRef1={canvasRef1}
-                                nameState={nameState}
-                                setNameState={setNameState}
-                                descriptionState={descriptionState}
-                                setDescriptionState={setDescriptionState}
-                                isPngState={isPngState}
-                                setIsPngState={setIsPngState}
-                        />
-                    </div>
+                        {<button onClick={randomTree} style={{display:(((imageProfileId == profileId || imageProfileId == -1) && loadingGetState == 0 ) ? "flex" : "none")}}>Generate Random Tree</button>}
+                    </div>*/}
+                    <SaveAndLoad 
+                        action = {params.action}
+                        type = "Tree"
+                        loadFunction={loadTree}
+                        saveFunction={saveTree}
+                        loadingGetState={loadingGetState}
+                        loadingPostState={loadingPostState}
+                        imageProfileId={imageProfileId}
+                        profileId={profileId}
+                        downloadRef={downloadRef}
+                        downloadClick={downloadClick}
+                        canvasDataUrl={canvasDataUrl}
+                        nameState={nameState}
+                        isPngState={isPngState}
+                        generate={randomTree}
+                    />
                 </div>
                 
                 

@@ -9,7 +9,17 @@ export default class Layout extends Component {
     return (
       <div>
         <NavMenu />
-        <Container>{this.props.children}</Container>
+        <Container
+          style={{
+            display:'flex',
+            alignItems: 'center',
+            justifyContent:'center',
+            height: "90vh",
+            width: "100vw"
+          }}
+        >
+          {this.props.children}
+        </Container>
       </div>
     );
   }

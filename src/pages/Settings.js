@@ -86,8 +86,12 @@ export default function Settings(props) {
 
     function uploadImage(event){
         let file = event.target.files[0];
-        //console.log(file);
-        setUploadedImage(URL.createObjectURL(file));
+        console.log(file);
+        if (file == null) {
+            setUploadedImage("");
+        } else {
+            setUploadedImage(URL.createObjectURL(file));
+        }
     }
 
     function loadCanvas(){
@@ -109,72 +113,105 @@ export default function Settings(props) {
         }
     },[uploadedImage])*/
 
+    function chechInput() {
+        if (myProfile != null){
+            if (myProfile.name.length < 6 || myProfile.name.length > 20 || myProfile.description.length < 6 || myProfile.description.length > 100) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     return(
         <div>
             <Loader
                 style={{display: isLoading === 0 ? "flex" : "none"}}
                 type="TailSpin"
-                color="#000000"
+                color="#FFF"
                 height={100}
                 width={100}
             />
-            <div style = {{visibility:(isLoading == 0 ? "hidden" : "visible")}}>
-                <h4>Personal data</h4>
-                <div>
-                    <input
-                        type="text"
-                        placeholder="Enter Name"
-                        name="name"
-                        value={isLoading === 1 ? myProfile.name : ""}
-                        onChange={handleChangeData}
-                    />
-                    <br></br>
-                    <input
-                        type="text"
-                        placeholder="Enter Description"
-                        name="description"
-                        value={isLoading === 1 ? myProfile.description : ""}
-                        onChange={handleChangeData}
-                    />
-                    <br></br>
-                    <button onClick={() => history.push("/change_password")}>Change Password</button>
-                    <br/>
-                    <img ref={imgCanvas} src = {uploadedImage} width="80vw" height="80vw" onLoad={loadCanvas}></img>
+            <div style = {{
+                display:(isLoading == 0 ? "none" : "flex"),
+                flexDirection: "column",
+                alignItems:"center",
+                background:"rgba(255, 255, 255, 0.75)",
+                padding: "1vh",
+                border: "1.5px dotted gray",
+                borderRadius: "15px",
+                height: "92vh",
+                width:"50vw",
+                overflowX: "hidden",
+                overflowY:"scroll"
+            }}>
+                <h4 className="fw-light">Personal data</h4>
+                <div style={{
+                    display:"flex",
+                    flexDirection:"column",
+                    alignItems:"center",
+                }}>
+                    <div style={{display:'flex',flexDirection: 'row' , alignItems: "center"}}>
+                        <label className="form-label" style={{fontSize:"1.3vw"}}>Name</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            style={{width:"100%",height:"4vh",marginLeft:"1vw"}}
+                            placeholder="Enter Name"
+                            name="name"
+                            value={isLoading === 1 ? myProfile.name : ""}
+                            onChange={handleChangeData}
+                        />
+                    </div>
+                    {isLoading == 1 && (myProfile.name.length < 6 || myProfile.name.length > 20) ? <pre className="text-danger">Name must have length between 6 and 20 characters!</pre> : <></>}
+                    <div style={{display:'flex',flexDirection: 'row' , alignItems: "start"}}>
+                        <label className="form-label" style={{fontSize:"1.3vw"}}>Description</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            style={{width:"100%",height:"4vh",marginLeft:"1vw"}}
+                            placeholder="Enter Description"
+                            name="description"
+                            value={isLoading === 1 ? myProfile.description : ""}
+                            onChange={handleChangeData}
+                        />
+                    </div>
+                    {isLoading == 1 && (myProfile.description.length < 6 || myProfile.description.length > 100) ? <pre className="text-danger">Description must have length between 6 and 100 characters!</pre> : <></>}
+                    <button className="btn btn-outline-secondary" onClick={() => history.push("/change_password")}>Change Password</button>
+                    <img className="rounded img-thumbnail mx-auto d-block" style={{visibility: uploadedImage == "" || isLoading === 0 ? "hidden" : "visible", height:"7vw", width:"7vw"}} ref={imgCanvas} src = {uploadedImage} onLoad={loadCanvas}></img>
                     <canvas style={{display:'none'}} ref={canvasRef}/>
-                    <br></br>
-                    <input type="file" name="file" onChange={uploadImage} />
-
+                    <div style={{display:"flex", alignItems:"center",flexDirection:"column",justifyContent:"center"}}>
+                        <input style={{marginInlineStart:"9vw"}} type="file" name="file" onChange={uploadImage} />
+                    </div>
                 </div>
-                <br></br>
-                <h4>Privacy</h4>
-                <div className="myRow2">
+                <h4 className="fw-light">Privacy</h4>
+                <div style={{display:"flex"}}>
                     <pre>Fractals </pre>
                     <input type="checkbox" id="checkbox1" checked={isLoading == 1 ? privacyOptions.fractals : false} onChange={() => handleChangePrivacy("fractals")}></input>
                 </div>
-                <div className="myRow2">
+                <div style={{display:"flex"}}>
                     <pre>Followers </pre>
                     <input type="checkbox" id="checkbox1" checked={isLoading == 1 ? privacyOptions.followers : false} onChange={() => handleChangePrivacy("followers")}></input>
                 </div>
-                <div className="myRow2">
+                <div style={{display:"flex"}}>
                     <pre>Following </pre>
                     <input type="checkbox" id="checkbox1" checked={isLoading == 1 ? privacyOptions.following : false} onChange={() => handleChangePrivacy("following")}></input>
                 </div>
-                <div className="myRow2">
+                <div style={{display:"flex"}}>
                     <pre>Liked postings </pre>
                     <input type="checkbox" id="checkbox1" checked={isLoading == 1 ? privacyOptions.likes : false} onChange={() => handleChangePrivacy("likes")}></input>
                 </div>
-                <div className="myRow2">
+                <div style={{display:"flex"}}>
                     <pre>Disliked postings </pre>
                     <input type="checkbox" id="checkbox1" checked={isLoading == 1 ? privacyOptions.dislikes : false} onChange={() => handleChangePrivacy("dislikes")}></input>
                 </div>
-                <br></br>
                 <button
-                    onClick={saveChanges}
+                    className="btn btn-outline-success"
+                    onClick={chechInput() ? saveChanges : null}
                 >
                     SaveChanges
                 </button>
-                <br></br>
                 <button
+                    className="btn btn-outline-danger"
                     onClick={handleClickLogOut}
                     >
                     LogOut

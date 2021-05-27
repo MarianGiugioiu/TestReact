@@ -20,56 +20,69 @@ function RegisterForm(props) {
   },[])
 
   return (
-    <div>
+    <div style={{overflowX:"hidden",overflowY:"scroll"}}>
       {
         props.registerSuccessful == 2 ?
-        <div>
-          Register successful
+        <div style={{display:"flex",alignItems:"center", justifyContent:"center", overflow:"hidden"}}>
+          <h4 className="fw-light">Register successful</h4>
         </div> :
         <div className="myColumnSimple">
-          <label>Email</label>
-          <input 
-            type="text"
-            value={props.emailState}
-            onChange={(event) => {
-              props.setEmailState(event.target.value); 
-              if(props.emailValidationState == 1) {
-                props.setEmailValidationState(0);
-              }
-            }}
-          />
-          {props.emailValidationState == 1 ? <pre>An account is already registered with this email</pre> : <br/>}
-
-          <label>Name</label>
-          <input 
-            type="text"
-            value={props.nameState}
-            onChange={(event) => {
-              props.setNameState(event.target.value);
-              if(props.nameValidationState == 1) {
-                props.setNameValidationState(0);
-              }
-            }}
-          />
-          {props.nameValidationState == 1 ? <pre>An account is already registered with this name</pre> : <br/>}
-
+          <div style={{display:'flex',flexDirection: 'column' , alignItems: 'center'}}>
+            <label className="form-label">Email</label>
+            <input 
+              type="text"
+              className="form-control"
+              style={{width:"100%"}}
+              placeholder="email@example.com"
+              value={props.emailState}
+              onChange={(event) => {
+                props.setEmailState(event.target.value); 
+                if(props.emailValidationState == 1) {
+                  props.setEmailValidationState(0);
+                }
+              }}
+            />
+            {props.emailState.length < 6 || props.emailState.length > 30 ? <pre className="text-danger">Email must have length between 6 and 30 characters!</pre> : <></>}
+            {props.emailValidationState == 1 ? <pre className="text-danger">An account is already registered with this email!</pre> : <></>}
+          </div>
+          <div style={{display:'flex',flexDirection: 'column' , alignItems: 'center'}}>
+            <label className="form-label">Name</label>
+            <input 
+              type="text"
+              className="form-control"
+              style={{width:"100%"}}
+              placeholder="Example"
+              value={props.nameState}
+              onChange={(event) => {
+                props.setNameState(event.target.value);
+                if(props.nameValidationState == 1) {
+                  props.setNameValidationState(0);
+                }
+              }}
+            />
+            {props.nameState.length < 6 || props.nameState.length > 20 ? <pre className="text-danger">Name must have length between 6 and 20 characters!</pre> : <></>}
+            {props.nameValidationState == 1 ? <pre className="text-danger">An account is already registered with this name!</pre> : <></>}
+          </div>
           <PasswordWithConfirmation
             label="Password"
             button="Register"
+            emailState={props.emailState}
+            nameState={props.nameState}
             clickFunction={props.handleRegister}
             passwordState={props.passwordState}
             setPasswordState={props.setPasswordState}
             confirmPasswordState={props.confirmPasswordState}
             setConfirmPasswordState={props.setConfirmPasswordState}
           />
-          <br/>
-          <Loader
-            style={{display: props.registerSuccessful == 1 ? "flex" : "none"}}
-            type="TailSpin"
-            color="#000000"
-            height={50}
-            width={50}
-        />
+          <div style={{display:'flex',flexDirection: 'column' , alignItems: 'center'}}>
+            <Loader
+              style={{display: props.registerSuccessful == 1 ? "flex" : "none"}}
+              type="TailSpin"
+              color="#000000"
+              height={50}
+              width={50}
+            />
+          </div>
         </div>
       }
     </div>
@@ -84,46 +97,54 @@ function LoginForm(props) {
   },[])
   return (
     <div className="myColumnSimple">
-      <label>Email</label>
-      <input 
-        type="text"
-        value={props.emailState}
-        onChange={(event) => {
-          props.setEmailState(event.target.value); 
-          if(props.emailValidationState == 1) {
-            props.setEmailValidationState(0);
-          }
-        }}
-      />
-      {
-        props.emailValidationState == 0 ? 
-        <br/> : 
-        (
-          props.emailValidationState == 1 ? 
-          <pre>There is no account registered with this email</pre> :
-          <pre>This account is not verified</pre>
-        )
-      }
-    
-      <label>Password</label>
-      <input 
-        type="password"
-        value={props.passwordState}
-        onChange={(event) => {
-          props.setPasswordState(event.target.value);
-          if(props.passwordValidationState == 1) {
-            props.setPasswordValidationState(0);
-          }
-        }}
-      />
-      {props.passwordValidationState == 1 ? <pre>The password is incorrect</pre> : <br/>}
+      <div style={{display:'flex',flexDirection: 'column' , alignItems: 'center'}}>
+        <label className="form-label">Email</label>
+        <input 
+          className="form-control"
+          style={{width:"100%"}}
+          placeholder="email@example.com"
+          type="text"
+          value={props.emailState}
+          onChange={(event) => {
+            props.setEmailState(event.target.value); 
+            if(props.emailValidationState == 1) {
+              props.setEmailValidationState(0);
+            }
+          }}
+        />
+        {
+          props.emailValidationState == 0 ? 
+          <br/> : 
+          (
+            props.emailValidationState == 1 ? 
+            <pre  className="text-danger">There is no account registered with this email!</pre> :
+            <pre  className="text-danger">This account is not verified!</pre>
+          )
+        }
+      </div>
+      <div style={{display:'flex',flexDirection: 'column' , alignItems: 'center'}}>
+        <label className="form-label">Password</label>
+        <input 
+          className="form-control"
+          style={{width:"100%"}}
+          type="password"
+          value={props.passwordState}
+          placeholder="123aD@"
+          onChange={(event) => {
+            props.setPasswordState(event.target.value);
+            if(props.passwordValidationState == 1) {
+              props.setPasswordValidationState(0);
+            }
+          }}
+        />
+        {props.passwordValidationState == 1 ? <pre  className="text-danger">The password is incorrect!</pre> : <br/>}
+      </div>
 
-      <br/>
       <hr></hr>
-      <button onClick={props.handleLogin}>
+      <button onClick={props.handleLogin} className="btn btn-outline-success mb-1 mx-5">
         Login
       </button>
-      <button onClick={() => history.push("/forgot_password")}>
+      <button onClick={() => history.push("/forgot_password")} className="btn btn-outline-secondary my-1 mx-5">
         Forgot password?
       </button>
       
@@ -289,20 +310,42 @@ export default function Home() {
   function HomePage(){
     if(myId==-1){
       return (
-        <div className="myColumnSimple">
-          <h3>{isLoginState ? "Login" : "Register"}</h3>
-          <div className="myRowSimple">
-            <button onClick={event => !isLoginState ? setIsLoginState(true) : null}>
-              Login
-            </button>
-            <button onClick={event => {
-                if (isLoginState) {
-                  setIsLoginState(false)
-                }
-                setRegisterSuccessful(0);
-              }}>
-              Register
-            </button>
+        <div 
+          className="myColumnSimple border border-info border-1 rounded" 
+          style={{
+            background:"rgba(255, 255, 255, 0.85)",
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            width : '40vw',
+            height:"92vh",
+            padding: "4px"
+          }}
+        >
+          <div style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center"
+          }}
+          >
+            <h3 className="fw-light">{isLoginState ? "Login" : "Register"}</h3>
+            <div 
+              style={{
+                display: "flex",
+              }}
+            >
+              <button className="btn btn-outline-info mx-2" onClick={event => !isLoginState ? setIsLoginState(true) : null}>
+                Login
+              </button>
+              <button className="btn btn-outline-info mx-2" onClick={event => {
+                  if (isLoginState) {
+                    setIsLoginState(false)
+                  }
+                  setRegisterSuccessful(0);
+                }}>
+                Register
+              </button>
+            </div>
           </div>
           <hr/>
           {
@@ -318,7 +361,7 @@ export default function Home() {
               setPasswordValidationState={setPasswordValidationState}
               handleLogin={handleLogin}
             /> :
-            <RegisterForm 
+            <RegisterForm
               emailState={emailState}
               setEmailState={setEmailState}
               emailValidationState={emailValidationState}

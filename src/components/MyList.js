@@ -46,50 +46,68 @@ export default function MyList(props){
     }
 
     return (
-        <div>
+        <div style={{
+        }}>
             {
                 isProfile ? 
-                    <div className="myRowSimple">
-                        <button onClick={loadFunction} >{visibility === "none" ? "Show " + name: "Hide " + name}</button>
+                    <div style={{
+                        display:"flex",
+                        justifyContent:"center",
+                        alignItems:"center"
+                    }}>
                         <Loader
                             style={{display: isLoading == 1 ? "flex" : "none"}}
                             type="TailSpin"
                             color="#000000"
-                            height={25}
-                            width={25} 
+                            height={100}
+                            width={100} 
                         />
                     </div>
                 : 
                 <></>
             }
-            <div className={!isColumn ? "myRow2": "myColumnSimple"} style = {{display:visibility}}>
+            <div className={!isColumn ? "myRow2": "myColumn2"} style = {{display:visibility}}>
                 {
                     data != null ?
                     (data.length > 0 ?
                         (data.map(function(object, i){
                             if(object!= null) {
                                 return (   
-                                    <div className="myColumnSimple" key={i}>
-                                        <Link to={"/profile" + object.id}>
-                                        </Link> 
+                                    <div 
+                                        style={{
+                                            display:"flex",
+                                            marginLeft:"0.5vw",
+                                            marginRight:"0.5vw",
+                                            marginTop : "0.5vh",
+                                            border: "1px groove gray",
+                                            alignItems:"center",
+                                            height:"11vh",
+                                            width:"12vw"
+                                        }}
+                                        key={i}
+                                    >
                                         <img
+                                            className="rounded img-thumbnail mx-auto d-block"
+                                            style={{width:"4.8vw"}}
                                             id={i}
                                             ref = {(ref) => refs[`img${i}`] = ref}
                                             src = {object.image}
-                                            width = "100vw" height = "100vw"
                                             onClick={() => name == "Parts" ? chooseFunction(object,i) : chooseFunction(object)}
                                             >
                                         </img>
-                                        <pre>{object.name}</pre>
-                                        {
-                                            isProfile ? 
-                                            <button 
-                                                style = {{display: ((visibility === "flex" && props.type === "mine" && (name === "Postings" || name === "Images")) ? "flex" : "none")}}
-                                                onClick={() => deleteFromList(name,i)}
-                                            >Delete</button> :
-                                            <button style = {{display:((allVisibility==="flex" && visibility === "flex") ? "flex" : "none")}} onClick={() => deletePart(i)}>Delete</button>
-                                        }
-
+                                        <div style={{display:"flex",flexDirection:"column"}}>
+                                            <pre style={{fontSize:"1.1vw"}}>{object.name}</pre>
+                                            {
+                                                isProfile ? 
+                                                <button 
+                                                    className="btn btn-outline-danger"
+                                                    style = {{display: ((visibility === "flex" && props.type === "mine" && (name === "Postings" || name === "Images")) ? "flex" : "none"),width:"5vw"}}
+                                                    onClick={() => deleteFromList(name,i)}
+                                
+                                                ><span style={{fontSize:"0.9vw"}}>Delete</span></button> :
+                                                <button className="btn btn-outline-danger" style = {{display:((allVisibility==="flex" && visibility === "flex") ? "flex" : "none"),width:"5vw"}} onClick={() => deletePart(i)}><span style={{fontSize:"0.9vw"}}>Delete</span></button>
+                                            }
+                                        </div>
                                     </div>
                                 );
                             }

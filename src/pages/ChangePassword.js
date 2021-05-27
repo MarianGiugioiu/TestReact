@@ -76,29 +76,51 @@ export default function ChangePassword(props) {
                         height={100}
                         width={100}
                     />
-                    <div style = {{visibility:(loadingAccountState == 1 ? "hidden" : "visible")}}>
-                        <label>Password</label>
-                        <input 
-                            type="password"
-                            value={passwordState}
-                            onChange={(event) => {
-                                setPasswordState(event.target.value);
-                                if(passwordValidationState == 1) {
-                                    setPasswordValidationState(0);
-                                }
-                            }}
-                        />
-                        {passwordValidationState == 1 ? <pre>The password is incorrect</pre> : <br/>}
-                        <PasswordWithConfirmation
-                            label="New Password"
-                            button="Change Password"
-                            clickFunction={handleChangePassword}
-                            passwordState={newPasswordState}
-                            setPasswordState={setNewPasswordState}
-                            confirmPasswordState={confirmPasswordState}
-                            setConfirmPasswordState={setConfirmPasswordState}
+                    <div 
+                        style = {{
+                            display:(loadingAccountState == 1 ? "none" : "flex"),
+                            flexDirection: "column",
+                            alignItems:"center",
+                            background:"rgba(255, 255, 255, 0.75)",
+                            padding: "1vh",
+                            border: "1.5px dotted gray",
+                            borderRadius: "15px",
+                            height: "92vh",
+                            width:"30vw",
+                            overflow: "hidden"
+                        }}
+                    >
+                        <h4 className="fw-light">Change Password</h4>
+                        <hr></hr>
+                        <div className="myColumnSimple">
+                            <div style={{display:'flex',flexDirection: 'column' , alignItems: 'center'}}>
+                                <label className="form-label">Password</label>
+                                <input 
+                                    type="password"
+                                    className="form-control"
+                                    style={{width:"100%"}}
+                                    placeholder="123aD@"
+                                    value={passwordState}
+                                    onChange={(event) => {
+                                        setPasswordState(event.target.value);
+                                        if(passwordValidationState == 1) {
+                                            setPasswordValidationState(0);
+                                        }
+                                    }}
+                                />
+                                {passwordValidationState == 1 ? <pre>The password is incorrect</pre> : <></>}
+                            </div>
+                            <PasswordWithConfirmation
+                                label="New Password"
+                                button="Change Password"
+                                clickFunction={handleChangePassword}
+                                passwordState={newPasswordState}
+                                setPasswordState={setNewPasswordState}
+                                confirmPasswordState={confirmPasswordState}
+                                setConfirmPasswordState={setConfirmPasswordState}
 
-                        />
+                            />
+                        </div>
                     </div>
                 </div>
             }

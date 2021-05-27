@@ -41,6 +41,7 @@ export default function Profile(props) {
 
     function loadAllImages () {
         if(allImagesState == null){
+            hideLists();
             var URL = "/profile/" + props.profile.id + "/fractals";
             setAllImagesLoadingState(1);
             httpService
@@ -55,6 +56,7 @@ export default function Profile(props) {
                   });
         } else {
             if(allImagesHiddenState === "none"){
+                hideLists();
                 setAllImagesHiddenState("flex");
             } else {
                 setAllImagesHiddenState("none");
@@ -64,6 +66,7 @@ export default function Profile(props) {
 
     function loadAllPostings () {
         if(allPostingsState == null){
+            hideLists();
             var URL = "/profile/" + props.profile.id + "/postings";
             setAllPostingsLoadingState(1);
             httpService
@@ -78,6 +81,7 @@ export default function Profile(props) {
                   });
         } else {
             if(allPostingsHiddenState === "none"){
+                hideLists();
                 setAllPostingsHiddenState("flex");
             } else {
                 setAllPostingsHiddenState("none");
@@ -87,6 +91,7 @@ export default function Profile(props) {
 
     function loadAllFollowed () {
         if(allFollowedState == null){
+            hideLists();
             var URL = "/profile/" + props.profile.id + "/followed";
             setAllFollowedLoadingState(1);
             httpService
@@ -101,6 +106,7 @@ export default function Profile(props) {
                   });
         } else {
             if(allFollowedHiddenState === "none"){
+                hideLists();
                 setAllFollowedHiddenState("flex");
             } else {
                 setAllFollowedHiddenState("none");
@@ -110,6 +116,7 @@ export default function Profile(props) {
 
     function loadAllFollowing () {
         if(allFollowingState == null){
+            hideLists();
             var URL = "/profile/" + props.profile.id + "/following";
             setAllFollowingLoadingState(1);
             httpService
@@ -124,6 +131,7 @@ export default function Profile(props) {
                   });
         } else {
             if(allFollowingHiddenState === "none"){
+                hideLists();
                 setAllFollowingHiddenState("flex");
             } else {
                 setAllFollowingHiddenState("none");
@@ -133,6 +141,7 @@ export default function Profile(props) {
 
     function loadAllLikes () {
         if(allLikesState == null){
+            hideLists();
             var URL = "/profile/" + props.profile.id + "/likes";
             setAllLikesLoadingState(1);
             httpService
@@ -147,6 +156,7 @@ export default function Profile(props) {
                   });
         } else {
             if(allLikesHiddenState === "none"){
+                hideLists();
                 setAllLikesHiddenState("flex");
             } else {
                 setAllLikesHiddenState("none");
@@ -156,6 +166,7 @@ export default function Profile(props) {
 
     function loadAllDislikes () {
         if(allDislikesState == null){
+            hideLists();
             var URL = "/profile/" + props.profile.id + "/dislikes";
             setAllDislikesLoadingState(1);
             httpService
@@ -170,6 +181,7 @@ export default function Profile(props) {
                   });
         } else {
             if(allDislikesHiddenState === "none"){
+                hideLists();
                 setAllDislikesHiddenState("flex");
             } else {
                 setAllDislikesHiddenState("none");
@@ -272,14 +284,65 @@ export default function Profile(props) {
         history.push(path);
     }
 
+    function hideLists() {
+        console.log("aabr")
+        setAllPostingsHiddenState("none");
+        setAllImagesHiddenState("none");
+        setAllFollowingHiddenState("none");
+        setAllFollowedHiddenState("none");
+        setAllLikesHiddenState("none");
+        setAllDislikesHiddenState("none");
+    }
+
+    function checkLoading() {
+        if (allPostingsLoadingState == 0 && 
+            allImagesLoadingState == 0 && 
+            allFollowingLoadingState == 0 && 
+            allFollowedLoadingState == 0 && 
+            allLikesLoadingState == 0 &&
+            allDislikesLoadingState == 0) {
+                return true;
+            }
+        return false;
+    }
+
     return (
-        <div>
-            {<MyList isProfile={true} type={props.type} name="Postings" data={allPostingsState} setData={setAllPostingsState} refs={allPostingsRefs} visibility={allPostingsHiddenState} loadFunction={loadAllPostings} chooseFunction={choosePosting} isLoading={allPostingsLoadingState}/>}
-            {props.type === "mine" || privacyOptions.fractals == true ? <MyList isProfile={true} type={props.type} name="Images" data={allImagesState} setData={setAllImagesState} refs={allImagesRefs} visibility={allImagesHiddenState} loadFunction={loadAllImages} chooseFunction={chooseImage} isLoading={allImagesLoadingState}/> : <pre>You can't see this profile's images</pre>}
-            {props.type === "mine" || privacyOptions.followers == true ? <MyList isProfile={true} type={props.type} name="Followers" data={allFollowedState} setData={setAllFollowedState} refs={allFollowedRefs} visibility={allFollowedHiddenState} loadFunction={loadAllFollowed} chooseFunction={chooseFollowed} isLoading={allFollowedLoadingState}/> : <pre>You can't see this profile's followers</pre>}
-            {props.type === "mine" || privacyOptions.following == true ? <MyList isProfile={true} type={props.type} name="Following" data={allFollowingState} setData={setAllFollowingState} refs={allFollowingRefs} visibility={allFollowingHiddenState} loadFunction={loadAllFollowing} chooseFunction={chooseFollowing} isLoading={allFollowingLoadingState}/> : <pre>You can't see this profile's following</pre>}
-            {props.type === "mine" || privacyOptions.likes == true ? <MyList isProfile={true} type={props.type} name="Likes" data={allLikesState} setData={setAllLikesState} refs={allLikesRefs} visibility={allLikesHiddenState} loadFunction={loadAllLikes} chooseFunction={chooseLikes} isLoading={allLikesLoadingState}/> : <pre>You can't see this profile's likes</pre>}
-            {props.type === "mine" || privacyOptions.dislikes== true ? <MyList isProfile={true} type={props.type} name="Dislikes" data={allDislikesState} setData={setAllDislikesState} refs={allDislikesRefs} visibility={allDislikesHiddenState} loadFunction={loadAllDislikes} chooseFunction={chooseDislikes} isLoading={allDislikesLoadingState}/> : <pre>You can't see this profile's dislikes</pre>}
+        <div style={{
+            display:"flex",
+            height: "46vh",
+            justifyContent:"space-between"
+        }}>
+            <div 
+                className="btn-group"
+                role="group"
+                style={{
+                    display:"flex",
+                    flexDirection:"column",
+                    border: "1px groove gray",
+                    height:"40vh",
+                    width:"15vw"
+                }}
+            >
+                <button className="btn btn-outline-dark" style={{height:"6vh"}} onClick={checkLoading() ? loadAllPostings : null} ><span style={{fontSize:"1.5vw"}}>{allPostingsHiddenState === "none" ? "Show " + "Postings": "Hide " + "Postings"}</span></button>
+                <button className="btn btn-outline-dark" style={{height:"6vh"}} onClick={checkLoading() ? loadAllImages : null} ><span style={{fontSize:"1.5vw"}}>{allImagesHiddenState === "none" ? "Show " + "Images": "Hide " + "Images"}</span></button>
+                <button className="btn btn-outline-dark" style={{height:"6vh"}} onClick={checkLoading() ? loadAllFollowing : null} ><span style={{fontSize:"1.5vw"}}>{allFollowingHiddenState === "none" ? "Show " + "Following": "Hide " + "Following"}</span></button>
+                <button className="btn btn-outline-dark" style={{height:"6vh"}} onClick={checkLoading() ? loadAllFollowed : null} ><span style={{fontSize:"1.5vw"}}>{allFollowedHiddenState === "none" ? "Show " + "Followed": "Hide " + "Followed"}</span></button>
+                <button className="btn btn-outline-dark" style={{height:"6vh"}} onClick={checkLoading() ? loadAllLikes : null} ><span style={{fontSize:"1.5vw"}}>{allLikesHiddenState === "none" ? "Show " + "Likes": "Hide " + "Likes"}</span></button>
+                <button className="btn btn-outline-dark" style={{height:"6vh"}} onClick={checkLoading() ? loadAllDislikes : null} ><span style={{fontSize:"1.5vw"}}>{allDislikesHiddenState === "none" ? "Show " + "Dislikes": "Hide " + "Dislikes"}</span></button>
+            </div>
+            <div style={{
+                display:"flex",
+                flexDirection:"column",
+                height:"44vh",
+                width:"25vw"
+            }}>
+                {<MyList isColumn={true} isProfile={true} type={props.type} name="Postings" data={allPostingsState} setData={setAllPostingsState} refs={allPostingsRefs} visibility={allPostingsHiddenState} loadFunction={loadAllPostings} chooseFunction={choosePosting} isLoading={allPostingsLoadingState}/>}
+                {props.type === "mine" || privacyOptions.fractals == true ? <MyList isColumn={true} isProfile={true} type={props.type} name="Images" data={allImagesState} setData={setAllImagesState} refs={allImagesRefs} visibility={allImagesHiddenState} loadFunction={loadAllImages} chooseFunction={chooseImage} isLoading={allImagesLoadingState}/> : <div style={{display:allImagesHiddenState, justifyContent:"center"}}><pre>You can't see this profile's images</pre></div>}
+                {props.type === "mine" || privacyOptions.followers == true ? <MyList isColumn={true} isProfile={true} type={props.type} name="Followers" data={allFollowedState} setData={setAllFollowedState} refs={allFollowedRefs} visibility={allFollowedHiddenState} loadFunction={loadAllFollowed} chooseFunction={chooseFollowed} isLoading={allFollowedLoadingState}/> : <div style={{display:allFollowedHiddenState, justifyContent:"center"}}><pre>You can't see this profile's followers</pre></div>}
+                {props.type === "mine" || privacyOptions.following == true ? <MyList isColumn={true} isProfile={true} type={props.type} name="Following" data={allFollowingState} setData={setAllFollowingState} refs={allFollowingRefs} visibility={allFollowingHiddenState} loadFunction={loadAllFollowing} chooseFunction={chooseFollowing} isLoading={allFollowingLoadingState}/> : <div style={{display:allFollowingHiddenState, justifyContent:"center"}}><pre>You can't see this profile's following</pre></div>}
+                {props.type === "mine" || privacyOptions.likes == true ? <MyList isColumn={true} isProfile={true} type={props.type} name="Likes" data={allLikesState} setData={setAllLikesState} refs={allLikesRefs} visibility={allLikesHiddenState} loadFunction={loadAllLikes} chooseFunction={chooseLikes} isLoading={allLikesLoadingState}/> : <div style={{display:allLikesHiddenState, justifyContent:"center"}}><pre>You can't see this profile's likes</pre></div>}
+                {props.type === "mine" || privacyOptions.dislikes== true ? <MyList isColumn={true} isProfile={true} type={props.type} name="Dislikes" data={allDislikesState} setData={setAllDislikesState} refs={allDislikesRefs} visibility={allDislikesHiddenState} loadFunction={loadAllDislikes} chooseFunction={chooseDislikes} isLoading={allDislikesLoadingState}/> : <div style={{display:allDislikesHiddenState, justifyContent:"center"}}><pre>You can't see this profile's dislikes</pre></div>}
+            </div>
         </div>
     );
 }

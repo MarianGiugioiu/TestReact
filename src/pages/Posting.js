@@ -5,6 +5,9 @@ import httpService from '../services/httpService';
 import AuthenticationContext from "../AuthenticationContext";
 import { Link } from "react-router-dom";
 
+import Loader from "react-loader-spinner";
+import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
+
 export default function MyPosting(props) {
     const { id } = useParams();
     const authentication = useContext(AuthenticationContext);
@@ -117,7 +120,12 @@ export default function MyPosting(props) {
     },[])
 
     function addComment(){
-        setNewCommentHiddenState("visible");
+        if (newCommentHiddenState == "hidden")
+            setNewCommentHiddenState("visible");
+        else {
+            setTextNewCommentState("");
+            setNewCommentHiddenState("hidden");
+        }
     }
 
 
@@ -199,18 +207,20 @@ export default function MyPosting(props) {
         //console.log(i)
         if(i != editingComment){
             return (
-                <p>{object.text}</p>
+                <div style={{width: "35vw", wordWrap:"break-word"}} className="fs-6 fw-bold lh-1">{object.text}</div>
             )
         } else {
             return(
                 <div className="myRowSimple">
                     <input 
+                        className="form-control"
+                        style={{height:"7vh"}}
                         type="text" 
                         name="Text"
                         value={textEditCommentState}
                         onChange={handleChangeEditComment}
                     ></input>
-                    <button onClick={editComment}>Edit Comment</button>
+                    <button style={{display:"flex", height:"7vh"}} className="btn btn-outline-primary" onClick={editComment}><span style={{fontSize:"0.9vw"}}>Edit Comment</span></button>
                 </div>
             )
         }
@@ -384,71 +394,98 @@ export default function MyPosting(props) {
 
     return(
         <div>
-            <div className="myRowSimple">
-                <pre style={{visibility:(isLoading == 0 ? "hidden" : "visible")}}>Name: </pre>
-                <pre>{isLoading === 1 ? postingState.fractal.name : ""}</pre>
-            </div>
-            
-            <div className="myRowSimple">
-                <pre style={{visibility:(isLoading == 0 ? "hidden" : "visible")}}>Description: </pre>
-                <pre>{isLoading === 1 ? postingState.fractal.description : ""}</pre>
-            </div>
-            <div className="myRowSimple">
-                <pre style={{visibility:(isLoading == 0 ? "hidden" : "visible")}}>Created by: </pre>
-                <Link to={isLoading ===1 ? ("/profile/" + postingState.profile.id) : "myprofile"}>
-                    <pre>{isLoading === 1 ? postingState.profile.name : ""}</pre>
-                </Link>
-            </div>
-            <img src={isLoading === 1 ? postingState.fractal.dataURL : ""} height="200" width="200" style={{visibility:(isLoading === 1 ? "visible" : "hidden")}}></img>
-            <div className="myRowSimple" style={{visibility:(isLoading == 0 ? "hidden" : "visible")}}>
-                <pre>{isLoading === 1 ? postingState.likedBy.length : ""}</pre>
-                <button style={{background:likePostButtonColor}} onClick={likePost}>Like</button>
-                <pre>  </pre>
-                <pre>{isLoading === 1 ? postingState.dislikedBy.length : ""}</pre>
-                <button style={{background:dislikePostButtonColor}} onClick={dislikePost}>Dislike</button>
-            </div>
-            <div>
-                
-                <button style={{visibility:(isLoading == 0 ? "hidden" : "visible")}} onClick={addComment}>Add Comment</button>
-                <pre style={{visibility:(isLoading == 0 ? "hidden" : "visible")}}>Comments:</pre>
-                <div className="myRowSimple" style = {{visibility:newCommentHiddenState}}>
-                    <input 
-                        type="text" 
-                        name="Text"
-                        value={textNewCommentState}
-                        onChange={handleChangeNewComment}
-                    ></input>
-                    <button onClick={postComment}>Post Comment</button>
+            <Loader
+                style={{display: isLoading === 0 ? "flex" : "none"}}
+                type="TailSpin"
+                color="#FFF"
+                height={100}
+                width={100}
+            />
+            <div style = {{
+                display:(isLoading == 0 ? "none" : "flex"),
+                flexDirection: "column",
+                alignItems:"center",
+                background:"rgba(255, 255, 255, 0.75)",
+                padding: "1vh",
+                border: "1.5px dotted gray",
+                borderRadius: "15px",
+                height: "92vh",
+                width:"50vw",
+                overflowX: "hidden",
+                overflowY: "scroll"
+            }}>
+                <div className="myRow3">
+                    <pre className="fw-bold text-muted fs-5">Name: </pre>
+                    <pre className="fs-5">{isLoading === 1 ? postingState.fractal.name : ""}</pre>
+        
                 </div>
-                
-                
-                {
-                    isLoading === 1 ? 
-                    (allCommentsState.map(function(object, i){
-                        if(object!= null) {
-                            return (   
-                                <div id={i} > 
-                                    <hr></hr>
-                                    <div className="myRowSimple">
-                                        <pre>{object.profile.id != profileId ? object.createdBy : "Me"} at {object.lastModified} {object.edited == true ? "edited" : ""}  </pre>
-                                        <button id={i} style={{visibility:(object.profile.id != profileId ? "hidden" : "visible")}} onClick={() => startEditingComment(object,i)}>Edit</button>
-                                        <button style={{visibility:(object.profile.id != profileId ? "hidden" : "visible")}}>Delete</button>
-                                    </div>
-                                    {CommentText(object,i)}
-                                    <div className="myRowSimple" style={{visibility:(isLoading == 0 ? "hidden" : "visible")}}>
-                                        <pre>{isLoading === 1 ? object.likedBy.length : ""}</pre>
-                                        <button style={{background:likeCommentButtonsColor[i]}} onClick={() => likeComment(object, i)}>Like</button>
-                                        <pre> </pre>
-                                        <pre>{isLoading === 1 ? object.dislikedBy.length : ""}</pre>
-                                        <button style={{background:dislikeCommentButtonsColor[i]}} onClick={() => dislikeComment(object, i)}>Dislike</button>
-                                        <pre> </pre>
-                                        
-                                    </div>
-                                </div>
-                            );
+                <hr/>
+                <div className="myColumn3">
+                    <pre className="fw-bold text-muted fs-6">Description: </pre>
+                    <pre style={{width: "35vw", wordWrap:"break-word", textAlign:"center"}} className="fs-6">{isLoading === 1 ? postingState.fractal.description : ""}</pre>
+                </div>
+                <div className="myRow3">
+                    <pre className="fw-bold text-muted fs-6">Created by: </pre>
+                    <Link to={isLoading ===1 ? ("/profile/" + postingState.profile.id) : "myprofile"}>
+                        <pre className="fs-6">{isLoading === 1 ? postingState.profile.name : ""}</pre>
+                    </Link>
+                </div>
+                <img className="rounded img-thumbnail mx-auto d-block" src={isLoading === 1 ? postingState.fractal.dataURL : ""} height="200" width="200"></img>
+                <div className="myRow3 mt-2">
+                    <button className = {likePostButtonColor == "#FFF" ? "btn btn-outline-secondary bi bi-hand-thumbs-up" : "btn btn-outline-secondary bi bi-hand-thumbs-up-fill"} onClick={likePost}><span className="badge bg-success ms-1">{isLoading === 1 ? postingState.likedBy.length : ""}</span></button>
+                    <pre>  </pre>
+                    <button className = {dislikePostButtonColor == "#FFF" ? "btn btn-outline-secondary bi bi-hand-thumbs-down" : "btn btn-outline-secondary bi bi-hand-thumbs-down-fill"} onClick={dislikePost}><span className="badge bg-danger ms-1">{isLoading === 1 ? postingState.dislikedBy.length : ""}</span></button>
+                </div>
+                <div style={{
+                    display:"flex",
+                    alignItems: "center",
+                    flexDirection: "column"
+                }}> 
+                    <button className="btn btn-outline-primary mt-2" style={{visibility:(isLoading == 0 ? "hidden" : "visible")}} onClick={addComment}>Add Comment</button>
+                    <pre style={{visibility:(isLoading == 0 ? "hidden" : "visible")}}>Comments:</pre>
+                    <div className="myRowSimple" style = {{display:newCommentHiddenState == "visible" ? "flex" : "none"}}>
+                        <input 
+                            className="form-control"
+                            style={{height:"7vh"}}
+                            type="text" 
+                            name="Text"
+                            value={textNewCommentState}
+                            onChange={handleChangeNewComment}
+                        ></input>
+                        <button style={{display:"flex", height:"7vh"}} className="btn btn-outline-primary" onClick={postComment}><span style={{fontSize:"0.9vw"}}>Post Comment</span></button>
+                    </div>
+                    <div style={{
+                        display:"flex",
+                        flexDirection:"column",
+                        alignItems:"flex-start"
+                    }}>
+                        {
+                            isLoading === 1 ? 
+                            (allCommentsState.map(function(object, i){
+                                if(object!= null) {
+                                    return (   
+                                        <div id={i} > 
+                                            <hr></hr>
+                                            <div className="myRowSimple">
+                                                <pre><span className="fw-bold">{object.profile.id != profileId ? object.createdBy : "Me"}</span> at <span className="fw-light fst-italic text-muted">{object.lastModified} {object.edited == true ? "edited" : ""}</span>  </pre>
+                                                <div className="btn-group" role="group">
+                                                    <button className="btn btn-outline-secondary" id={i} style={{visibility:(object.profile.id != profileId ? "hidden" : "visible")}} onClick={() => startEditingComment(object,i)}>Edit</button>
+                                                    <button className="btn btn-outline-secondary" style={{visibility:(object.profile.id != profileId ? "hidden" : "visible")}}>Delete</button>
+                                                </div>
+                                            </div>
+                                            {CommentText(object,i)}
+                                            <div className="mt-2" style={{display:"flex"}}>
+                                                <button className = {likeCommentButtonsColor[i] == "#FFF" ? "btn btn-outline-secondary bi bi-hand-thumbs-up" : "btn btn-outline-secondary bi bi-hand-thumbs-up-fill"} onClick={() => likeComment(object, i)}><span className="badge bg-success ms-1">{isLoading === 1 ? object.likedBy.length : ""}</span></button>
+                                                <pre>  </pre>
+                                                <button className = {dislikeCommentButtonsColor[i] == "#FFF" ? "btn btn-outline-secondary bi bi-hand-thumbs-down" : "btn btn-outline-secondary bi bi-hand-thumbs-down-fill"} onClick={() => dislikeComment(object, i)}><span className="badge bg-danger ms-1">{isLoading === 1 ? object.dislikedBy.length : ""}</span></button>
+                                            </div>
+                                        </div>
+                                    );
+                                }
+                            })) : <div></div>
                         }
-                    })) : <div></div>
-                }
+                    </div>
+                </div>
             </div>
         </div>
     )

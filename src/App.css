@@ -27,9 +27,51 @@
 
 .myRow2 {
   display: flex;
-  overflow: auto;
-  height: 20%;
-  flex-direction: row;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  height: 100%;
+  align-items: center;
+  margin: 1vh;
+  padding: 1vh;
+  border: 1px groove gray;
+}
+
+
+.myColumn2 {
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  align-items: center;
+  height: 45vh;
+  border: 1px groove gray;
+}
+.myColumn2-2 {
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  align-items: center;
+  height: 44vh;
+  border: 1px groove gray;
+}
+
+
+.myRow3 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.myColumn3 {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.myRow4 {
+  display: flex;
+  margin-left: 3vw;
 }
 
 .myColumn1 {
@@ -40,13 +82,6 @@
   width: 20%;
   overflow: auto;
 }
-.myColumn2 {
-  display: flex;
-  flex-direction: row;
-  float: center;
-  height: 100%;
-  width: 70%;
-}
 
 .myColumnCurveCanvas {
   display: flex;
@@ -56,18 +91,31 @@
   width: 15vw;
 }
 
-.myColumnCanvasTree {
+.myColumnCanvas {
   display: flex;
   flex-direction: column;
-  float: center;
-  height: 30vw;
+  align-items: center;
+  justify-content: center;
+  height: 24vw;
+  width: 24vw;
+}
+
+.chrome-picker{
+  margin: 0.5vh;
+}
+
+.myColumnOptions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 30vw;
 }
-.myColumnOptionsTree {
+
+.myColumnOptionsSnowFlake {
   display: flex;
   flex-direction: column;
-  float: center;
-  width: 30vw;
+  align-items: center;
+  width: 50vw;
 }
 
 
@@ -75,8 +123,8 @@
   display: flex;
   flex-direction: column;
   float: center;
-  height: 30vw;
-  width: 30vw;
+  height: 23vw;
+  width: 23vw;
 }
 
 .myColumn22 {
@@ -139,6 +187,9 @@ canvas {
 }
 
 .slidecontainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 10px 10px 0px 10px;
 }
 .slider {
@@ -146,7 +197,7 @@ canvas {
   width: 100%;
   height: 15px;
   border-radius: 5px;  
-  background: #d3d3d3;
+  background: red;
   outline: none;
   opacity: 0.7;
   -webkit-transition: .2s;
@@ -158,7 +209,7 @@ canvas {
   width: 25px;
   height: 25px;
   border-radius: 50%; 
-  background:blue;
+  background:black;
   cursor: pointer;
 }
 #myRange3.slider::-webkit-slider-thumb {
@@ -188,3 +239,4 @@ canvas {
   background: #4CAF50;
   cursor: pointer;
 }
+

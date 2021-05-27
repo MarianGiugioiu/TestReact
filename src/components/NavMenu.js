@@ -21,11 +21,14 @@ export default function NavMenu(props){
   }*/
 
   return (
-    <header>
+    <header >
       <Navbar
         className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3"
         light
-
+        style = {{
+          background:"#4adedecd",
+          height: "6vh"
+        }}
       >
         <Container>
           <NavbarBrand tag={Link} to="/">

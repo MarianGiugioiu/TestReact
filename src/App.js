@@ -2,7 +2,6 @@ import React, { Component, useEffect, useState } from "react";
 import './App.css';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import Home from './pages/Home';
-import Profile from './pages/Profile';
 import OtherProfile from './pages/OtherProfile';
 import MyProfile from './pages/MyProfile';
 import Generator from './pages/Generator';

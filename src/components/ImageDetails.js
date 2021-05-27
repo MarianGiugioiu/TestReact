@@ -13,13 +13,14 @@ export default function ImageDetails (props) {
                     width="10vw"
                 />
             </div>
-            <div className="myColumnSimple">
+            <div className="myColumnSimple" style={{justifyContent:"space-between"}}>
                 <div className="myColumnSimple">
                     <pre>Name:</pre>
                     {
                         props.condition ? 
                         <pre>{props.nameState}</pre> : 
                         <input
+                            style={{width:"15vw"}}
                             type="text"
                             value={props.nameState}
                             onChange={(event) => {props.setNameState(event.target.value)}}
@@ -32,6 +33,7 @@ export default function ImageDetails (props) {
                         props.condition ? 
                         <pre>{props.descriptionState}</pre> : 
                         <input
+                            style={{width:"15vw"}}
                             type="text"
                             value={props.descriptionState}
                             onChange={(event) => props.setDescriptionState(event.target.value)}
