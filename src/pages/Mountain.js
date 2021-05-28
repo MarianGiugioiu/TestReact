@@ -4,6 +4,7 @@ import { useParams } from 'react-router';
 import httpService from '../services/httpService';
 import AuthenticationContext from "../AuthenticationContext";
 import ImageDetails from "../components/ImageDetails";
+import SaveAndLoad from "../components/SaveAndLoad";
 import Loader from "react-loader-spinner";
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 
@@ -429,6 +430,13 @@ export default function Mountain(props) {
         link.click();
     }
 
+    function checkInput() {
+        if (nameState.length < 6 || nameState.length > 20 || descriptionState.length < 6 || descriptionState.length > 100) {
+            return false;
+        }
+        return true;
+    }
+
     return (
         <div>
             <Loader
@@ -492,7 +500,7 @@ export default function Mountain(props) {
                         </div>
                     </div>
                     <div className="myRowSimple">
-                        <pre>High Quality </pre>
+                        <pre style={{fontSize:"1.2vw"}}>High Quality </pre>
                         <input type="checkbox" id="checkbox2" checked={isHQState} onChange={() => setIsHQState(!isHQState)}></input>
                     </div>
                 </div>
@@ -511,37 +519,23 @@ export default function Mountain(props) {
                         isPngState={isPngState}
                         setIsPngState={setIsPngState}
                     /> 
-                    <div style={{
-                        display:"flex",
-                        flexDirection:"column",
-                        alignItems: "center"
-                    }}>
-                        <div className="myRowSimple">
-                            {<button style={{display:((params.action === "old") ? "flex" : "none")}} onClick={loadMountain}>Reload Mountain</button>}
-                            <Loader
-                                style={{display: loadingGetState != 0 ? "flex" : "none"}}
-                                type="TailSpin"
-                                color="#000000"
-                                height={25}
-                                width={25} 
-                            />
-                        </div>
-                        <div className="myRowSimple">
-                            {<button style={{display:(((imageProfileId == profileId || imageProfileId == -1 ) && loadingGetState == 0) ? "flex" : "none")}} onClick={saveMountain}>Save Mountain</button>}
-                            <Loader
-                                style={{display: loadingPostState != 0 ? "flex" : "none"}}
-                                type="TailSpin"
-                                color="#000000"
-                                height={25}
-                                width={25} 
-                            />
-                        </div>
-                        
-                        <a ref={downloadRef} id="download" download={nameState + '.' + (isPngState ? "png" : "jpeg")} href={canvasDataUrl} style={{display:"none"}}>img</a>
-                        <button style={{display:loadingGetState == 0 ? "flex" : "none"}} onClick={downloadClick}>Download</button>
-
-                        {<button onClick={() => drawMountain("new")} style={{display:(((imageProfileId == profileId || imageProfileId == -1) && loadingGetState == 0 ) ? "flex" : "none")}}>Generate Random Tree</button>}
-                    </div>
+                    
+                    <SaveAndLoad 
+                        action = {params.action}
+                        type = "Mountain"
+                        loadFunction={loadMountain}
+                        saveFunction={checkInput() ? saveMountain : null}
+                        loadingGetState={loadingGetState}
+                        loadingPostState={loadingPostState}
+                        imageProfileId={imageProfileId}
+                        profileId={profileId}
+                        downloadRef={downloadRef}
+                        downloadClick={downloadClick}
+                        canvasDataUrl={canvasDataUrl}
+                        nameState={nameState}
+                        isPngState={isPngState}
+                        generate={() => drawMountain("new")}
+                    />
                 </div>
                 
             </div>

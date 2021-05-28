@@ -11,7 +11,7 @@ export default function SaveAndLoad(props) {
             alignItems: "center"
         }}>
             <div className="myRowSimple">
-                {<button style={{display:((props.action === "old") ? "flex" : "none")}} onClick={props.loadFunction}>Reload {props.type}</button>}
+                {<button className="btn btn-outline-success" style={{display:((props.action === "old") ? "flex" : "none"),marginTop:"1vh"}} onClick={props.loadFunction}><span style={{fontSize:"1.5vw"}}>Reload {props.type}</span></button>}
                 <Loader
                     style={{display: props.loadingGetState != 0 ? "flex" : "none"}}
                     type="TailSpin"
@@ -21,7 +21,7 @@ export default function SaveAndLoad(props) {
                 />
             </div>
             <div className="myRowSimple">
-                {<button onClick={props.saveFunction} style={{display:(((props.imageProfileId == props.profileId || props.imageProfileId == -1 ) && props.loadingGetState == 0) ? "flex" : "none")}}>Save {props.type}</button>}
+                {<button className="btn btn-outline-success" onClick={props.saveFunction} style={{display:(((props.imageProfileId == props.profileId || props.imageProfileId == -1 ) && props.loadingGetState == 0) ? "flex" : "none"),marginTop:"1vh"}}><span style={{fontSize:"1.5vw"}}>Save {props.type}</span></button>}
                 <Loader
                     style={{display: props.loadingPostState != 0 ? "flex" : "none"}}
                     type="TailSpin"
@@ -32,9 +32,9 @@ export default function SaveAndLoad(props) {
             </div>
             
             <a ref={props.downloadRef} id="download" download={props.nameState + '.' + (props.isPngState ? "png" : "jpeg")} href={props.canvasDataUrl} style={{display:"none"}}>img</a>
-            <button style={{display:props.loadingGetState == 0 ? "flex" : "none"}} onClick={props.downloadClick}>Download</button>
+            <button className="btn btn-outline-primary" style={{display:props.loadingGetState == 0 ? "flex" : "none",marginTop:"1vh"}} onClick={props.downloadClick}><span style={{fontSize:"1.5vw"}}>Download</span></button>
 
-            {<button onClick={props.generate} style={{display:(((props.imageProfileId == props.profileId || props.imageProfileId == -1) && props.loadingGetState == 0 ) ? "flex" : "none")}}>Generate Random {props.type}</button>}
+            {<button className="btn btn-outline-danger" onClick={props.generate} style={{display:(((props.imageProfileId == props.profileId || props.imageProfileId == -1) && props.loadingGetState == 0 && props.generate != null) ? "flex" : "none"),marginTop:"1vh"}}><span style={{fontSize:"1.5vw"}}>Generate Random {props.type}</span></button>}
         </div>
     )
 }

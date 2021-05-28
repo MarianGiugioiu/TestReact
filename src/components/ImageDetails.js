@@ -6,7 +6,12 @@ export default function ImageDetails (props) {
     //console.log(props.canvasRef1)
     return (
         <div className="myRowSimple">
-            <div>
+            <div style={{
+                display:"flex",
+                flexDirection:"column",
+                alignItems:"center"
+            }}>
+                <label className="form-label" style={{fontSize:"1vw"}}>Background color</label>
                 <ChromePicker 
                     color={props.backgroungColorState}
                     onChange={(event) => props.setBackgroungColorState(event.rgb)}
@@ -14,34 +19,52 @@ export default function ImageDetails (props) {
                 />
             </div>
             <div className="myColumnSimple" style={{justifyContent:"space-between"}}>
-                <div className="myColumnSimple">
-                    <pre>Name:</pre>
+                <div style={{
+                    display:"flex",
+                    flexDirection:"column",
+                    alignItems:"center"
+                }}>
+                    <label className="form-label" style={{fontSize:"1vw"}}>Name</label>
                     {
                         props.condition ? 
-                        <pre>{props.nameState}</pre> : 
+                        <pre style={{fontSize:"1vw"}}>{props.nameState}</pre> : 
                         <input
-                            style={{width:"15vw"}}
+                            className="form-control"
+                            style={{width:"15vw",height:"4vh",marginLeft:"1vw"}}
+                            placeholder="Enter Name"
                             type="text"
                             value={props.nameState}
                             onChange={(event) => {props.setNameState(event.target.value)}}
                         />
                     }
+                        {(props.nameState.length < 6 || props.nameState.length > 20) ? <pre className="text-danger" style={{fontSize:"0.8vw"}}>Name must be between 6 and 20!</pre> : <></>}
+                    
                 </div>
-                <div className="myColumnSimple">
-                    <pre>Description: </pre>
+                <div style={{
+                    display:"flex",
+                    flexDirection:"column",
+                    alignItems:"center"
+                }}>
+                    <label className="form-label" style={{fontSize:"1vw"}}>Description</label>
                     {
                         props.condition ? 
-                        <pre>{props.descriptionState}</pre> : 
+                        <pre style={{fontSize:"1vw"}}>{props.descriptionState}</pre> : 
                         <input
-                            style={{width:"15vw"}}
+                            className="form-control"
+                            style={{width:"15vw",height:"4vh",marginLeft:"1vw"}}
+                            placeholder="Enter Description"
                             type="text"
                             value={props.descriptionState}
                             onChange={(event) => props.setDescriptionState(event.target.value)}
                         />
                     }
+                    {(props.descriptionState.length < 6 || props.descriptionState.length > 100) ? <pre className="text-danger" style={{fontSize:"0.75vw"}}>Description must be between 6 and 100!</pre> : <></>}
                 </div>
-                <div className="myRowSimple">
-                    <pre>PNG </pre>
+                <div style={{
+                    display:"flex",
+                    justifyContent:"center"
+                }}>
+                    <pre style={{fontSize:"1vw"}}>PNG </pre>
                     <input type="checkbox" id="checkbox1" checked={props.isPngState} onChange={() => props.setIsPngState(!props.isPngState)}></input>
                 </div>
                 <canvas 

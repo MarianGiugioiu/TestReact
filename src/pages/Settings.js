@@ -102,18 +102,12 @@ export default function Settings(props) {
         canvas.height = canvasDim;
         context.drawImage(image,0,0,canvasDim,canvasDim);
         let data = canvas.toDataURL("image/jpeg");
-        //console.log((new TextEncoder().encode(data)).length)
         //console.log(data);
         setImageDataURL(data);
     }
 
-    /*useEffect(() => {
-        if(uploadedImage != null) {
-            loadCanvas();
-        }
-    },[uploadedImage])*/
 
-    function chechInput() {
+    function checkInput() {
         if (myProfile != null){
             if (myProfile.name.length < 6 || myProfile.name.length > 20 || myProfile.description.length < 6 || myProfile.description.length > 100) {
                 return false;
@@ -155,27 +149,27 @@ export default function Settings(props) {
                         <input
                             type="text"
                             className="form-control"
-                            style={{width:"100%",height:"4vh",marginLeft:"1vw"}}
+                            style={{width:"20vw",height:"4vh",marginLeft:"1vw"}}
                             placeholder="Enter Name"
                             name="name"
                             value={isLoading === 1 ? myProfile.name : ""}
                             onChange={handleChangeData}
                         />
                     </div>
-                    {isLoading == 1 && (myProfile.name.length < 6 || myProfile.name.length > 20) ? <pre className="text-danger">Name must have length between 6 and 20 characters!</pre> : <></>}
+                    {isLoading == 1 && (myProfile.name.length < 6 || myProfile.name.length > 20) ? <pre className="text-danger" style={{fontSize:"1vw"}}>Name must have length between 6 and 20 characters!</pre> : <></>}
                     <div style={{display:'flex',flexDirection: 'row' , alignItems: "start"}}>
                         <label className="form-label" style={{fontSize:"1.3vw"}}>Description</label>
                         <input
                             type="text"
                             className="form-control"
-                            style={{width:"100%",height:"4vh",marginLeft:"1vw"}}
+                            style={{width:"20vw",height:"4vh",marginLeft:"1vw"}}
                             placeholder="Enter Description"
                             name="description"
                             value={isLoading === 1 ? myProfile.description : ""}
                             onChange={handleChangeData}
                         />
                     </div>
-                    {isLoading == 1 && (myProfile.description.length < 6 || myProfile.description.length > 100) ? <pre className="text-danger">Description must have length between 6 and 100 characters!</pre> : <></>}
+                    {isLoading == 1 && (myProfile.description.length < 6 || myProfile.description.length > 100) ? <pre className="text-danger" style={{fontSize:"1vw"}}>Description must have length between 6 and 100 characters!</pre> : <></>}
                     <button className="btn btn-outline-secondary" onClick={() => history.push("/change_password")}>Change Password</button>
                     <img className="rounded img-thumbnail mx-auto d-block" style={{visibility: uploadedImage == "" || isLoading === 0 ? "hidden" : "visible", height:"7vw", width:"7vw"}} ref={imgCanvas} src = {uploadedImage} onLoad={loadCanvas}></img>
                     <canvas style={{display:'none'}} ref={canvasRef}/>
@@ -206,7 +200,7 @@ export default function Settings(props) {
                 </div>
                 <button
                     className="btn btn-outline-success"
-                    onClick={chechInput() ? saveChanges : null}
+                    onClick={checkInput() ? saveChanges : null}
                 >
                     SaveChanges
                 </button>

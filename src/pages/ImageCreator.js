@@ -564,6 +564,13 @@ export default function ImageCreator(props){
         console.log(loadingGetState)
     },[loadingGetState])
 
+    function checkInput() {
+        if (nameState.length < 6 || nameState.length > 20 || descriptionState.length < 6 || descriptionState.length > 100) {
+            return false;
+        }
+        return true;
+    }
+
     return (
         <div>
             <Loader
@@ -611,11 +618,12 @@ export default function ImageCreator(props){
                             width:"15vw",
                             overflow:"hidden"
                         }}>
-                            {<button style = {{display:btnAfterPartsHiddenState}} onClick={()=> imagePartsHiddenState == "none" ? setImagePartsHiddenState("flex") : setImagePartsHiddenState("none")}>Show Components</button>}
+                            {<button className="btn btn-outline-dark" style = {{display:btnAfterPartsHiddenState, height:"5vh"}} onClick={()=> imagePartsHiddenState == "none" ? setImagePartsHiddenState("flex") : setImagePartsHiddenState("none")}><span style={{fontSize:"1.1vw"}}>Show Components</span></button>}
                             {<button 
-                                style = {{display:((btnAfterAllHiddenState ==="flex" && imagePartsHiddenState === "flex") ? "flex" : "none")}}
+                                className="btn btn-outline-dark"
+                                style = {{display:((btnAfterAllHiddenState ==="flex" && imagePartsHiddenState === "flex") ? "flex" : "none"), height:"5vh"}}
                                 onClick={() => allImagesHiddenState === "flex" ? setAllImagesHiddenState("none") : setAllImagesHiddenState("flex")}
-                            >{allImagesHiddenState === "flex" ? "Hide Images" : "Add Image"}
+                            ><span style={{fontSize:"1.1vw"}}>{allImagesHiddenState === "flex" ? "Hide Images" : "Add Image"}</span>
                             </button>}
                         </div>
                         <div style = {{
@@ -625,7 +633,7 @@ export default function ImageCreator(props){
                             width:"15vw",
                             overflow:"hidden"
                         }}>
-                            <p>Image's Components:</p>
+                            <p style={{fontSize:"1.5vw"}}>Image's Components:</p>
 
                             <MyList isProfile={false} isColumn={true} name="Parts" data={imagePartsState} deletePart={deletePart} refs={imagePartsRefs} allVisibility={btnAfterAllHiddenState} visibility={imagePartsHiddenState} chooseFunction={changeImage}/>
                             
@@ -659,16 +667,16 @@ export default function ImageCreator(props){
                             }}
                         >
                             <div className="slidecontainer" style = {{display:(loadingAllImagesState == 1 ? "flex" : "none")}}>
-                                <label>Rotation: {rotationState}</label>
-                                <input style={{width:"55%"}} onInput={(event) => setRotationState(event.target.value)} value={rotationState} defaultValue="0" type="range" step="1" min="-180" max="180" className="slider" id="myRange4" />  
+                                <label style={{fontSize:"1.2vw"}}>Rotation: {rotationState}</label>
+                                <input style={{width:"50%"}} onInput={(event) => setRotationState(event.target.value)} value={rotationState} defaultValue="0" type="range" step="1" min="-180" max="180" className="slider" id="myRange4" />  
                             </div>
                             <div className="slidecontainer" style = {{display:(loadingAllImagesState == 1 ? "flex" : "none")}}>
-                                <label>HorizontalScale: {scaleXState}</label>
-                                <input style={{width:"55%"}} onInput={(event) => setScaleXState(event.target.value)} value={scaleXState} defaultValue="1" type="range" step="0.1" min="0.1" max="5" className="slider" id="myRange4" />  
+                                <label style={{fontSize:"1.2vw"}}>HorizontalScale: {scaleXState}</label>
+                                <input style={{width:"50%"}} onInput={(event) => setScaleXState(event.target.value)} value={scaleXState} defaultValue="1" type="range" step="0.1" min="0.1" max="5" className="slider" id="myRange4" />  
                             </div>
                             <div className="slidecontainer" style = {{display:(loadingAllImagesState == 1 ? "flex" : "none")}}>
-                                <label>VerticalScale: {scaleYState}</label>
-                                <input style={{width:"55%"}} onInput={(event) => setScaleYState(event.target.value)} value={scaleYState} defaultValue="1" type="range" step="0.1" min="0.1" max="5" className="slider" id="myRange4" />  
+                                <label style={{fontSize:"1.2vw"}}>VerticalScale: {scaleYState}</label>
+                                <input style={{width:"50%"}} onInput={(event) => setScaleYState(event.target.value)} value={scaleYState} defaultValue="1" type="range" step="0.1" min="0.1" max="5" className="slider" id="myRange4" />  
                             </div>
                         </div>
                     </div>
@@ -698,55 +706,67 @@ export default function ImageCreator(props){
                         <div
                             style={{
                                 display:"flex",
-                                flexDirection:"column",
                                 alignItems: "center"
                             }}
                         >
-                            {<button style = {{display:(params.action === "new" ? "flex" : "none")}} onClick={newImage}>New Image</button>}
-                            <div className="myRowSimple">
-                                {<button style = {{display:(params.action === "old" ? "flex" : "none")}} onClick={reloadImage}>Reload Image</button>}
-                                <Loader
-                                    style={{display: loadingGetState != 0 ? "flex" : "none"}}
-                                    type="TailSpin"
-                                    color="#000000"
-                                    height={25}
-                                    width={25} 
-                                />
-                            </div>
-                            <div className="myRowSimple">
-                                {<button style = {{display:((btnAfterPartsHiddenState === "flex" && (imageProfileId == profileId || imageProfileId == -1 )) ? "flex" : "none")}} onClick={prepareImage} >Save Image</button>}
-                                <Loader
-                                    style={{display: loadingPostState != 0 ? "flex" : "none"}}
-                                    type="TailSpin"
-                                    color="#000000"
-                                    height={25}
-                                    width={25} 
-                                />
-                            </div>
-
-                            <div className="myRowSimple">
-                                {<button style = {{display:((btnAfterPartsHiddenState === "flex" && params.action === "old" && imageProfileId == profileId) ? "flex" : "none")}}  onClick={loadAllImages} >Edit Image</button>}
-                                <Loader
-                                    style={{display: loadingGetAllState != 0 ? "flex" : "none"}}
-                                    type="TailSpin"
-                                    color="#000000"
-                                    height={25}
-                                    width={25} 
-                                />
+                            <div style={{
+                                display:"flex",
+                                flexDirection:"column",
+                                alignItems: "center"
+                            }}>
+                                <div className="myRowSimple">
+                                    {<button className="btn btn-outline-success" style = {{display:(params.action === "old" ? "flex" : "none"),marginTop:"1vh"}} onClick={reloadImage}><span style={{fontSize:"1.1vw"}}>Reload Image</span></button>}
+                                    <Loader
+                                        style={{display: loadingGetState != 0 ? "flex" : "none"}}
+                                        type="TailSpin"
+                                        color="#000000"
+                                        height={25}
+                                        width={25} 
+                                    />
+                                </div>
+                                <div className="myRowSimple">
+                                    {<button className="btn btn-outline-success" style = {{display:((btnAfterPartsHiddenState === "flex" && (imageProfileId == profileId || imageProfileId == -1 )) ? "flex" : "none"),marginTop:"1vh"}} onClick={checkInput() ? prepareImage : null}><span style={{fontSize:"1.1vw"}}>Save Image</span></button>}
+                                    <Loader
+                                        style={{display: loadingPostState != 0 ? "flex" : "none"}}
+                                        type="TailSpin"
+                                        color="#000000"
+                                        height={25}
+                                        width={25} 
+                                    />
+                                </div>
+                                <button style={{marginTop:"1vh"}} className="btn btn-outline-primary" onClick={downloadClick}><span style={{fontSize:"1.1vw"}}>Download</span></button>
+                                {<a ref={downloadRef} href = {canvasDataUrl} download = {nameState + '.' + (isPngState ? "png" : "jpeg")} style={{display:"none"}}>Download Image </a>}
                             </div>
 
-                            <div className="myRowSimple">
-                                {<button style = {{display:(imageProfileId == profileId && loadingGetState == 0 && loadingGetAllState == 0 && loadingPostState == 0 ? "flex" : "none")}} onClick={createPosting}>Create Posting</button>}
-                                <Loader
-                                    style={{display: loadingSavePostingState != 0 ? "flex" : "none"}}
-                                    type="TailSpin"
-                                    color="#000000"
-                                    height={25}
-                                    width={25} 
-                                />
+                            <div style={{
+                                display:"flex",
+                                flexDirection:"column",
+                                alignItems: "center"
+                            }}>
+                                {<button className="btn btn-outline-danger" style = {{display:(params.action === "new" ? "flex" : "none"),marginTop:"1vh"}} onClick={newImage}><span style={{fontSize:"1.1vw"}}>New Image</span></button>}
+                            
+                                <div className="myRowSimple">
+                                    {<button className="btn btn-outline-info" style = {{display:((btnAfterPartsHiddenState === "flex" && params.action === "old" && imageProfileId == profileId) ? "flex" : "none"),marginTop:"1vh"}}  onClick={loadAllImages}><span style={{fontSize:"1.1vw"}}>Edit Image</span></button>}
+                                    <Loader
+                                        style={{display: loadingGetAllState != 0 ? "flex" : "none"}}
+                                        type="TailSpin"
+                                        color="#000000"
+                                        height={25}
+                                        width={25} 
+                                    />
+                                </div>
+
+                                <div className="myRowSimple">
+                                    {<button className="btn btn-outline-secondary" style = {{display:(imageProfileId == profileId && loadingGetState == 0 && loadingGetAllState == 0 && loadingPostState == 0 ? "flex" : "none"),marginTop:"1vh"}} onClick={createPosting}><span style={{fontSize:"1.1vw"}}>Create Posting</span></button>}
+                                    <Loader
+                                        style={{display: loadingSavePostingState != 0 ? "flex" : "none"}}
+                                        type="TailSpin"
+                                        color="#000000"
+                                        height={25}
+                                        width={25} 
+                                    />
+                                </div>
                             </div>
-                            <button onClick={downloadClick}>Download</button>
-                            {<a ref={downloadRef} href = {canvasDataUrl} download = {nameState + '.' + (isPngState ? "png" : "jpeg")} style={{display:"none"}}>Download Image </a>}
                         </div>
                     </div>
                 </div>

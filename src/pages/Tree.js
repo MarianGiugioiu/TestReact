@@ -5,9 +5,9 @@ import { useParams } from 'react-router';
 import httpService from '../services/httpService';
 import AuthenticationContext from "../AuthenticationContext";
 import ImageDetails from "../components/ImageDetails";
+import SaveAndLoad from "../components/SaveAndLoad";
 import Loader from "react-loader-spinner";
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
-import SaveAndLoad from "../components/SaveAndLoad";
 
 
 export default function Tree(props){
@@ -384,6 +384,13 @@ export default function Tree(props){
         }
        
     },[])
+
+    function checkInput() {
+        if (nameState.length < 6 || nameState.length > 20 || descriptionState.length < 6 || descriptionState.length > 100) {
+            return false;
+        }
+        return true;
+    }
     
     return(
         <div>
@@ -418,21 +425,36 @@ export default function Tree(props){
                         />
                     </div>
                     <div className="myRowSimple">
-                            <div>
+                            <div style={{
+                                display:"flex",
+                                flexDirection:"column",
+                                alignItems:"center"
+                            }}>
+                                <label className="form-label" style={{fontSize:"1.5vw"}}>Body color</label>
                                 <ChromePicker 
                                     color={bodyColorState}
                                     onChange={(event) => setBodyColorState(event.rgb)}
                                     width="9vw"
                                 />
                             </div>
-                            <div>
+                            <div style={{
+                                display:"flex",
+                                flexDirection:"column",
+                                alignItems:"center"
+                            }}>
+                                <label className="form-label" style={{fontSize:"1.5vw"}}>Leaf color</label>
                                 <ChromePicker 
                                     color={leafColorState}
                                     onChange={(event) => setLeafColorState(event.rgb)}
                                     width="9vw"
                                 />
                             </div>
-                            <div>
+                            <div style={{
+                                display:"flex",
+                                flexDirection:"column",
+                                alignItems:"center"
+                            }}>
+                                <label className="form-label" style={{fontSize:"1.5vw"}}>Shadow color</label>
                                 <ChromePicker 
                                     color={shadowColorState}
                                     onChange={(event) => setShadowColorState(event.rgb)}
@@ -455,42 +477,11 @@ export default function Tree(props){
                         isPngState={isPngState}
                         setIsPngState={setIsPngState}
                     />
-                    {/*<div style={{
-                        display:"flex",
-                        flexDirection:"column",
-                        alignItems: "center"
-                    }}>
-                        <div className="myRowSimple">
-                            {<button style={{display:((params.action === "old") ? "flex" : "none")}} onClick={loadTree}>Reload Tree</button>}
-                            <Loader
-                                style={{display: loadingGetState != 0 ? "flex" : "none"}}
-                                type="TailSpin"
-                                color="#000000"
-                                height={25}
-                                width={25} 
-                            />
-                        </div>
-                        <div className="myRowSimple">
-                            {<button onClick={saveTree} style={{display:(((imageProfileId == profileId || imageProfileId == -1 ) && loadingGetState == 0) ? "flex" : "none")}}>Save Tree</button>}
-                            <Loader
-                                style={{display: loadingPostState != 0 ? "flex" : "none"}}
-                                type="TailSpin"
-                                color="#000000"
-                                height={25}
-                                width={25} 
-                            />
-                        </div>
-                        
-                        <a ref={downloadRef} id="download" download={nameState + '.' + (isPngState ? "png" : "jpeg")} href={canvasDataUrl} style={{display:"none"}}>img</a>
-                        <button style={{display:loadingGetState == 0 ? "flex" : "none"}} onClick={downloadClick}>Download</button>
-
-                        {<button onClick={randomTree} style={{display:(((imageProfileId == profileId || imageProfileId == -1) && loadingGetState == 0 ) ? "flex" : "none")}}>Generate Random Tree</button>}
-                    </div>*/}
                     <SaveAndLoad 
                         action = {params.action}
                         type = "Tree"
                         loadFunction={loadTree}
-                        saveFunction={saveTree}
+                        saveFunction={checkInput() ? saveTree : null}
                         loadingGetState={loadingGetState}
                         loadingPostState={loadingPostState}
                         imageProfileId={imageProfileId}

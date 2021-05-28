@@ -4,6 +4,7 @@ import { useParams } from 'react-router';
 import httpService from '../services/httpService';
 import AuthenticationContext from "../AuthenticationContext";
 import ImageDetails from "../components/ImageDetails";
+import SaveAndLoad from "../components/SaveAndLoad";
 import Loader from "react-loader-spinner";
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 
@@ -330,6 +331,13 @@ export default function SnowFlake(props){
         drawBezierCurve();
 
     }, [])
+
+    function checkInput() {
+        if (nameState.length < 6 || nameState.length > 20 || descriptionState.length < 6 || descriptionState.length > 100) {
+            return false;
+        }
+        return true;
+    }
     
     return(
         <div>
@@ -367,31 +375,31 @@ export default function SnowFlake(props){
                             width:"24vw"
                         }}>
                         <div className="slidecontainer">
-                            <label>Rotation: {nrFiguresState}</label>
+                            <label style={{fontSize:"1.3vw"}}>Rotation: {nrFiguresState}</label>
                             <input style={{width:"60%"}} onInput={(event) => setNrFiguresState(event.target.value)} value={nrFiguresState} defaultValue="1" type="range" step="1" min="1" max="10" className="slider" id="myRange4" />  
                         </div>
                         <div className="slidecontainer">
-                            <label>Angle: {spreadState}</label>
+                            <label style={{fontSize:"1.3vw"}}>Angle: {spreadState}</label>
                             <input style={{width:"60%"}} onInput={(event) => setSpreadState(event.target.value)} value={spreadState} defaultValue="0.50" type="range" step="0.01" min="0.50" max="1" className="slider" id="myRange4" />  
                         </div>
                         <div className="slidecontainer">
-                            <label>Nr Brances: {nrBranchesState}</label>
+                            <label style={{fontSize:"1.3vw"}}>Nr Brances: {nrBranchesState}</label>
                             <input style={{width:"60%"}} onInput={(event) => setNrBranchesState(event.target.value)} value={nrBranchesState} defaultValue="2" type="range" step="1" min="1" max="3" className="slider" id="myRange4" />  
                         </div>
                         <div className="slidecontainer">
-                            <label>Depth: {maxLevelState}</label>
+                            <label style={{fontSize:"1.3vw"}}>Depth: {maxLevelState}</label>
                             <input style={{width:"60%"}} onInput={(event) => setMaxLevelState(event.target.value)} value={maxLevelState} defaultValue="1" type="range" step="1" min="2" max="4" className="slider" id="myRange4" />  
                         </div>
                         <div className="slidecontainer">
-                            <label>Length: {lengthState}</label>
+                            <label style={{fontSize:"1.3vw"}}>Length: {lengthState}</label>
                             <input style={{width:"60%"}} onInput={(event) => setLengthState(event.target.value)} value={lengthState} defaultValue="200" type="range" step="10" min="150" max="500" className="slider" id="myRange4" />  
                         </div>
                         <div className="slidecontainer">
-                            <label>Width: {lineWidthState}</label>
+                            <label style={{fontSize:"1.3vw"}}>Width: {lineWidthState}</label>
                             <input style={{width:"60%"}} onInput={(event) => setLineWidthState(event.target.value)} value={lineWidthState} defaultValue="10" type="range" step="1" min="5" max="20" className="slider" id="myRange4" />  
                         </div>
                         <div className="slidecontainer">
-                            <label>ShadowBlur: {shadowBlurState}</label>
+                            <label style={{fontSize:"1.3vw"}}>ShadowBlur: {shadowBlurState}</label>
                             <input style={{width:"60%"}} onInput={(event) => setShadowBlurState(event.target.value)} value={shadowBlurState} defaultValue="0" type="range" step="1" min="0" max="20" className="slider" id="myRange4" />  
                         </div>
                     </div>
@@ -400,86 +408,91 @@ export default function SnowFlake(props){
                 <div className="myColumnOptionsSnowFlake">
                     <h3 className="fw-light">SnowFlake</h3>
                     <div className="myRowSimple">
-                        <ChromePicker 
-                            color={lineColorState}
-                            onChange={(event) => setLineColorState(event.rgb)}
-                            width="10vw"
-                        />
-                        <ChromePicker 
-                            color={shadowColorState}
-                            onChange={(event) => setShadowColorState(event.rgb)}
-                            width="10vw"
-                        />
-                        <div className="myColumnCurveCanvas">
-                            <canvas
-                                ref={canvasRef2}
-                                onClick={handleClickCanvas}
+                        <div style={{
+                            display:"flex",
+                            flexDirection:"column",
+                            alignItems:"center"
+                        }}>
+                            <label className="form-label" style={{fontSize:"1vw"}}>Main color</label>
+                            <ChromePicker 
+                                color={lineColorState}
+                                onChange={(event) => setLineColorState(event.rgb)}
+                                width="10vw"
                             />
-                            
                         </div>
-                        <div onChange={(event) => setPointState(event.target.value)} style={{display:"flex", flexDirection:"column", justifyContent:"space-between"}}>
-                            <div className="myRowSimple">
-                                <input type="radio" value="1" checked={pointState == 1} name="ponits" /> 
-                                <pre>Point 1</pre>
+                        <div style={{
+                            display:"flex",
+                            flexDirection:"column",
+                            alignItems:"center"
+                        }}>
+                            <label className="form-label" style={{fontSize:"1vw"}}>Shadow color</label>
+                            <ChromePicker 
+                                color={shadowColorState}
+                                onChange={(event) => setShadowColorState(event.rgb)}
+                                width="10vw"
+                            />
+                        </div>
+                        <div style={{
+                            display:"flex",
+                            paddingTop:"4vh"
+                        }}>
+                            <div className="myColumnCurveCanvas">
+                                <canvas
+                                    ref={canvasRef2}
+                                    onClick={handleClickCanvas}
+                                />
+                                
                             </div>
-                            <div className="myRowSimple">
-                                <input type="radio" value="2" checked={pointState == 2} name="ponits" /> 
-                                <pre>Point 2</pre>
+                            <div onChange={(event) => setPointState(event.target.value)} style={{display:"flex", flexDirection:"column", justifyContent:"space-between"}}>
+                                <div className="myRowSimple">
+                                    <input type="radio" value="1" checked={pointState == 1} name="ponits" /> 
+                                    <label className="form-label" style={{fontSize:"1vw"}}>Control1</label>
+                                </div>
+                                <div className="myRowSimple">
+                                    <input type="radio" value="2" checked={pointState == 2} name="ponits" /> 
+                                    <label className="form-label" style={{fontSize:"1vw"}}>Control2</label>
+                                </div>
+                                <div className="myRowSimple">
+                                    <input type="radio" value="3" checked={pointState == 3} name="ponits" /> 
+                                    <label className="form-label" style={{fontSize:"1vw"}}>EndPoint</label>
+                                </div>
+                                <div className="myRowSimple">
+                                    <input type="checkbox" id="checkbox1" checked={isLineState} onChange={() => setIsLineState(!isLineState)}></input>
+                                    <label className="form-label" style={{fontSize:"1vw"}}>Line</label>
+                                </div>
+                                
                             </div>
-                            <div className="myRowSimple">
-                                <input type="radio" value="3" checked={pointState == 3} name="ponits" /> 
-                                <pre>Point 3</pre>
-                            </div>
-                            <div className="myRowSimple">
-                                <input type="checkbox" id="checkbox1" checked={isLineState} onChange={() => setIsLineState(!isLineState)}></input>
-                                <pre>Line </pre>
-                            </div>
-                            
                         </div>
                     </div>
 
                     <ImageDetails 
-                                backgroungColorState={backgroungColorState} 
-                                setBackgroungColorState={setBackgroungColorState}
-                                condition={!(imageProfileId == profileId || imageProfileId == -1 )}
-                                canvasRef1={canvasRef1}
-                                nameState={nameState}
-                                setNameState={setNameState}
-                                descriptionState={descriptionState}
-                                setDescriptionState={setDescriptionState}
-                                isPngState={isPngState}
-                                setIsPngState={setIsPngState}
+                        backgroungColorState={backgroungColorState} 
+                        setBackgroungColorState={setBackgroungColorState}
+                        condition={!(imageProfileId == profileId || imageProfileId == -1 )}
+                        canvasRef1={canvasRef1}
+                        nameState={nameState}
+                        setNameState={setNameState}
+                        descriptionState={descriptionState}
+                        setDescriptionState={setDescriptionState}
+                        isPngState={isPngState}
+                        setIsPngState={setIsPngState}
                     />
 
-                    <div style={{
-                        display:"flex",
-                        flexDirection:"column",
-                        alignItems: "center"
-                    }}>
-                        <div className="myRowSimple">
-                            {<button style={{display:((params.action === "old") ? "flex" : "none")}} onClick={loadSnowFlake}>Reload SnowFlake</button>}
-                            <Loader
-                                style={{display: loadingGetState != 0 ? "flex" : "none"}}
-                                type="TailSpin"
-                                color="#000000"
-                                height={25}
-                                width={25} 
-                            />
-                        </div>
-                        <div className="myRowSimple">
-                            {<button style={{display:(((imageProfileId == profileId || imageProfileId == -1 ) && loadingGetState == 0) ? "flex" : "none")}} onClick={saveSnowFlake}>Save SnowFlake</button>}
-                            <Loader
-                                style={{display: loadingPostState != 0 ? "flex" : "none"}}
-                                type="TailSpin"
-                                color="#000000"
-                                height={25}
-                                width={25} 
-                            />
-                        </div>
-                        
-                        <a ref={downloadRef} id="download" download={nameState + '.' + (isPngState ? "png" : "jpeg")} href={canvasDataUrl} style={{display:"none"}}>img</a>
-                        <button style={{display:loadingGetState == 0 ? "flex" : "none"}} onClick={downloadClick}>Download</button>
-                    </div>
+                    <SaveAndLoad 
+                        action = {params.action}
+                        type = "SnowFlake"
+                        loadFunction={loadSnowFlake}
+                        saveFunction={checkInput() ? saveSnowFlake : null}
+                        loadingGetState={loadingGetState}
+                        loadingPostState={loadingPostState}
+                        imageProfileId={imageProfileId}
+                        profileId={profileId}
+                        downloadRef={downloadRef}
+                        downloadClick={downloadClick}
+                        canvasDataUrl={canvasDataUrl}
+                        nameState={nameState}
+                        isPngState={isPngState}
+                    />
                 </div>
                 
             </div>
