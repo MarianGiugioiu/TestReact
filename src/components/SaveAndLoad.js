@@ -10,27 +10,28 @@ export default function SaveAndLoad(props) {
             flexDirection:"column",
             alignItems: "center"
         }}>
-            <div className="myRowSimple">
-                {<button className="btn btn-outline-success" style={{display:((props.action === "old") ? "flex" : "none"),marginTop:"1vh"}} onClick={props.loadFunction}><span style={{fontSize:"1.5vw"}}>Reload {props.type}</span></button>}
-                <Loader
-                    style={{display: props.loadingGetState != 0 ? "flex" : "none"}}
-                    type="TailSpin"
-                    color="#000000"
-                    height={25}
-                    width={25} 
-                />
+            <div style={{display:"flex"}}>
+                <div className="myRowSimple">
+                    {<button className="btn btn-outline-success" style={{display:((props.action === "old") ? "flex" : "none"),marginTop:"1vh"}} onClick={props.loadFunction}><span style={{fontSize:"1.5vw"}}>Reload {props.type}</span></button>}
+                    <Loader
+                        style={{display: props.loadingGetState != 0 ? "flex" : "none"}}
+                        type="TailSpin"
+                        color="#000000"
+                        height={25}
+                        width={25} 
+                    />
+                </div>
+                <div className="myRowSimple">
+                    {<button className="btn btn-outline-success" onClick={props.saveFunction} style={{display:(((props.imageProfileId == props.profileId || props.imageProfileId == -1 ) && props.loadingGetState == 0) ? "flex" : "none"),marginTop:"1vh"}}><span style={{fontSize:"1.5vw"}}>Save {props.type}</span></button>}
+                    <Loader
+                        style={{display: props.loadingPostState != 0 ? "flex" : "none"}}
+                        type="TailSpin"
+                        color="#000000"
+                        height={25}
+                        width={25} 
+                    />
+                </div>
             </div>
-            <div className="myRowSimple">
-                {<button className="btn btn-outline-success" onClick={props.saveFunction} style={{display:(((props.imageProfileId == props.profileId || props.imageProfileId == -1 ) && props.loadingGetState == 0) ? "flex" : "none"),marginTop:"1vh"}}><span style={{fontSize:"1.5vw"}}>Save {props.type}</span></button>}
-                <Loader
-                    style={{display: props.loadingPostState != 0 ? "flex" : "none"}}
-                    type="TailSpin"
-                    color="#000000"
-                    height={25}
-                    width={25} 
-                />
-            </div>
-            
             <a ref={props.downloadRef} id="download" download={props.nameState + '.' + (props.isPngState ? "png" : "jpeg")} href={props.canvasDataUrl} style={{display:"none"}}>img</a>
             <button className="btn btn-outline-primary" style={{display:props.loadingGetState == 0 ? "flex" : "none",marginTop:"1vh"}} onClick={props.downloadClick}><span style={{fontSize:"1.5vw"}}>Download</span></button>
 

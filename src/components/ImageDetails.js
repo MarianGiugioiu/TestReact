@@ -15,7 +15,7 @@ export default function ImageDetails (props) {
                 <ChromePicker 
                     color={props.backgroungColorState}
                     onChange={(event) => props.setBackgroungColorState(event.rgb)}
-                    width="10vw"
+                    width="8vw"
                 />
             </div>
             <div className="myColumnSimple" style={{justifyContent:"space-between"}}>

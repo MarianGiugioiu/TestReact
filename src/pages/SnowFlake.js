@@ -375,31 +375,31 @@ export default function SnowFlake(props){
                             width:"24vw"
                         }}>
                         <div className="slidecontainer">
-                            <label style={{fontSize:"1.3vw"}}>Rotation: {nrFiguresState}</label>
+                            <label style={{fontSize:"1.2vw"}}>Rotation: {nrFiguresState}</label>
                             <input style={{width:"60%"}} onInput={(event) => setNrFiguresState(event.target.value)} value={nrFiguresState} defaultValue="1" type="range" step="1" min="1" max="10" className="slider" id="myRange4" />  
                         </div>
                         <div className="slidecontainer">
-                            <label style={{fontSize:"1.3vw"}}>Angle: {spreadState}</label>
+                            <label style={{fontSize:"1.2vw"}}>Angle: {spreadState}</label>
                             <input style={{width:"60%"}} onInput={(event) => setSpreadState(event.target.value)} value={spreadState} defaultValue="0.50" type="range" step="0.01" min="0.50" max="1" className="slider" id="myRange4" />  
                         </div>
                         <div className="slidecontainer">
-                            <label style={{fontSize:"1.3vw"}}>Nr Brances: {nrBranchesState}</label>
+                            <label style={{fontSize:"1.2vw"}}>Nr Brances: {nrBranchesState}</label>
                             <input style={{width:"60%"}} onInput={(event) => setNrBranchesState(event.target.value)} value={nrBranchesState} defaultValue="2" type="range" step="1" min="1" max="3" className="slider" id="myRange4" />  
                         </div>
                         <div className="slidecontainer">
-                            <label style={{fontSize:"1.3vw"}}>Depth: {maxLevelState}</label>
+                            <label style={{fontSize:"1.2vw"}}>Depth: {maxLevelState}</label>
                             <input style={{width:"60%"}} onInput={(event) => setMaxLevelState(event.target.value)} value={maxLevelState} defaultValue="1" type="range" step="1" min="2" max="4" className="slider" id="myRange4" />  
                         </div>
                         <div className="slidecontainer">
-                            <label style={{fontSize:"1.3vw"}}>Length: {lengthState}</label>
+                            <label style={{fontSize:"1.2vw"}}>Length: {lengthState}</label>
                             <input style={{width:"60%"}} onInput={(event) => setLengthState(event.target.value)} value={lengthState} defaultValue="200" type="range" step="10" min="150" max="500" className="slider" id="myRange4" />  
                         </div>
                         <div className="slidecontainer">
-                            <label style={{fontSize:"1.3vw"}}>Width: {lineWidthState}</label>
+                            <label style={{fontSize:"1.2vw"}}>Width: {lineWidthState}</label>
                             <input style={{width:"60%"}} onInput={(event) => setLineWidthState(event.target.value)} value={lineWidthState} defaultValue="10" type="range" step="1" min="5" max="20" className="slider" id="myRange4" />  
                         </div>
                         <div className="slidecontainer">
-                            <label style={{fontSize:"1.3vw"}}>ShadowBlur: {shadowBlurState}</label>
+                            <label style={{fontSize:"1.2vw"}}>ShadowBlur: {shadowBlurState}</label>
                             <input style={{width:"60%"}} onInput={(event) => setShadowBlurState(event.target.value)} value={shadowBlurState} defaultValue="0" type="range" step="1" min="0" max="20" className="slider" id="myRange4" />  
                         </div>
                     </div>
@@ -417,7 +417,7 @@ export default function SnowFlake(props){
                             <ChromePicker 
                                 color={lineColorState}
                                 onChange={(event) => setLineColorState(event.rgb)}
-                                width="10vw"
+                                width="8vw"
                             />
                         </div>
                         <div style={{
@@ -429,7 +429,8 @@ export default function SnowFlake(props){
                             <ChromePicker 
                                 color={shadowColorState}
                                 onChange={(event) => setShadowColorState(event.rgb)}
-                                width="10vw"
+                                width="8vw"
+                                height="10vh"
                             />
                         </div>
                         <div style={{

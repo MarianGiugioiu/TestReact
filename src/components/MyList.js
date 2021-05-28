@@ -51,7 +51,7 @@ export default function MyList(props){
                     if (response.status == 202) {
                         let list = [...data];
                         list.splice(i,1);
-                        if (name == "Images") {
+                        if (name == "Images" && otherData != null) {
                             deleteFromOther(i);
                         }
                         setData(list);

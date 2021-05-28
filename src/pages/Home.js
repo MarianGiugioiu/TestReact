@@ -176,10 +176,13 @@ export default function Home() {
   const [nameValidationState, setNameValidationState] = useState(0);
   const [passwordValidationState, setPasswordValidationState] = useState(0);
 
+  const [nameNotFound, setNameNotFound] = useState(0);
+
   const [registerSuccessful, setRegisterSuccessful] = useState(0);
 
   function handleChange(event){
     const { name, value } = event.target;
+    setNameNotFound(0);
     setNameSearchState(value);
   }
   function handleClick(){
@@ -193,7 +196,11 @@ export default function Home() {
         let path = "/profile/"+data;
         console.log(path);
         history.push(path);
-      });
+      })
+      .catch((e) => {
+        console.log(e);
+        setNameNotFound(1);
+      })
   }
 
   const loadMorePostings = () => 
@@ -406,6 +413,7 @@ export default function Home() {
             value={nameSearchState}
             onChange={handleChange}
           />
+          {<p className="text-danger" style={{display:nameNotFound == 1 ? "flex" : "none", fontSize:"1vw"}}>Name not found</p>}
           <button 
             className="btn btn-outline-secondary"
             onClick={handleClick}
