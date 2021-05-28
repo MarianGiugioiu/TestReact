@@ -5,6 +5,8 @@ import '../App.css';
 import Loader from "react-loader-spinner";
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 
+import defaultImg from "../images/default.png";
+
 export default function MyList(props){
     let isProfile = props.isProfile;
     let name = props.name;
@@ -26,6 +28,16 @@ export default function MyList(props){
         isLoading = 0;
     }
 
+    let otherData = props.otherData;
+    let setOtherData = props.setOtherData;
+
+    function deleteFromOther (i) {
+        let idImage = data[i].id;
+        let otherCopy = JSON.parse(JSON.stringify(otherData));
+        let newCopy = otherCopy.filter((elem) => elem.idFractal != idImage);
+        setOtherData(newCopy);
+    }
+
     function deleteFromList(name, i){
         if (name == "Postings" || name == "Images"){
             let URL = /posting/ + data[i].id;
@@ -39,6 +51,9 @@ export default function MyList(props){
                     if (response.status == 202) {
                         let list = [...data];
                         list.splice(i,1);
+                        if (name == "Images") {
+                            deleteFromOther(i);
+                        }
                         setData(list);
                     }
                 })
@@ -91,7 +106,7 @@ export default function MyList(props){
                                             style={{width:"4.8vw"}}
                                             id={i}
                                             ref = {(ref) => refs[`img${i}`] = ref}
-                                            src = {object.image}
+                                            src = {object.image != "" ? object.image : defaultImg}
                                             onClick={() => name == "Parts" ? chooseFunction(object,i) : chooseFunction(object)}
                                             >
                                         </img>

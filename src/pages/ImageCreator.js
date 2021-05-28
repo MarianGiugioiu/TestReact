@@ -60,6 +60,8 @@ export default function ImageCreator(props){
     const [btnMakePostingHiddenState, setBtnMakePostingHiddenState] = useState("none");
     const [newOrOldImageState, setNewOrOldImageState] = useState(0);
 
+    const [partsMissingState, setPartsMissingState] = useState(0);
+
     const [loadingGetState,setLoadingGetState] = useState(2);
     const [loadingGetAllState,setLoadingGetAllState] = useState(2);
     const [loadingPostState,setLoadingPostState] = useState(0);
@@ -92,7 +94,7 @@ export default function ImageCreator(props){
             "dislikedBy": [],
             "seenBy":[]
         }
-        console.log(posting);
+        //console.log(posting);
 
         var URL = "/posting"
             httpService
@@ -257,6 +259,11 @@ export default function ImageCreator(props){
                         .catch((e) => {
                             setLoadingGetState(0);
                             console.log(e);
+                            let response = e.response;
+                            console.log(response.status);
+                            if (response.status == 406) {
+                                setPartsMissingState(1);
+                            }
                           })
                 } else {
                     setLoadingGetState(0);
@@ -706,7 +713,6 @@ export default function ImageCreator(props){
                         <div
                             style={{
                                 display:"flex",
-                                alignItems: "center"
                             }}
                         >
                             <div style={{
@@ -715,7 +721,7 @@ export default function ImageCreator(props){
                                 alignItems: "center"
                             }}>
                                 <div className="myRowSimple">
-                                    {<button className="btn btn-outline-success" style = {{display:(params.action === "old" ? "flex" : "none"),marginTop:"1vh"}} onClick={reloadImage}><span style={{fontSize:"1.1vw"}}>Reload Image</span></button>}
+                                    {<button className="btn btn-outline-success" style = {{display:(params.action === "old" && partsMissingState == 0 ? "flex" : "none"),marginTop:"1vh"}} onClick={reloadImage}><span style={{fontSize:"1.1vw"}}>Reload Image</span></button>}
                                     <Loader
                                         style={{display: loadingGetState != 0 ? "flex" : "none"}}
                                         type="TailSpin"
@@ -734,7 +740,7 @@ export default function ImageCreator(props){
                                         width={25} 
                                     />
                                 </div>
-                                <button style={{marginTop:"1vh"}} className="btn btn-outline-primary" onClick={downloadClick}><span style={{fontSize:"1.1vw"}}>Download</span></button>
+                                <button style={{display:partsMissingState == 0 ? "flex" : "none" ,marginTop:"1vh"}} className="btn btn-outline-primary" onClick={downloadClick}><span style={{fontSize:"1.1vw"}}>Download</span></button>
                                 {<a ref={downloadRef} href = {canvasDataUrl} download = {nameState + '.' + (isPngState ? "png" : "jpeg")} style={{display:"none"}}>Download Image </a>}
                             </div>
 
@@ -743,8 +749,6 @@ export default function ImageCreator(props){
                                 flexDirection:"column",
                                 alignItems: "center"
                             }}>
-                                {<button className="btn btn-outline-danger" style = {{display:(params.action === "new" ? "flex" : "none"),marginTop:"1vh"}} onClick={newImage}><span style={{fontSize:"1.1vw"}}>New Image</span></button>}
-                            
                                 <div className="myRowSimple">
                                     {<button className="btn btn-outline-info" style = {{display:((btnAfterPartsHiddenState === "flex" && params.action === "old" && imageProfileId == profileId) ? "flex" : "none"),marginTop:"1vh"}}  onClick={loadAllImages}><span style={{fontSize:"1.1vw"}}>Edit Image</span></button>}
                                     <Loader
@@ -756,8 +760,10 @@ export default function ImageCreator(props){
                                     />
                                 </div>
 
+                                {<button className="btn btn-outline-danger" style = {{display:(params.action === "new" ? "flex" : "none"),marginTop:"1vh"}} onClick={newImage}><span style={{fontSize:"1.1vw"}}>New Image</span></button>}
+
                                 <div className="myRowSimple">
-                                    {<button className="btn btn-outline-secondary" style = {{display:(imageProfileId == profileId && loadingGetState == 0 && loadingGetAllState == 0 && loadingPostState == 0 ? "flex" : "none"),marginTop:"1vh"}} onClick={createPosting}><span style={{fontSize:"1.1vw"}}>Create Posting</span></button>}
+                                    {<button className="btn btn-outline-secondary" style = {{display:(imageProfileId == profileId && loadingGetState == 0 && loadingGetAllState == 0 && loadingPostState == 0 && partsMissingState == 0? "flex" : "none"),marginTop:"1vh"}} onClick={createPosting}><span style={{fontSize:"1.1vw"}}>Create Posting</span></button>}
                                     <Loader
                                         style={{display: loadingSavePostingState != 0 ? "flex" : "none"}}
                                         type="TailSpin"
@@ -767,6 +773,12 @@ export default function ImageCreator(props){
                                     />
                                 </div>
                             </div>
+                        </div>
+                        <div style={{
+                            display: partsMissingState == 1 ? "flex" : "none",
+                            flexDirection: "column"
+                        }}>
+                            <p className="text-danger" style={{fontSize:"1vw"}}>Parts of this image are missing. You can't see this image in the editor. You will have to delete it manually from your profile if you want.</p>
                         </div>
                     </div>
                 </div>

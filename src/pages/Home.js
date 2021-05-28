@@ -382,22 +382,42 @@ export default function Home() {
       )
     } else {
       return (
-        <div>
-          
-          <label>Enter Name:</label>
+        <div 
+          className="myColumnSimple border border-info border-1 rounded" 
+          style={{
+            background:"rgba(255, 255, 255, 0.85)",
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems:"center",
+            width : '40vw',
+            height:"92vh",
+            padding: "4px"
+          }}
+        >
+          <h3 className="fw-light">Home</h3>
+          <label className="form-label" style={{fontSize:"1vw"}}>Enter Name:</label>
           <input
             type="text"
+            className="form-control"
+            style={{width:"25vw",height:"4vh",marginLeft:"1vw"}}
             placeholder="Enter Name"
             name="Name"
             value={nameSearchState}
             onChange={handleChange}
           />
-          <button
+          <button 
+            className="btn btn-outline-secondary"
             onClick={handleClick}
+            style={{
+              marginTop:"1vh",
+              marginBottom:"3vh"
+            }}
           >
-            Search
+            <span style={{fontSize:"1.5vw"}}>Search</span>
           </button>
 
+          <h5 className="fw-light">New Posts</h5>
           <div>
           <InfiniteScroll
             dataLength={postingListState.length}
@@ -412,16 +432,25 @@ export default function Home() {
             }
           >
             {postingListState.map((object, index) => (
-              <div key={index}>
-                <div className="myRowSimple">
-                  <pre>{object.name}   Created by: </pre>
+              <div key={index} style={{
+                display:"flex",
+                alignItems:"center",
+                justifyContent:"center",
+                flexDirection:"column"
+              }}>
+                <div style={{
+                  display:"flex",
+                  alignItems:"center",
+                  justifyContent:"center"
+                }}>
+                  <pre style={{fontSize:"1.2vw"}}>{object.name}  Created by: </pre>
                   <Link to={"/profile/" + object.idCreator}>
-                    <pre>{object.creator}</pre>
+                    <pre style={{fontSize:"1.2vw"}}>{object.creator}</pre>
                   </Link>
                 </div>
                 
-                <img src={object.image} width="150" height="150" onClick={() => goToPost(object.id)}></img>
-                <pre>Likes: {object.likes}  Dislikes: {object.dislikes}</pre>
+                <img src={object.image} style={{width:"10vw", height:"10vw"}} onClick={() => goToPost(object.id)}></img>
+                <pre style={{fontSize:"1.2vw"}}>Likes: {object.likes}  Dislikes: {object.dislikes}</pre>
                 <hr></hr>
               </div>
             ))}

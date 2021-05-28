@@ -193,6 +193,7 @@ export default function Profile(props) {
         if (allImagesState != null) {
             setAllImagesLoadingState(0);
             setAllImagesHiddenState("flex");
+            setAllPostingsHiddenState("none");
         }
     },[allImagesState])
 
@@ -337,7 +338,7 @@ export default function Profile(props) {
                 width:"25vw"
             }}>
                 {<MyList isColumn={true} isProfile={true} type={props.type} name="Postings" data={allPostingsState} setData={setAllPostingsState} refs={allPostingsRefs} visibility={allPostingsHiddenState} loadFunction={loadAllPostings} chooseFunction={choosePosting} isLoading={allPostingsLoadingState}/>}
-                {props.type === "mine" || privacyOptions.fractals == true ? <MyList isColumn={true} isProfile={true} type={props.type} name="Images" data={allImagesState} setData={setAllImagesState} refs={allImagesRefs} visibility={allImagesHiddenState} loadFunction={loadAllImages} chooseFunction={chooseImage} isLoading={allImagesLoadingState}/> : <div style={{display:allImagesHiddenState, justifyContent:"center"}}><pre>You can't see this profile's images</pre></div>}
+                {props.type === "mine" || privacyOptions.fractals == true ? <MyList isColumn={true} isProfile={true} type={props.type} name="Images" data={allImagesState} otherData={allPostingsState} setOtherData={setAllPostingsState} setData={setAllImagesState} refs={allImagesRefs} visibility={allImagesHiddenState} loadFunction={loadAllImages} chooseFunction={chooseImage} isLoading={allImagesLoadingState}/> : <div style={{display:allImagesHiddenState, justifyContent:"center"}}><pre>You can't see this profile's images</pre></div>}
                 {props.type === "mine" || privacyOptions.followers == true ? <MyList isColumn={true} isProfile={true} type={props.type} name="Followers" data={allFollowedState} setData={setAllFollowedState} refs={allFollowedRefs} visibility={allFollowedHiddenState} loadFunction={loadAllFollowed} chooseFunction={chooseFollowed} isLoading={allFollowedLoadingState}/> : <div style={{display:allFollowedHiddenState, justifyContent:"center"}}><pre>You can't see this profile's followers</pre></div>}
                 {props.type === "mine" || privacyOptions.following == true ? <MyList isColumn={true} isProfile={true} type={props.type} name="Following" data={allFollowingState} setData={setAllFollowingState} refs={allFollowingRefs} visibility={allFollowingHiddenState} loadFunction={loadAllFollowing} chooseFunction={chooseFollowing} isLoading={allFollowingLoadingState}/> : <div style={{display:allFollowingHiddenState, justifyContent:"center"}}><pre>You can't see this profile's following</pre></div>}
                 {props.type === "mine" || privacyOptions.likes == true ? <MyList isColumn={true} isProfile={true} type={props.type} name="Likes" data={allLikesState} setData={setAllLikesState} refs={allLikesRefs} visibility={allLikesHiddenState} loadFunction={loadAllLikes} chooseFunction={chooseLikes} isLoading={allLikesLoadingState}/> : <div style={{display:allLikesHiddenState, justifyContent:"center"}}><pre>You can't see this profile's likes</pre></div>}

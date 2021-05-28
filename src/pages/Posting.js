@@ -392,6 +392,21 @@ export default function MyPosting(props) {
         }
     }
 
+    function deleteComment(idComment, i) {
+        let URL = "/comment/" + idComment;
+        httpService
+            .delete(URL)
+            .then((response) => {
+                //console.log(response);
+                let list = [...allCommentsState];
+                list.splice(i,1);
+                setAllCommentsState(list);
+            })
+            .catch((e) => {
+                console.log(e);
+              });
+    }
+
     return(
         <div>
             <Loader
@@ -470,7 +485,7 @@ export default function MyPosting(props) {
                                                 <pre><span className="fw-bold">{object.profile.id != profileId ? object.createdBy : "Me"}</span> at <span className="fw-light fst-italic text-muted">{object.lastModified} {object.edited == true ? "edited" : ""}</span>  </pre>
                                                 <div className="btn-group" role="group">
                                                     <button className="btn btn-outline-secondary" id={i} style={{visibility:(object.profile.id != profileId ? "hidden" : "visible")}} onClick={() => startEditingComment(object,i)}>Edit</button>
-                                                    <button className="btn btn-outline-secondary" style={{visibility:(object.profile.id != profileId ? "hidden" : "visible")}}>Delete</button>
+                                                    <button className="btn btn-outline-danger" style={{visibility:(object.profile.id != profileId ? "hidden" : "visible")}} onClick={() => deleteComment(object.id, i)}>Delete</button>
                                                 </div>
                                             </div>
                                             {CommentText(object,i)}

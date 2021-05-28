@@ -7,6 +7,8 @@ import AuthenticationContext from "../AuthenticationContext";
 import Loader from "react-loader-spinner";
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 
+import defaultImg from "../images/default.png";
+
 export default function Settings(props) {
     const history = useHistory();
     const authentication = useContext(AuthenticationContext);
@@ -171,7 +173,7 @@ export default function Settings(props) {
                     </div>
                     {isLoading == 1 && (myProfile.description.length < 6 || myProfile.description.length > 100) ? <pre className="text-danger" style={{fontSize:"1vw"}}>Description must have length between 6 and 100 characters!</pre> : <></>}
                     <button className="btn btn-outline-secondary" onClick={() => history.push("/change_password")}>Change Password</button>
-                    <img className="rounded img-thumbnail mx-auto d-block" style={{visibility: uploadedImage == "" || isLoading === 0 ? "hidden" : "visible", height:"7vw", width:"7vw"}} ref={imgCanvas} src = {uploadedImage} onLoad={loadCanvas}></img>
+                    <img className="rounded img-thumbnail mx-auto d-block" style={{visibility: isLoading === 0 ? "hidden" : "visible", height:"7vw", width:"7vw"}} ref={imgCanvas} src = {uploadedImage != "" ? uploadedImage : defaultImg} onLoad={loadCanvas}></img>
                     <canvas style={{display:'none'}} ref={canvasRef}/>
                     <div style={{display:"flex", alignItems:"center",flexDirection:"column",justifyContent:"center"}}>
                         <input style={{marginInlineStart:"9vw"}} type="file" name="file" onChange={uploadImage} />

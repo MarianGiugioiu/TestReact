@@ -5,6 +5,8 @@ import React, { useRef, useEffect, useCallback, useState, useContext } from 'rea
 import httpService from '../services/httpService';
 import AuthenticationContext from "../AuthenticationContext";
 
+import defaultImg from "../images/default.png";
+
 import Profile from './Profile'
 
 import Loader from "react-loader-spinner";
@@ -80,7 +82,7 @@ export default function MyProfile(props) {
                         <pre className="fw-bold text-muted fs-6">Description: </pre>
                         <pre style={{width: "35vw", wordWrap:"break-word", textAlign:"center"}} className="fs-6">{isLoading === 1 ? myProfile.description : ""}</pre>
                     </div>
-                    <img className="rounded img-thumbnail mx-auto d-block" src = {isLoading === 1 ? myProfile.photo : ""} style={{display:isLoading === 1 ? "block" : "none"}}></img>
+                    <img className="rounded img-thumbnail mx-auto d-block" src = {isLoading === 1 ? (myProfile.photo != "" ? myProfile.photo : defaultImg) : ""} style={{display:isLoading === 1 ? "flex" : "none", width:"12vw", height:"12vw"}}></img>
                 </div>
                 {isLoading === 1 ? <Profile type="mine" profile={myProfile} /> : <div></div>}
             </div>

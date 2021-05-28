@@ -10,6 +10,8 @@ import '../App.css';
 import Loader from "react-loader-spinner";
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 
+import defaultImg from "../images/default.png";
+
 export default function OtherProfile(props) {
     const { id } = useParams();
     const authentication = useContext(AuthenticationContext);
@@ -159,7 +161,7 @@ export default function OtherProfile(props) {
                         <pre className="fw-bold text-muted fs-6">Description: </pre>
                         <pre style={{width: "35vw", wordWrap:"break-word", textAlign:"center"}} className="fs-6">{isLoading === 1 ? profile.description : ""}</pre>
                     </div>
-                    <img className="rounded img-thumbnail mx-auto d-block" src = {isLoading === 1 ? profile.photo : ""} width="100" height="100" style={{display:isLoading === 1 ? "block" : "none"}}></img>
+                    <img className="rounded img-thumbnail mx-auto d-block" src = {isLoading === 1 ? (profile.photo != "" ? profile.photo : defaultImg) : ""} style={{display:isLoading === 1 ? "flex" : "none", width:"12vw", height:"12vw"}}></img>
                     {<button className="btn btn-outline-secondary" style = {{marginTop:"1vh",height:"6vh"}} onClick={handleFollow}><span style={{fontSize:"1.5vw"}}>{isLoading == 1 && checkIfObjectFromList(profile.followed) ? "Unfollow" : "Follow"}</span></button>}
                 </div>
                 {isLoading === 1 ? <Profile type="other" profile={profile} /> : <div></div>}
